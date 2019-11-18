@@ -1,0 +1,3 @@
+test:yellow
+connstring:server=120.25.84.142;database=TaskServer;uid=yellow;pwd=qW789456123=
+pos:50_0_30;15_0_-25;15_0_20;40_0_-5;28_0_95;36_0_18;41_0_6;-4_0_-26;-4_0_-26;41_0_-13

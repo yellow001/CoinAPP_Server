@@ -1,4 +1,5 @@
-﻿using NetFrame.Base;
+﻿using CoinAPP_Server.App;
+using NetFrame.Base;
 using NetFrame.EnDecode;
 using NetFrame.EnDecode.Extend;
 using NetFrame.Interfaces;
@@ -26,13 +27,15 @@ namespace CoinAPP_Server
             //Console.WriteLine(m2.cid);
 
             //Console.WriteLine(AppSetting.GetValue("test"));
-            
+
 
             //DbHelperMySQL.connectionString = "server=120.25.84.142;database=TaskServer;uid=yellow;pwd=qW789456123=";
 
             //DataResult dr = DbHelperMySQL.Query("select * from user");
 
             //Console.WriteLine(dr.rows);
+
+            Test t = new Test();
 
             while (true)
             {

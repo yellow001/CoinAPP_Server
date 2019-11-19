@@ -59,8 +59,12 @@ public class MAHelper
 
             foreach (var item in kList5)
             {
-                if (item > 0) {
+                if (item > 0)
+                {
                     result += 1;
+                }
+                else {
+                    result -= 1;
                 }
             }
 
@@ -75,6 +79,9 @@ public class MAHelper
                 {
                     result += 1;
                 }
+                else {
+                    result -= 1;
+                }
             }
 
             for (int i = 0; i < pList30.Count; i++)
@@ -87,6 +94,9 @@ public class MAHelper
                 if (item > 0)
                 {
                     result += 1;
+                }
+                else {
+                    result -= 1;
                 }
             }
 
@@ -176,6 +186,9 @@ public class MAHelper
                 {
                     result += 1;
                 }
+                else {
+                    result -= 1;
+                }
             }
 
             for (int i = 0; i < pList15.Count; i++)
@@ -189,6 +202,10 @@ public class MAHelper
                 {
                     result += 1;
                 }
+                else
+                {
+                    result -= 1;
+                }
             }
 
             for (int i = 0; i < pList30.Count; i++)
@@ -201,6 +218,10 @@ public class MAHelper
                 if (item < 0)
                 {
                     result += 1;
+                }
+                else
+                {
+                    result -= 1;
                 }
             }
 

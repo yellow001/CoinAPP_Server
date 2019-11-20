@@ -10,11 +10,11 @@ public class RunTest
 
     public Order order;
 
-    public float stopLossValue = -60f;
+    public float stopLossValue = -50f;
 
     public float stopWinValue = 150f;
 
-    public long cd = 60*5*12;//秒
+    public long cd = 60*5*9;//秒
 
     bool init = true;
 
@@ -22,6 +22,11 @@ public class RunTest
     KLineCache cache;
 
     MA ma;
+
+    /// <summary>
+    /// 是否是止损平仓
+    /// </summary>
+    bool isLoss = false;
 
     public RunTest() {
         cache = new KLineCache();
@@ -32,63 +37,17 @@ public class RunTest
         cache.SetData(data);
         ma.SetCache(cache);
 
-        //有单就算下是否需要平仓
-        if (order != null) {
-            float v = order.GetPercent(data[0].closePrice);
-            Console.WriteLine("当前价格 {0}，开仓价{1}，盈利率 {2}", data[0].closePrice,order.price, v);
-            if (ShouldCloseOrder(v)) {
-                CloseOrder(data[0]);
-            }
-        }
-
-        OnHandle();
-
-        //if (init)
-        //{
-        //    OnHandle();
-        //}
-        //else {
-        //    if ((data[0].timestamp - lastTime).Ticks >= cd*10000 *1000)
-        //    {
-        //        OnHandle();
-        //    }
-        //    else {
-        //        Console.WriteLine("冷却中 剩余 {0}", (data[0].timestamp - lastTime).Ticks - cd * 10000 * 1000);
-        //    }
-        //}
-    }
-
-    void OnHandle() {
-        //是否有单
-
-        //无
-
-        ////获取结果
-        /////大于等于3
-        /////多
-
-        /////小于等于-3
-        /////空
-
-
-
-        //有
-        ////获取结果
-        /////大于等于3
-        /////多
-
-        /////小于等于-3
-        /////空
-
-        float result = MAHelper.GetResult(ma, 5);
+        float result = MAHelper.GetResult(ma, 10);
         Console.WriteLine("result " + result);
 
         if (order == null)
         {
             //cd 中 ，不开单
-            if (!init) {
+            if (!init)
+            {
                 long leave = (cache.kLineData[0].timestamp - lastTime).Ticks - cd * 10000 * 1000;
-                if (leave<0) {
+                if (leave < 0&&!isLoss)
+                {
                     Console.WriteLine("冷却中 cd " + leave);
                     return;
                 }
@@ -105,52 +64,82 @@ public class RunTest
                 OpenOrder(-1, cache.kLineData[0]);
             }
         }
-        //else
-        //{
-        //    if (result >= 3)
-        //    {
-                
-        //        if (order.dir > 0)
-        //        {
-        //            //有多单
-        //        }
-        //        else {
-        //            //有空单
-
-        //        }
-
-
-        //    }
-        //    else if (result <= -3)
-        //    {
-        //        if (order.dir > 0)
-        //        {
-        //            //有多单
-        //            //判断止损还是继续等待
-        //        }
-        //        else
-        //        {
-        //            //有空单
-
-        //        }
-        //    }
-        //}
-
+        else
+        {
+            //有单就算下是否需要平仓
+            float v = order.GetPercent(data[0].closePrice);
+            Console.WriteLine("当前价格 {0}，开仓价{1}，盈利率 {2}", data[0].closePrice, order.price, v);
+            if (ShouldCloseOrder(result))
+            {
+                CloseOrder(data[0]);
+            }
+        }
     }
+    
 
-    public bool ShouldCloseOrder(float v) {
+    public bool ShouldCloseOrder(float result) {
 
-        bool result = false;
+        if (order == null) { return false; }
 
-        if (v >= stopWinValue) {
-            result = true;
+
+        //计算 盈利率
+        float v = order.GetPercent(cache.kLineData[0].closePrice);
+
+        if (v <= stopLossValue)
+        {
+            //无条件止损
+            return true;
+        }
+        else {
+
+            //if (v <= stopLossValue * 0.5f)
+            //{
+            //    //亏损率达止损的50%，判断继续持有还是平仓
+            //    if (order.dir > 0)
+            //    {
+            //        //多单 亏损
+            //        if (result < -3)
+            //        {
+            //            //有较为强烈的空头排列信号
+            //            isLoss = true;
+            //            return true;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        //空单 亏损
+            //        if (result > 3)
+            //        {
+            //            //有较为强烈的多头排列信号
+            //            isLoss = true;
+            //            return true;
+            //        }
+            //    }
+            //}
+
+            if (v >= stopWinValue) {
+                //达到 止盈后，判断继续持有还是平仓
+                if (order.dir > 0)
+                {
+                    //多单盈利
+                    if (result < 2)
+                    {
+                        //多头排列信号弱
+                        return true;
+                    }
+                }
+                else {
+                    //空单盈利
+                    if (result >-2)
+                    {
+                        //空头排列信号弱
+                        return true;
+                    }
+                }
+            }
         }
 
-        if (v <= stopLossValue) {
-            result = true;
-        }
-
-        return result;
+        return false;
     }
 
     /// <summary>
@@ -162,6 +151,7 @@ public class RunTest
         order = new Order(dir, money * 0.2f, kline.closePrice, 50, kline.timestamp);
 
         //lastTime = kline.timestamp;
+        isLoss = false;
 
         Console.WriteLine("{0}: price {1}", dir > 0 ? "long" : "short", kline.closePrice);
     }

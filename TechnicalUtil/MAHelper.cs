@@ -9,7 +9,8 @@ public class MAHelper
     /// 是否为多头排列（返回值越大，信号越强烈)
     /// </summary>
     /// <returns></returns>
-    public static float LongValue(MA ma,int count=3) {
+    public static float LongValue(MA ma, int count = 3)
+    {
         /* 
          连续3个点都出现 MA5>MA15>MA30 ，斜率向上且相近，则认为有可能出现多头排列
          */
@@ -42,17 +43,19 @@ public class MAHelper
                 result = 0;
                 break;
             }
-            else {
-                result+=1;
+            else
+            {
+                result += 1;
             }
         }
 
-        if (result > 0) {
+        if (result > 0)
+        {
             List<float> kList5 = new List<float>();
             List<float> kList15 = new List<float>();
             List<float> kList30 = new List<float>();
 
-            for (int i = 0; i < pList5.Count; i++)
+            for (int i = 0; i + 1 < pList5.Count; i++)
             {
                 kList5.Add(pList5[i] - pList5[i + 1]);
             }
@@ -63,12 +66,13 @@ public class MAHelper
                 {
                     result += 1;
                 }
-                else {
+                else
+                {
                     result -= 1;
                 }
             }
 
-            for (int i = 0; i < pList15.Count; i++)
+            for (int i = 0; i + 1 < pList15.Count; i++)
             {
                 kList15.Add(pList15[i] - pList15[i + 1]);
             }
@@ -79,12 +83,13 @@ public class MAHelper
                 {
                     result += 1;
                 }
-                else {
+                else
+                {
                     result -= 1;
                 }
             }
 
-            for (int i = 0; i < pList30.Count; i++)
+            for (int i = 0; i + 1 < pList30.Count; i++)
             {
                 kList30.Add(pList30[i] - pList30[i + 1]);
             }
@@ -95,7 +100,8 @@ public class MAHelper
                 {
                     result += 1;
                 }
-                else {
+                else
+                {
                     result -= 1;
                 }
             }
@@ -110,8 +116,9 @@ public class MAHelper
                     result += 1;
                 }
             }
-            else {
-                result -=1;
+            else
+            {
+                result -= 1;
             }
 
             if (pList30[0] > pList120[0])
@@ -122,15 +129,17 @@ public class MAHelper
                     result += 1;
                 }
             }
-            else {
-                result -=1;
+            else
+            {
+                result -= 1;
             }
         }
 
-        return result;
+        return result / count;
     }
 
-    public static float ShortValue(MA ma, int count = 3) {
+    public static float ShortValue(MA ma, int count = 3)
+    {
         /* 
          连续3个点都出现 MA5<MA15<MA30 ，斜率向下且相近，则认为有可能出现空头排列
          */
@@ -175,7 +184,7 @@ public class MAHelper
             List<float> kList15 = new List<float>();
             List<float> kList30 = new List<float>();
 
-            for (int i = 0; i < pList5.Count; i++)
+            for (int i = 0; i + 1 < pList5.Count; i++)
             {
                 kList5.Add(pList5[i] - pList5[i + 1]);
             }
@@ -186,12 +195,13 @@ public class MAHelper
                 {
                     result += 1;
                 }
-                else {
+                else
+                {
                     result -= 1;
                 }
             }
 
-            for (int i = 0; i < pList15.Count; i++)
+            for (int i = 0; i + 1 < pList15.Count; i++)
             {
                 kList15.Add(pList15[i] - pList15[i + 1]);
             }
@@ -208,7 +218,7 @@ public class MAHelper
                 }
             }
 
-            for (int i = 0; i < pList30.Count; i++)
+            for (int i = 0; i + 1 < pList30.Count; i++)
             {
                 kList30.Add(pList30[i] - pList30[i + 1]);
             }
@@ -254,10 +264,11 @@ public class MAHelper
             }
         }
 
-        return result;
+        return result / count;
     }
 
-    public float GetResult(MA ma, int count = 3) {
+    public static float GetResult(MA ma, int count = 3)
+    {
         return LongValue(ma, count) - ShortValue(ma, count);
     }
 }

@@ -5,6 +5,7 @@ using NetFrame.EnDecode.Extend;
 using NetFrame.Interfaces;
 using NetFrame.Tool;
 using System;
+using System.IO;
 
 namespace CoinAPP_Server
 {
@@ -12,6 +13,10 @@ namespace CoinAPP_Server
     {
         static void Main(string[] args)
         {
+
+            StreamWriter sw = new StreamWriter("ConsoleOutput.txt");
+            Console.SetOut(sw);
+
             //BaseServer<TransModel, H5Token> server = new BaseServer<TransModel, H5Token>(12345);
             //AbsCoding.Ins = new PbCoding();
             //server.Init(IMessageHandler.Ins);
@@ -37,10 +42,15 @@ namespace CoinAPP_Server
 
             Test t = new Test();
 
-            while (true)
+            string r= Console.ReadLine();
+
+            while (!r.Equals("0"))
             {
-                Console.ReadLine();
+                r = Console.ReadLine();
             }
+
+            sw.Flush();
+            sw.Close();
         }
     }
 }

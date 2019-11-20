@@ -41,6 +41,10 @@ namespace NetFrame.Tool
 
         List<TimeEventModel> models = new List<TimeEventModel>();
 
+        List<TimeEventModel> addList = new List<TimeEventModel>();
+
+        List<TimeEventModel> removeList = new List<TimeEventModel>();
+
 
         void CallBack(object sender) {
 
@@ -48,6 +52,23 @@ namespace NetFrame.Tool
             lock (models) {
 
                 mutexLock.WaitOne();
+
+                foreach (var item in removeList)
+                {
+                    if (models.Contains(item)) {
+                        models.Remove(item);
+                    }
+                }
+                removeList.Clear();
+
+                foreach (var item in addList)
+                {
+                    if (!models.Contains(item)) {
+                        models.Add(item);
+                    }
+                }
+                addList.Clear();
+
 
                 #region for 先不用这个
                 //for (int i = 0; i < models.Count; i++) {
@@ -79,6 +100,11 @@ namespace NetFrame.Tool
 
                 //用并行看看行不行
                 Parallel.For(0, models.Count, (index) => {
+
+                    if (index > models.Count) {
+                        return;
+                    }
+
                     if (DateTime.Now.Ticks >= models[index].Excute_time) {
                         //如果委托不为空 执行
                         models[index].de?.Invoke();
@@ -107,30 +133,11 @@ namespace NetFrame.Tool
         }
 
         public void AddEvent(TimeEventModel model) {
-
-            lock (models) {
-
-                mutexLock.WaitOne();
-
-                model.Excute_time = DateTime.Now.Ticks + model.Wait_time;
-                models.Add(model);
-
-                mutexLock.ReleaseMutex();
-            }
+            addList.Add(model);
         }
 
         public void RemoveEvent(TimeEventModel model) {
-
-            lock (models) {
-
-                mutexLock.WaitOne();
-
-                if (models.Contains(model)) {
-                    models.Remove(model);
-                }
-
-                mutexLock.ReleaseMutex();
-            }
+            removeList.Add(model);
         }
     }
 }

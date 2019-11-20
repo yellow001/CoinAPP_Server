@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using NetFrame.Tool;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OKExSDK;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace CoinAPP_Server.App
@@ -10,6 +12,16 @@ namespace CoinAPP_Server.App
     public class Test
     {
         WebSocketor web;
+
+        TimeEventModel timeEvent;
+
+        List<KLine> data=new List<KLine>();
+
+        int count = 150;
+
+        int curentIndex = 0;
+
+        RunTest run;
 
         public Test()
         {
@@ -29,9 +41,32 @@ namespace CoinAPP_Server.App
             //await web.Subscribe(list);
 
             SpotApi api = new SpotApi("", "", "");
-            DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+            DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month,1, 0, 0, 0);
 
-            JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, DateTime.Now, 300);
+            DateTime t_end = DateTime.Now;
+
+            while (t_start.AddMinutes(5*200)<t_end)
+            {
+                JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, t_start.AddMinutes(5 * 200), 300);
+
+                List<KLine> d = KLine.GetListFormJContainer(con);
+
+                d.AddRange(data);
+
+                data.Clear();
+
+                data.AddRange(d);
+
+                //Console.WriteLine(d.Count);
+
+                t_start = t_start.AddMinutes(5 * 200);
+            }
+
+            //JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, DateTime.Now, 300);
+
+            //data = KLine.GetListFormJContainer(con);
+
+            Console.WriteLine(data.Count);
 
             //Console.WriteLine(con.First);
             //Console.WriteLine("next");
@@ -53,15 +88,23 @@ namespace CoinAPP_Server.App
             //    Console.WriteLine(item.closePrice);
             //}
 
-            KLineCache cache = new KLineCache();
-            cache.SetData(con);
+            //KLineCache cache = new KLineCache();
+            //cache.SetData(con);
 
-            MA ma = new MA();
-            ma.SetCache(cache);
+            //MA ma = new MA();
+            //ma.SetCache(cache);
 
-            Console.WriteLine(ma.GetMAValue(5) + "  " + ma.GetMAValue(10) + "  " + ma.GetMAValue(15) + "  " + ma.GetMAValue(30));
+            //Console.WriteLine(ma.GetMAValue(5) + "  " + ma.GetMAValue(10) + "  " + ma.GetMAValue(15) + "  " + ma.GetMAValue(30));
 
             //Console.WriteLine(con.ToString());
+
+            curentIndex = 0;
+
+            run = new RunTest();
+
+            timeEvent = new TimeEventModel(0.001f, -1, Run);
+
+            TimeEventHandler.Ins.AddEvent(timeEvent);
         }
 
         void WriteNext(JToken con) {
@@ -83,6 +126,23 @@ namespace CoinAPP_Server.App
         void Result(string msg)
         {
             Console.WriteLine(msg);
+        }
+
+        void Run() {
+            if (count + curentIndex < data.Count)
+            {
+                List<KLine> testData = new List<KLine>();
+                testData.AddRange(data.GetRange(data.Count - 1 - count - curentIndex, count));
+                run.Handle(testData);
+                curentIndex++;
+            }
+            else {
+                StreamWriter standardOutput = new StreamWriter(Console.OpenStandardOutput());
+                standardOutput.AutoFlush = true;
+                Console.SetOut(standardOutput);
+                Console.WriteLine("over");
+                TimeEventHandler.Ins.RemoveEvent(timeEvent);
+            }
         }
     }
 }

@@ -2,273 +2,237 @@
 using System.Collections.Generic;
 using System.Text;
 
+/** 五分钟 MA 多空头排列
+    参数 MA5  MA15  MA30      MA120
+    权重 MA排列 3   MA斜率 2   MA120 1
+    
+    注：+/- 表示要判断正负
+
+    1.MA排列计算
+    越靠前权重越大，符合排列则 1*权重，否则 0
+    例如计算3个时间点的MA，权重就是 3 2 1 ，若三个时间点都符合多（空）头排列，则结果为 （1*3+1*2+1*1）/6 = 1
+
+    2.斜率计算
+    说明：
+        选取时间点作为X轴变量，跨度假设为1（好计算斜率），则临近的两个时间点有：
+            p1(x1,y1)  p2(x2,y2)
+            k = (y2-y1)/(x2-x1)=y2-y1
+        但是不同币种的价格跨度不一样，所以 k 值变化大，不利于计算，把币价本身算进去比较好，于是有以下优化
+            k=(y2-y1)/y1
+        若 |k|>0.01  ,则相当于5分钟内变化了 1% ，对于50倍期货就是50%，应给予重视
+    
+    计算：
+        k值也是越靠前权重越大
+        令外：
+            |k|<0.008,加权值 p = k*1
+            |k|>0.008,加权值 p = ( (|k|-0.08)*2+|k|*1 )*(k>0?1:-1)
+
+        假设 k1=0.01  k2=0.05,则
+        result = ((k1-0.008)*2+k1*1)*2 + (k2*1)*1
+               = (0.004+0.01)*2 + 0.005
+               = 0.028 + 0.005
+               = 0.033
+        最后 result/(2+1)*100 ~= 1.1 
+        (PS：为什么*100？自我感觉的。。。。。平常波动也就 1% 不到，垃圾时间居多，干脆把百分比值算出来好了)
+
+
+    3.MA120位置点的影响
+    说明：
+        为何不计算 MA60 的影响？因为 MA120 更有参考性
+        为何只计算 位置，不计算斜率？因为大周期斜率参考性不大。。。
+    计算：
+        位置越远，越有支撑（压制）作用
+
+        位置也是越靠前权重越大
+        假设有点 p1 p2 p3，y值对应 y1 y2 y3
+        MA120 分别为 m1 m2 m3  权重 3 2 1 （6） 
+        
+        注：+/- 表示要判断多空 (dir>0?1:-1)
+
+        temp = (y1 - m1) / y1 * 3 * (+/ -) + (y2 - m2) / y2 * 2 * (+/ -) + (m3 - y3) / y3 * 1 * (+/ -)
+        result = temp / 6 * 100(*100的原因同2中的斜率计算)
+        
+
+    result_all = ( result_MA *3 + result_K *2 +result_120 *1 )/6
+
+    多空对比值 result_final = result_多 - result_空
+
+ * **/
+
 public class MAHelper
 {
+    public static List<int> cycleList=new List<int>() { 5, 15, 30 };
 
-    /// <summary>
-    /// 是否为多头排列（返回值越大，信号越强烈)
-    /// </summary>
-    /// <returns></returns>
-    public static float LongValue(MA ma, int count = 3)
-    {
-        /* 
-         连续3个点都出现 MA5>MA15>MA30 ，斜率向上且相近，则认为有可能出现多头排列
-         */
-        float result = 0;
-
-        List<float> pList5 = new List<float>();
-        List<float> pList15 = new List<float>();
-        List<float> pList30 = new List<float>();
-        List<float> pList60 = new List<float>();
-        List<float> pList120 = new List<float>();
-
-        for (int i = 0; i < count; i++)
-        {
-            float p5 = ma.GetMAValue(5, i);
-            float p15 = ma.GetMAValue(15, i);
-            float p30 = ma.GetMAValue(30, i);
-
-            float p60 = ma.GetMAValue(60, i);
-            float p120 = ma.GetMAValue(120, i);
-
-            pList5.Add(p5);
-            pList15.Add(p15);
-            pList30.Add(p30);
-
-            pList60.Add(p60);
-            pList120.Add(p120);
-
-            if (!(p5 > p15 && p15 > p30))
-            {
-                result = 0;
-                break;
-            }
-            else
-            {
-                result += 1;
-            }
+    public static void SetCycle(int min, int mid, int big) {
+        if (min < mid && mid < big && big < 120) {
+            cycleList[0] = min;
+            cycleList[1] = mid;
+            cycleList[2] = big;
         }
-
-        if (result > 0)
-        {
-            List<float> kList5 = new List<float>();
-            List<float> kList15 = new List<float>();
-            List<float> kList30 = new List<float>();
-
-            for (int i = 0; i + 1 < pList5.Count; i++)
-            {
-                kList5.Add(pList5[i] - pList5[i + 1]);
-            }
-
-            foreach (var item in kList5)
-            {
-                if (item > 0)
-                {
-                    result += 1;
-                }
-                else
-                {
-                    result -= 1;
-                }
-            }
-
-            for (int i = 0; i + 1 < pList15.Count; i++)
-            {
-                kList15.Add(pList15[i] - pList15[i + 1]);
-            }
-
-            foreach (var item in kList15)
-            {
-                if (item > 0)
-                {
-                    result += 1;
-                }
-                else
-                {
-                    result -= 1;
-                }
-            }
-
-            for (int i = 0; i + 1 < pList30.Count; i++)
-            {
-                kList30.Add(pList30[i] - pList30[i + 1]);
-            }
-
-            foreach (var item in kList30)
-            {
-                if (item > 0)
-                {
-                    result += 1;
-                }
-                else
-                {
-                    result -= 1;
-                }
-            }
-
-
-            //60 120位置和斜率，可加分或减分
-            if (pList30[0] > pList60[0])
-            {
-                result += 1;
-                if (pList60[0] - pList60[1] > 0)
-                {
-                    result += 1;
-                }
-            }
-            else
-            {
-                result -= 1;
-            }
-
-            if (pList30[0] > pList120[0])
-            {
-                result += 1;
-                if (pList120[0] - pList120[1] > 0)
-                {
-                    result += 1;
-                }
-            }
-            else
-            {
-                result -= 1;
-            }
-        }
-
-        return result / count;
     }
 
-    public static float ShortValue(MA ma, int count = 3)
+    /// <summary>
+    /// 获取排列强度
+    /// </summary>
+    /// <param name="ma"></param>
+    /// <param name="dir">大于0为多，其他均为空</param>
+    /// <param name="count"></param>
+    /// <returns></returns>
+    public static float GetValue(MA ma,int dir=1, int count = 3)
     {
-        /* 
-         连续3个点都出现 MA5<MA15<MA30 ，斜率向下且相近，则认为有可能出现空头排列
-         */
-        float result = 0;
+        #region 点 计算
+        List<float> pList_1 = new List<float>();
+        List<float> pList_2 = new List<float>();
+        List<float> pList_3 = new List<float>();
 
-        List<float> pList5 = new List<float>();
-        List<float> pList15 = new List<float>();
-        List<float> pList30 = new List<float>();
-        List<float> pList60 = new List<float>();
         List<float> pList120 = new List<float>();
 
         for (int i = 0; i < count; i++)
         {
-            float p5 = ma.GetMAValue(5, i);
-            float p15 = ma.GetMAValue(15, i);
-            float p30 = ma.GetMAValue(30, i);
+            float p1 = ma.GetMAValue(5, i);
+            float p2 = ma.GetMAValue(15, i);
+            float p3 = ma.GetMAValue(30, i);
 
-            float p60 = ma.GetMAValue(60, i);
             float p120 = ma.GetMAValue(120, i);
 
-            pList5.Add(p5);
-            pList15.Add(p15);
-            pList30.Add(p30);
+            pList_1.Add(p1);
+            pList_2.Add(p2);
+            pList_3.Add(p3);
 
-            pList60.Add(p60);
             pList120.Add(p120);
-
-            if (!(p5 < p15 && p15 < p30))
-            {
-                result = 0;
-                break;
-            }
-            else
-            {
-                result += 1;
-            }
         }
+        #endregion
 
-        if (result > 0)
+        #region 斜率计算
+
+        //斜率计算最后都是有 价格本身介入
+
+        List<float> kList_1 = new List<float>();
+        List<float> kList_2 = new List<float>();
+        List<float> kList_3 = new List<float>();
+
+        for (int i = 0; i+1 < count; i++)
         {
-            List<float> kList5 = new List<float>();
-            List<float> kList15 = new List<float>();
-            List<float> kList30 = new List<float>();
+            float k1 = (pList_1[i] - pList_1[i + 1]) / pList_1[i + 1];
+            float k2 = (pList_2[i] - pList_2[i + 1]) / pList_2[i + 1];
+            float k3 = (pList_3[i] - pList_3[i + 1]) / pList_3[i + 1];
 
-            for (int i = 0; i + 1 < pList5.Count; i++)
+            if (dir <= 0) {
+                k1 = -k1;
+                k2 = -k2;
+                k3 = -k3;
+            }
+            kList_1.Add(k1);
+            kList_2.Add(k2);
+            kList_3.Add(k3);
+        }
+        #endregion
+
+
+        #region 1. 计算 MA排列
+        float temp = 0;
+        for (int i = 0; i < count; i++)
+        {
+            if (dir > 0)
             {
-                kList5.Add(pList5[i] - pList5[i + 1]);
+                if (pList_1[i] >= pList_2[i] && pList_2[i] >= pList_3[i])
+                {
+                    //符合多头排列
+                    temp += count - i;
+                }
+                //否则什么都不做
+            }
+            else {
+                if (pList_3[i] <= pList_2[i] && pList_2[i] <= pList_1[i])
+                {
+                    //符合多头排列
+                    temp += count - i;
+                }
+                //否则什么都不做
             }
 
-            foreach (var item in kList5)
-            {
-                if (item < 0)
-                {
-                    result += 1;
-                }
-                else
-                {
-                    result -= 1;
-                }
-            }
+        }
 
-            for (int i = 0; i + 1 < pList15.Count; i++)
-            {
-                kList15.Add(pList15[i] - pList15[i + 1]);
-            }
+        //权重值  = 1+2+3.。。+count = (count+1)*count*0.5f
+        float result_MA = temp / Util.GetAddListCount(count);
+        #endregion
 
-            foreach (var item in kList15)
-            {
-                if (item < 0)
-                {
-                    result += 1;
-                }
-                else
-                {
-                    result -= 1;
-                }
-            }
+        #region 2.计算斜率
+        float kTemp1 = GetKValue(kList_1);
+        float kTemp2 = GetKValue(kList_2);
+        float kTemp3 = GetKValue(kList_3);
 
-            for (int i = 0; i + 1 < pList30.Count; i++)
-            {
-                kList30.Add(pList30[i] - pList30[i + 1]);
-            }
+        float result_K = (kTemp1*3+kTemp2*2+kTemp3)/6;
 
-            foreach (var item in kList30)
-            {
-                if (item < 0)
-                {
-                    result += 1;
-                }
-                else
-                {
-                    result -= 1;
-                }
-            }
+        #endregion
 
+        #region 3.MA120 计算
 
-            //60 120位置和斜率，可加分或减分
-            if (pList30[0] < pList60[0])
+        float result_MA120 = GetMA120Value(ma,pList120,dir);
+
+        #endregion
+
+        //result_all = (result_MA * 3 + result_K * 2 + result_120 * 1) / 6
+        return (result_MA * 3 + result_K * 2 + result_MA120 * 1) / 6;
+    }
+
+    static float GetKValue(List<float> kList) {
+
+        //| k |< 0.008,加权值 p = k * 1
+        //| k |> 0.008, 加权值 p = ((| k | -0.08) * 2 +| k | *1) * (k > 0 ? 1 : -1)
+
+        float temp = 0;
+        for (int i = 0; i < kList.Count; i++)
+        {
+            float value = kList[i];
+            float abs = MathF.Abs(value);
+            if (abs > 0.08f)
             {
-                result += 1;
-                if (pList60[0] - pList60[1] < 0)
-                {
-                    result += 1;
-                }
+                temp += ((abs - 0.08f) * 2 + abs)*(value > 0?1:-1)* (kList.Count - i);
             }
             else
             {
-                result -= 1;
-            }
-
-            if (pList30[0] < pList120[0])
-            {
-                result += 1;
-                if (pList120[0] - pList120[1] < 0)
-                {
-                    result += 1;
-                }
-            }
-            else
-            {
-                result -= 1;
+                temp += value * (kList.Count - i);
             }
         }
 
-        return result / count;
+        return temp/Util.GetAddListCount(kList.Count)*100;
+    }
+
+    static float GetMA120Value(MA ma,List<float> pList120,int dir) {
+
+        //说明：
+        //为何不计算 MA60 的影响？因为 MA120 更有参考性
+        //为何只计算 位置，不计算斜率？因为大周期斜率参考性不大。。。
+        //计算：
+        //位置越远，越有支撑（压制）作用
+
+        //位置也是越靠前权重越大
+        //假设有点 p1 p2 p3，y值对应 y1 y2 y3
+        //MA120 分别为 m1 m2 m3 权重 3 2 1 （6） 
+
+        //注：+/- 表示要判断多空 (dir>0?1:-1)
+
+        //temp = (y1 - m1) / y1 * 3 * (+/ -) + (y2 - m2) / y2 * 2 * (+/ -) + (m3 - y3) / y3 * 1 * (+/ -)
+        //result = temp / 6 * 100(*100的原因同2中的斜率计算)
+
+        float temp = 0;
+
+        for (int i = 0; i < pList120.Count; i++)
+        {
+
+            float m = pList120[i];
+            float y = ma.cache.kLineData[i].closePrice;
+
+            temp += (m - y) * y * (pList120.Count - i)*(dir>0?1:-1);
+
+        }
+
+        return temp/Util.GetAddListCount(pList120.Count)*100;
     }
 
     public static float GetResult(MA ma, int count = 3)
     {
-        return LongValue(ma, count) - ShortValue(ma, count);
+        return GetValue(ma,1,count) - GetValue(ma,-1,count);
     }
 }

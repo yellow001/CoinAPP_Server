@@ -37,7 +37,7 @@ public class RunTest
         cache.SetData(data);
         ma.SetCache(cache);
 
-        float result = MAHelper.GetResult(ma, 10);
+        float result = MAHelper.GetResult(ma, 8);
         Console.WriteLine("result " + result);
 
         if (order == null)

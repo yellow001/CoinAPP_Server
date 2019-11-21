@@ -41,13 +41,13 @@ namespace CoinAPP_Server.App
             //await web.Subscribe(list);
 
             SpotApi api = new SpotApi("", "", "");
-            DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month,14, 0, 0, 0);
+            DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month,15, 0, 0, 0);
 
             DateTime t_end = DateTime.Now;
 
             while (t_start.AddMinutes(5*200)<t_end)
             {
-                JContainer con = await api.getCandlesAsync("EOS-USDT", t_start, t_start.AddMinutes(5 * 200), 300);
+                JContainer con = await api.getCandlesAsync("XRP-USDT", t_start, t_start.AddMinutes(5 * 200), 300);
 
                 List<KLine> d = KLine.GetListFormJContainer(con);
 

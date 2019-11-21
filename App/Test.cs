@@ -41,13 +41,13 @@ namespace CoinAPP_Server.App
             //await web.Subscribe(list);
 
             SpotApi api = new SpotApi("", "", "");
-            DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month,1, 0, 0, 0);
+            DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month,14, 0, 0, 0);
 
             DateTime t_end = DateTime.Now;
 
             while (t_start.AddMinutes(5*200)<t_end)
             {
-                JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, t_start.AddMinutes(5 * 200), 300);
+                JContainer con = await api.getCandlesAsync("ETH-USDT", t_start, t_start.AddMinutes(5 * 200), 300);
 
                 List<KLine> d = KLine.GetListFormJContainer(con);
 
@@ -100,11 +100,25 @@ namespace CoinAPP_Server.App
 
             curentIndex = 0;
 
-            run = new RunTest();
+            for (int loss = -20; loss > -130; loss -= 10) {
+                for (int win = 20; win < 150; win+=10)
+                {
+                    run = new RunTest();
 
-            timeEvent = new TimeEventModel(0.001f, -1, Run);
+                    run.stopLossValue = loss;
+                    run.stopWinValue = win;
 
-            TimeEventHandler.Ins.AddEvent(timeEvent);
+                    run.data_all = data;
+
+                    run.Start();
+                }
+            }
+
+            //run = new RunTest();
+
+            //timeEvent = new TimeEventModel(0.001f, -1, Run);
+
+            //TimeEventHandler.Ins.AddEvent(timeEvent);
         }
 
         void WriteNext(JToken con) {

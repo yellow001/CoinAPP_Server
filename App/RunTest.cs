@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetFrame.Tool;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,9 +11,9 @@ public class RunTest
 
     public Order order;
 
-    public float stopLossValue = -40f;
+    public float stopLossValue = -30f;
 
-    public float stopWinValue = 50f;
+    public float stopWinValue = 20f;
 
     public int length = 5;
 
@@ -39,6 +40,15 @@ public class RunTest
     /// </summary>
     bool isLoss = false;
 
+    public int curentIndex = 0;
+
+    int count = 150;
+
+    public List<KLine> data_all;
+
+    TimeEventModel timeEvent;
+
+
     public RunTest() {
         cache = new KLineCache();
         ma = new MA();
@@ -51,7 +61,7 @@ public class RunTest
         ma.SetCache(cache);
 
         float result = MAHelper.GetResult(ma, length);
-        Console.WriteLine("result " + result);
+        //Console.WriteLine("result " + result);
         if ((MathF.Abs(result) - 0.01f) > 0)
         {
             if (result > 0)
@@ -74,7 +84,7 @@ public class RunTest
                 long leave = (cache.kLineData[0].timestamp - lastTime).Ticks - cd * 10000 * 1000;
                 if (leave < 0&&!isLoss)
                 {
-                    Console.WriteLine("冷却中 cd " + leave);
+                    //Console.WriteLine("冷却中 cd " + leave);
                     return;
                 }
             }
@@ -94,7 +104,7 @@ public class RunTest
         {
             //有单就算下是否需要平仓
             float v = order.GetPercent(data[0].hightPrice,data[0].lowPrice);
-            Console.WriteLine("当前价格 {0}，开仓价{1}，盈利率 {2}", data[0].closePrice, order.price, v);
+            //Console.WriteLine("当前价格 {0}，开仓价{1}，盈利率 {2}", data[0].closePrice, order.price, v);
 
             if (v > 0)
             {
@@ -188,7 +198,7 @@ public class RunTest
         //lastTime = kline.timestamp;
         isLoss = false;
 
-        Console.WriteLine("{0}: price {1}", dir > 0 ? "long" : "short", kline.closePrice);
+        //Console.WriteLine("{0}: price {1}", dir > 0 ? "long" : "short", kline.closePrice);
     }
 
     /// <summary>
@@ -217,12 +227,12 @@ public class RunTest
             init = false;
         }
 
-        Console.WriteLine("平仓: price {0}，方向：{1}，盈利率{2},盈利{3}，剩余 {4}",
-            kline.closePrice,
-            order.dir>0?"long":"short",
-            p<stopLossValue?stopLossValue:p, 
-            temp,
-            money);
+        //Console.WriteLine("平仓: price {0}，方向：{1}，盈利率{2},盈利{3}，剩余 {4}",
+        //    kline.closePrice,
+        //    order.dir>0?"long":"short",
+        //    p<stopLossValue?stopLossValue:p, 
+        //    temp,
+        //    money);
 
         order = null;
     }
@@ -232,50 +242,61 @@ public class RunTest
     }
 
     public void Over() {
-        Console.WriteLine("result add count:" + resultList_add.Count);
-        Console.WriteLine("result mul count:" + resultList_mul.Count);
-        Console.WriteLine("result zero count:" + resultList_zero.Count);
+        //Console.WriteLine("result add count:" + resultList_add.Count);
+        //Console.WriteLine("result mul count:" + resultList_mul.Count);
+        //Console.WriteLine("result zero count:" + resultList_zero.Count);
 
-        Console.WriteLine("result add 均值:" + GetAv(resultList_add));
-        Console.WriteLine("result mul 均值:" + GetAv(resultList_mul));
-        Console.WriteLine("result zero 均值:" + GetAv(resultList_zero));
+        //Console.WriteLine("result add 均值:" + GetAv(resultList_add));
+        //Console.WriteLine("result mul 均值:" + GetAv(resultList_mul));
+        //Console.WriteLine("result zero 均值:" + GetAv(resultList_zero));
 
-        List<float> resultAll = new List<float>();
-        resultAll.AddRange(resultList_add);
-        resultAll.AddRange(resultList_mul);
-        resultAll.AddRange(resultList_zero);
-        Console.WriteLine("result all count:" + resultAll.Count);
+        //List<float> resultAll = new List<float>();
+        //resultAll.AddRange(resultList_add);
+        //resultAll.AddRange(resultList_mul);
+        //resultAll.AddRange(resultList_zero);
+        //Console.WriteLine("result all count:" + resultAll.Count);
 
-        Console.WriteLine("result all 均值:" + GetAv(resultAll));
+        //Console.WriteLine("result all 均值:" + GetAv(resultAll));
 
-        Console.WriteLine("\n-----------------------------------------------------\n");
+        //Console.WriteLine("\n-----------------------------------------------------\n");
 
-        Console.WriteLine("win add count:" + winList_add.Count);
-        Console.WriteLine("win mul count:" + winList_mul.Count);
+        //Console.WriteLine("win add count:" + winList_add.Count);
+        //Console.WriteLine("win mul count:" + winList_mul.Count);
 
-        Console.WriteLine("win add 均值:" + GetAv(winList_add));
-        Console.WriteLine("win mul 均值:" + GetAv(winList_mul));
+        //Console.WriteLine("win add 均值:" + GetAv(winList_add));
+        //Console.WriteLine("win mul 均值:" + GetAv(winList_mul));
 
-        List<float> winAll = new List<float>();
-        winAll.AddRange(winList_add);
-        winAll.AddRange(winList_mul);
+        //List<float> winAll = new List<float>();
+        //winAll.AddRange(winList_add);
+        //winAll.AddRange(winList_mul);
 
-        Console.WriteLine("win all count:" + winAll.Count);
+        //Console.WriteLine("win all count:" + winAll.Count);
 
-        Console.WriteLine("win all 均值:" + GetAv(winAll));
+        //Console.WriteLine("win all 均值:" + GetAv(winAll));
 
-        Console.WriteLine("money " + money);
+        Console.WriteLine("loss {0} win {1} money {2}",stopLossValue,stopWinValue,money);
     }
 
-    public float GetAv(List<float> list) {
+    public void Start() {
+        timeEvent = new TimeEventModel(0.001f, -1, Run);
 
-        if (list == null || list.Count <= 0) { return 0; }
+        TimeEventHandler.Ins.AddEvent(timeEvent);
+    }
 
-        float temp = 0;
-        foreach (var item in list)
+
+    void Run()
+    {
+        if (count + curentIndex < data_all.Count)
         {
-            temp += item;
+            List<KLine> testData = new List<KLine>();
+            testData.AddRange(data_all.GetRange(data_all.Count - 1 - count - curentIndex, count));
+            Handle(testData);
+            curentIndex++;
         }
-        return temp / list.Count;
+        else
+        {
+            Over();
+            TimeEventHandler.Ins.RemoveEvent(timeEvent);
+        }
     }
 }

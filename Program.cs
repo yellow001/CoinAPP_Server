@@ -16,8 +16,8 @@ namespace CoinAPP_Server
 
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            StreamWriter sw = new StreamWriter("ConsoleOutput.txt");
-            Console.SetOut(sw);
+            //StreamWriter sw = new StreamWriter("ConsoleOutput.txt");
+            //Console.SetOut(sw);
 
             //BaseServer<TransModel, H5Token> server = new BaseServer<TransModel, H5Token>(12345);
             //AbsCoding.Ins = new PbCoding();
@@ -51,8 +51,8 @@ namespace CoinAPP_Server
                 r = Console.ReadLine();
             }
 
-            sw.Flush();
-            sw.Close();
+            //sw.Flush();
+            //sw.Close();
         }
     }
 }

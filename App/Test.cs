@@ -137,6 +137,8 @@ namespace CoinAPP_Server.App
                 curentIndex++;
             }
             else {
+                run.Over();
+
                 StreamWriter standardOutput = new StreamWriter(Console.OpenStandardOutput());
                 standardOutput.AutoFlush = true;
                 Console.SetOut(standardOutput);

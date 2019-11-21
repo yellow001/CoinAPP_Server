@@ -24,17 +24,34 @@ public class Order
         time = t;
     }
 
-    public float GetPercent(float curentPrice) {
+    public float GetPercent(float hPrice,float lPrice) {
         if (dir > 0)
         {
-            return ((curentPrice - price) / curentPrice) * 100 * mul;
+            if (lPrice > price)
+            {
+                return ((hPrice - price) / hPrice) * 100 * mul;
+            }
+            else {
+                return ((lPrice - price) / lPrice) * 100 * mul;
+            }
+            
         }
         else {
-            return ((price - curentPrice) / curentPrice) * 100 * mul;
+
+            if (hPrice < price)
+            {
+                return ((price - lPrice) / lPrice) * 100 * mul;
+            }
+            else {
+                return ((price - hPrice) / hPrice) * 100 * mul;
+            }
         }
     }
 
-    public float GetWin(float curentPrice) {
-        return money * GetPercent(curentPrice) * 0.01f;
+    public float GetWin(float hPrice,float lPrice) {
+
+        float p = GetPercent(hPrice, lPrice);
+
+        return money * p * 0.01f;
     }
 }

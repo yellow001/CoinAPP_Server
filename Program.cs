@@ -14,6 +14,8 @@ namespace CoinAPP_Server
         static void Main(string[] args)
         {
 
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             StreamWriter sw = new StreamWriter("ConsoleOutput.txt");
             Console.SetOut(sw);
 

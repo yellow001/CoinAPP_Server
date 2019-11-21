@@ -47,7 +47,7 @@ namespace CoinAPP_Server.App
 
             while (t_start.AddMinutes(5*200)<t_end)
             {
-                JContainer con = await api.getCandlesAsync("ETH-USDT", t_start, t_start.AddMinutes(5 * 200), 300);
+                JContainer con = await api.getCandlesAsync("ETC-USDT", t_start, t_start.AddMinutes(5 * 200), 300);
 
                 List<KLine> d = KLine.GetListFormJContainer(con);
 

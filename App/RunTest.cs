@@ -193,7 +193,7 @@ public class RunTest
     void OpenOrder(int dir,KLine kline) {
         if (order != null) { return; }
 
-        order = new Order(dir, money * 0.2f, kline.closePrice, 50, kline.timestamp);
+        order = new Order(dir, money * 0.3f, kline.closePrice, 30, kline.timestamp);
 
         //lastTime = kline.timestamp;
         isLoss = false;

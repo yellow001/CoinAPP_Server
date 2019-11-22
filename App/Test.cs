@@ -40,33 +40,33 @@ namespace CoinAPP_Server.App
             //list.Add("spot/candle300s:BTC-USDT");
             //await web.Subscribe(list);
 
-            SpotApi api = new SpotApi("", "", "");
-            DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month,15, 0, 0, 0);
+            //SpotApi api = new SpotApi("", "", "");
+            //DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month,15, 0, 0, 0);
 
-            DateTime t_end = DateTime.Now;
+            //DateTime t_end = DateTime.Now;
 
-            while (t_start.AddMinutes(5*200)<t_end)
-            {
-                JContainer con = await api.getCandlesAsync("XRP-USDT", t_start, t_start.AddMinutes(5 * 200), 300);
+            //while (t_start.AddMinutes(5*200)<t_end)
+            //{
+            //    JContainer con = await api.getCandlesAsync("XRP-USDT", t_start, t_start.AddMinutes(5 * 200), 300);
 
-                List<KLine> d = KLine.GetListFormJContainer(con);
+            //    List<KLine> d = KLine.GetListFormJContainer(con);
 
-                d.AddRange(data);
+            //    d.AddRange(data);
 
-                data.Clear();
+            //    data.Clear();
 
-                data.AddRange(d);
+            //    data.AddRange(d);
 
-                //Console.WriteLine(d.Count);
+            //    //Console.WriteLine(d.Count);
 
-                t_start = t_start.AddMinutes(5 * 200);
-            }
+            //    t_start = t_start.AddMinutes(5 * 200);
+            //}
 
             //JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, DateTime.Now, 300);
 
             //data = KLine.GetListFormJContainer(con);
 
-            Console.WriteLine(data.Count);
+            //Console.WriteLine(data.Count);
 
             //Console.WriteLine(con.First);
             //Console.WriteLine("next");
@@ -98,27 +98,32 @@ namespace CoinAPP_Server.App
 
             //Console.WriteLine(con.ToString());
 
-            curentIndex = 0;
+            //curentIndex = 0;
 
-            for (int loss = -20; loss > -130; loss -= 10) {
-                for (int win = 20; win < 150; win+=10)
-                {
-                    run = new RunTest();
+            //for (int loss = -20; loss > -130; loss -= 10) {
+            //    for (int win = 20; win < 150; win+=10)
+            //    {
+            //        run = new RunTest();
 
-                    run.stopLossValue = loss;
-                    run.stopWinValue = win;
+            //        run.stopLossValue = loss;
+            //        run.stopWinValue = win;
 
-                    run.data_all = data;
+            //        run.data_all = data;
 
-                    run.Start();
-                }
-            }
+            //        run.Start();
+            //    }
+            //}
 
             //run = new RunTest();
 
             //timeEvent = new TimeEventModel(0.001f, -1, Run);
 
             //TimeEventHandler.Ins.AddEvent(timeEvent);
+
+            SwapApi swapApi = new SwapApi("", "", "");
+            JContainer con = await swapApi.getCandlesDataAsync("BTC-USD-SWAP", DateTime.Now.AddMinutes(-100), DateTime.Now, 300);
+            Console.WriteLine(con);
+
         }
 
         void WriteNext(JToken con) {

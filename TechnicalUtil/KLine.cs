@@ -6,22 +6,40 @@ using Newtonsoft.Json.Linq;
 
 public class KLine
 {
-    public DateTime timestamp;
-    public float openPrice;
-    public float hightPrice;
-    public float lowPrice;
-    public float closePrice;
-    public float vol;
+    /// <summary>
+    /// 开始时间
+    /// </summary>
+    public DateTime V_Timestamp;
+    /// <summary>
+    /// 开盘价格
+    /// </summary>
+    public float V_OpenPrice;
+    /// <summary>
+    /// 最高价
+    /// </summary>
+    public float V_HightPrice;
+    /// <summary>
+    /// 最低价
+    /// </summary>
+    public float V_LowPrice;
+    /// <summary>
+    /// 收盘价
+    /// </summary>
+    public float V_ClosePrice;
+    /// <summary>
+    /// 交易量
+    /// </summary>
+    public float V_Vol;
 
     public KLine() { }
 
     public void SetData(DateTime d, float oPrice, float hPrice, float lPrice, float cPrice, float v) {
-        timestamp = d;
-        openPrice = oPrice;
-        hightPrice = hPrice;
-        lowPrice = lPrice;
-        closePrice = cPrice;
-        vol = v;
+        V_Timestamp = d;
+        V_OpenPrice = oPrice;
+        V_HightPrice = hPrice;
+        V_LowPrice = lPrice;
+        V_ClosePrice = cPrice;
+        V_Vol = v;
     }
 
     public void SetData(string d, string oPrice, string hPrice, string lPrice, string cPrice, string v) {

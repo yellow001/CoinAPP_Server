@@ -24,8 +24,6 @@ public class RunTest
 
     KLineCache cache;
 
-    MA ma;
-
 
     List<float> resultList_add = new List<float>();
     List<float> resultList_mul = new List<float>();
@@ -49,18 +47,18 @@ public class RunTest
     TimeEventModel timeEvent;
 
 
+    MAHelper ma_helper = new MAHelper();
+
     public RunTest() {
         cache = new KLineCache();
-        ma = new MA();
         cd *= length;
         //MAHelper.SetCycle(10, 15, 30);
     }
 
     public void Handle(List<KLine> data) {
         cache.SetData(data);
-        ma.SetCache(cache);
-
-        float result = MAHelper.GetResult(ma, length);
+        ma_helper.V_Cache = cache;
+        float result = ma_helper.GetResult(length);
         //Console.WriteLine("result " + result);
         if ((MathF.Abs(result) - 0.01f) > 0)
         {
@@ -81,7 +79,7 @@ public class RunTest
             //cd 中 ，不开单
             if (!init)
             {
-                long leave = (cache.kLineData[0].timestamp - lastTime).Ticks - cd * 10000 * 1000;
+                long leave = (cache.V_KLineData[0].V_Timestamp - lastTime).Ticks - cd * 10000 * 1000;
                 if (leave < 0&&!isLoss)
                 {
                     //Console.WriteLine("冷却中 cd " + leave);
@@ -92,18 +90,18 @@ public class RunTest
             if (result >= 0.65f)
             {
                 //多单
-                OpenOrder(1, cache.kLineData[0]);
+                OpenOrder(1, cache.V_KLineData[0]);
             }
             else if (result <= -0.52f)
             {
                 //空单
-                OpenOrder(-1, cache.kLineData[0]);
+                OpenOrder(-1, cache.V_KLineData[0]);
             }
         }
         else
         {
             //有单就算下是否需要平仓
-            float v = order.GetPercent(data[0].hightPrice,data[0].lowPrice);
+            float v = order.GetPercent(data[0].V_HightPrice,data[0].V_LowPrice);
             //Console.WriteLine("当前价格 {0}，开仓价{1}，盈利率 {2}", data[0].closePrice, order.price, v);
 
             if (v > 0)
@@ -128,7 +126,7 @@ public class RunTest
 
 
         //计算 盈利率
-        float v = order.GetPercent(cache.kLineData[0].hightPrice,cache.kLineData[0].lowPrice);
+        float v = order.GetPercent(cache.V_KLineData[0].V_HightPrice,cache.V_KLineData[0].V_LowPrice);
 
         if (v <= stopLossValue)
         {
@@ -193,7 +191,7 @@ public class RunTest
     void OpenOrder(int dir,KLine kline) {
         if (order != null) { return; }
 
-        order = new Order(dir, money * 0.2f, kline.closePrice, 30, kline.timestamp);
+        order = new Order(dir, money * 0.2f, kline.V_ClosePrice, 30, kline.V_Timestamp);
 
         //lastTime = kline.timestamp;
         isLoss = false;
@@ -207,7 +205,7 @@ public class RunTest
     void CloseOrder(KLine kline) {
         if (order == null) { return; }
 
-        float p = order.GetPercent(kline.hightPrice,kline.lowPrice);
+        float p = order.GetPercent(kline.V_HightPrice,kline.V_LowPrice);
 
         float temp = 0;
         if (p < 0 && p < stopLossValue)
@@ -216,11 +214,11 @@ public class RunTest
         }
         else
         {
-            temp = order.GetWin(kline.hightPrice, kline.lowPrice);
+            temp = order.GetWin(kline.V_HightPrice, kline.V_LowPrice);
         }
         money += temp;
 
-        lastTime = kline.timestamp;
+        lastTime = kline.V_Timestamp;
 
         if (init)
         {

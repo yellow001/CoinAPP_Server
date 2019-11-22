@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
+/// <summary>
+/// 永续订单
+/// </summary>
 public class Order
 {
     public int dir;

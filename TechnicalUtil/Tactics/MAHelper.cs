@@ -69,30 +69,76 @@ using System.Text;
 
 public class MAHelper
 {
-    public static List<int> cycleList=new List<int>() { 5, 15, 30 };
 
-    public static void SetCycle(int min, int mid, int big) {
+    /// <summary>
+    /// 周期
+    /// </summary>
+    public List<int> V_CycleList=new List<int>() { 5, 15, 30 };
+
+    /// <summary>
+    /// 倍数
+    /// </summary>
+    public float V_Multiple = 50;
+
+    /// <summary>
+    /// K线数据
+    /// </summary>
+    public KLineCache V_Cache;
+
+    /// <summary>
+    /// 设置周期
+    /// </summary>
+    /// <param name="min"></param>
+    /// <param name="mid"></param>
+    /// <param name="big"></param>
+    public void SetCycle(int min, int mid, int big) {
         if (min < mid && mid < big && big < 120) {
-            cycleList[0] = min;
-            cycleList[1] = mid;
-            cycleList[2] = big;
+            V_CycleList[0] = min;
+            V_CycleList[1] = mid;
+            V_CycleList[2] = big;
         }
     }
+    
+    /// <summary>
+    /// 设置倍数
+    /// </summary>
+    /// <param name="m"></param>
+    public void SetMultiple(float m) {
+        V_Multiple = m;
+    }
 
-    public static float mul = 50;
+    /// <summary>
+    /// 获取 MA 值
+    /// </summary>
+    /// <param name="count">周期</param>
+    /// <param name="index">下标</param>
+    /// <returns></returns>
+    public float GetMAValue(int count, int index = 0)
+    {
+        if (V_Cache == null)
+        {
+            return 0;
+        }
 
-    public static void SetMul(float m) {
-        mul = m;
+        if (V_Cache.V_KLineData.Count < count + index)
+        {
+            return 0;
+        }
+        float sum = 0;
+        for (int i = 0; i < count; i++)
+        {
+            sum += V_Cache.V_KLineData[index + i].V_ClosePrice;
+        }
+        return sum / count;
     }
 
     /// <summary>
     /// 获取排列强度
     /// </summary>
-    /// <param name="ma"></param>
     /// <param name="dir">大于0为多，其他均为空</param>
     /// <param name="count"></param>
     /// <returns></returns>
-    public static float GetValue(MA ma,int dir=1, int count = 3)
+    public float GetValue(int dir=1, int count = 3)
     {
         #region 点 计算
         List<float> pList_1 = new List<float>();
@@ -103,11 +149,11 @@ public class MAHelper
 
         for (int i = 0; i < count; i++)
         {
-            float p1 = ma.GetMAValue(5, i);
-            float p2 = ma.GetMAValue(15, i);
-            float p3 = ma.GetMAValue(30, i);
+            float p1 = GetMAValue(5, i);
+            float p2 = GetMAValue(15, i);
+            float p3 = GetMAValue(30, i);
 
-            float p120 = ma.GetMAValue(120, i);
+            float p120 = GetMAValue(120, i);
 
             pList_1.Add(p1);
             pList_2.Add(p2);
@@ -195,7 +241,7 @@ public class MAHelper
 
         #region 3.MA120 计算
 
-        float result_MA120 = GetMA120Value(ma,pList120,dir);
+        float result_MA120 = GetMA120Value(pList120,dir);
 
         #endregion
 
@@ -203,7 +249,7 @@ public class MAHelper
         return (result_MA * 5 + result_K * 2 + result_MA120 * 3) / 10;
     }
 
-    static float GetKValue(List<float> kList) {
+    float GetKValue(List<float> kList) {
 
         //| k |< 0.008,加权值 p = k * 1
         //| k |> 0.008, 加权值 p = ((| k | -0.08) * 2 +| k | *1) * (k > 0 ? 1 : -1)
@@ -234,10 +280,10 @@ public class MAHelper
 
         //float result = temp / Util.GetAddListCount(kList.Count) * 100;
         float result = temp/kList.Count * 100;
-        return result * ((mul * 0.02f) + 1);
+        return result * ((V_Multiple * 0.02f) + 1);
     }
 
-    static float GetMA120Value(MA ma,List<float> pList120,int dir) {
+    float GetMA120Value(List<float> pList120,int dir) {
 
         //说明：
         //为何不计算 MA60 的影响？因为 MA120 更有参考性
@@ -262,7 +308,7 @@ public class MAHelper
         {
 
             float m = pList120[i];
-            float y = ma.cache.kLineData[i].closePrice;
+            float y = V_Cache.V_KLineData[i].V_ClosePrice;
 
             //temp += (m - y) / y * (pList120.Count - i)*(dir>0?1:-1);
             temp+= (m - y) / y * (dir > 0 ? 1 : -1);
@@ -272,7 +318,7 @@ public class MAHelper
         return temp/pList120.Count * 100;
     }
 
-    public static float GetResult(MA ma, int count = 3)
+    public float GetResult(int count = 3)
     {
         //2000 条数据
 
@@ -308,6 +354,6 @@ public class MAHelper
         //result all count: 1706
         //result all 均值: 0.1026538
 
-        return GetValue(ma,1,count) - GetValue(ma,-1,count);
+        return GetValue(1,count) - GetValue(-1,count);
     }
 }

@@ -5,18 +5,18 @@ using System.Text;
 
 public class KLineCache
 {
-    public List<KLine> kLineData;
+    public List<KLine> V_KLineData;
 
     public KLineCache() { }
 
     public void SetData(List<KLine> data) {
-        if (kLineData == null) {
-            kLineData = new List<KLine>();
+        if (V_KLineData == null) {
+            V_KLineData = new List<KLine>();
         }
-        kLineData.Clear();
+        V_KLineData.Clear();
         if (data != null && data.Count > 1) {
             data.RemoveAt(0);
-            kLineData.AddRange(data);
+            V_KLineData.AddRange(data);
         }
     }
 

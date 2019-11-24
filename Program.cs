@@ -44,6 +44,8 @@ namespace CoinAPP_Server
 
             Test t = new Test();
 
+            //TaticsManager manager = new TaticsManager();
+
             string r= Console.ReadLine();
 
             while (!r.Equals("0"))

@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using OKExSDK;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Text;
 
@@ -21,7 +22,7 @@ namespace CoinAPP_Server.App
 
         int curentIndex = 0;
 
-        RunTest run;
+        MATacticsTest run;
 
         public Test()
         {
@@ -31,36 +32,38 @@ namespace CoinAPP_Server.App
 
         async void Start()
         {
+            //string[] keys = AppSetting.Ins.GetValue("api").Split(';');
 
+            //AccountAPIKey api = new AccountAPIKey(keys);
             //web.WebSocketPush += Result;
 
             //await web.ConnectAsync();
 
-            //List<string> list = new List<string>();
-            //list.Add("spot/candle300s:BTC-USDT");
-            //await web.Subscribe(list);
+            //await web.LoginAsync(api.V_ApiKey, api.V_SecretKey, api.V_Passphrase);
 
-            //SpotApi api = new SpotApi("", "", "");
-            //DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month,15, 0, 0, 0);
 
-            //DateTime t_end = DateTime.Now;
 
-            //while (t_start.AddMinutes(5*200)<t_end)
-            //{
-            //    JContainer con = await api.getCandlesAsync("XRP-USDT", t_start, t_start.AddMinutes(5 * 200), 300);
+            SpotApi api = new SpotApi("", "", "");
+            DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1, 0, 0, 0);
 
-            //    List<KLine> d = KLine.GetListFormJContainer(con);
+            DateTime t_end = DateTime.Now;
+            int length = 15;
+            while (t_start.AddMinutes(length * 200) < t_end)
+            {
+                JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, t_start.AddMinutes(length * 200), length * 60);
 
-            //    d.AddRange(data);
+                List<KLine> d = KLine.GetListFormJContainer(con);
 
-            //    data.Clear();
+                d.AddRange(data);
 
-            //    data.AddRange(d);
+                data.Clear();
 
-            //    //Console.WriteLine(d.Count);
+                data.AddRange(d);
 
-            //    t_start = t_start.AddMinutes(5 * 200);
-            //}
+                //Console.WriteLine(d.Count);
+
+                t_start = t_start.AddMinutes(length * 200);
+            }
 
             //JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, DateTime.Now, 300);
 
@@ -100,29 +103,55 @@ namespace CoinAPP_Server.App
 
             //curentIndex = 0;
 
-            //for (int loss = -20; loss > -130; loss -= 10) {
-            //    for (int win = 20; win < 150; win+=10)
-            //    {
-            //        run = new RunTest();
+            KLineCache cache = new KLineCache();
+            cache.RefreshData(data);
 
-            //        run.stopLossValue = loss;
-            //        run.stopWinValue = win;
+            for (int loss = -10; loss >= -150; loss -= 10)
+            {
+                for (int win = 10; win <= 150; win += 10)
+                {
+                    run = new MATacticsTest(cache);
 
-            //        run.data_all = data;
+                    run.ma_helper.SetStopPercent(loss, win);
+                    run.data_all = data;
 
-            //        run.Start();
-            //    }
-            //}
+                    run.Start();
+                }
+            }
 
-            //run = new RunTest();
+
+            //run = new MATacticsTest(cache);
+            //run.data_all = data;
+            //run.ma_helper.SetStopPercent(-20, 10);
+            //run.Start();
 
             //timeEvent = new TimeEventModel(0.001f, -1, Run);
 
             //TimeEventHandler.Ins.AddEvent(timeEvent);
 
-            SwapApi swapApi = new SwapApi("", "", "");
-            JContainer con = await swapApi.getCandlesDataAsync("BTC-USD-SWAP", DateTime.Now.AddMinutes(-100), DateTime.Now, 300);
-            Console.WriteLine(con);
+            //SwapApi swapApi = new SwapApi(api.V_ApiKey, api.V_SecretKey, api.V_Passphrase);
+            //JObject con = await swapApi.getAccountsByInstrumentAsync("BTC-USD-SWAP");
+            //AccountInfo info = AccountInfo.GetAccount(con["info"].ToString());
+            //info.V_APIKey = api;
+            //info.V_Leverage = 50;
+            //await info.MakeOrder(0,info.GetAvailMoney()*0.2f);
+
+            //SwapApi swapApi = new SwapApi(api.V_ApiKey, api.V_SecretKey, api.V_Passphrase);
+            //JObject con = await swapApi.getOrdersAsync("BTC-USD-SWAP", "6", null, null, null);
+            //string s = con["order_info"].ToString();
+            //Console.WriteLine(s);
+            //DataTable t = JsonConvert.DeserializeObject<DataTable>(s);
+            //foreach (DataRow dr in t.Rows)
+            //{
+            //    Console.WriteLine("{0}", dr["equity"]);
+            //}
+
+            //JContainer con =await CommonData.Ins.V_SwapApi.getInstrumentsAsync();
+            //DataTable t = JsonConvert.DeserializeObject<DataTable>(con.ToString());
+            //foreach (DataRow dr in t.Rows)
+            //{
+            //    Console.WriteLine("{0}", dr["instrument_id"]);
+            //}
 
         }
 
@@ -142,8 +171,14 @@ namespace CoinAPP_Server.App
             }
         }
 
-        void Result(string msg)
+        async void Result(string msg)
         {
+            if (msg.Contains("success")) {
+                List<string> list = new List<string>();
+                list.Add("swap/account:BTC-USD-SWAP");
+                await web.Subscribe(list);
+            }
+            
             Console.WriteLine(msg);
         }
 

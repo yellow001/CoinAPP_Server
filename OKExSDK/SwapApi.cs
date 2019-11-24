@@ -20,6 +20,14 @@ namespace OKExSDK
         /// <param name="apiKey">API Key</param>
         /// <param name="secret">Secret</param>
         /// <param name="passPhrase">Passphrase</param>
+        public SwapApi(AccountAPIKey api) : base(api.V_ApiKey, api.V_SecretKey, api.V_Passphrase) { }
+
+        /// <summary>
+        /// SwapApi构造函数
+        /// </summary>
+        /// <param name="apiKey">API Key</param>
+        /// <param name="secret">Secret</param>
+        /// <param name="passPhrase">Passphrase</param>
         public SwapApi(string apiKey, string secret, string passPhrase) : base(apiKey, secret, passPhrase) { }
 
         /// <summary>
@@ -151,9 +159,10 @@ namespace OKExSDK
         /// <param name="price">委托价格</param>
         /// <param name="size">下单数量</param>
         /// <param name="client_oid">由您设置的订单ID来识别您的订单</param>
+        /// <param name="order_type">（0：普通委托  1：只做Maker（Post only）  2：全部成交或立即取消（FOK）  3：立即成交并取消剩余（IOC））</param>
         /// <param name="match_price">是否以对手价下单(0:不是 1:是)</param>
         /// <returns></returns>
-        public async Task<JObject> makeOrderAsync(string instrument_id, string type, decimal price, int size, string client_oid, string match_price)
+        public async Task<JObject> makeOrderAsync(string instrument_id, string type, decimal price, int size, string client_oid,int order_type, string match_price)
         {
             var url = $"{this.BASEURL}{this.SWAP_SEGMENT}/order";
             var body = new
@@ -163,6 +172,7 @@ namespace OKExSDK
                 price = price,
                 size = size,
                 client_oid = client_oid,
+                order_type=order_type,
                 match_price = match_price
             };
             var bodyStr = JsonConvert.SerializeObject(body);
@@ -231,7 +241,7 @@ namespace OKExSDK
         /// 获取所有订单列表
         /// </summary>
         /// <param name="instrument_id">合约名称，如BTC-USD-SWAP</param>
-        /// <param name="status">订单状态(-2:失败 -1:撤单成功 0:等待成交 1:部分成交 2:完全成交)</param>
+        /// <param name="status">订单状态(-2:失败 -1:撤单成功 0:等待成交 1:部分成交 2:完全成交 3:下单中 4:撤单中 6: 未完成（等待成交+部分成交）7:已完成（撤单成功+完全成交）)</param>
         /// <param name="from">分页游标开始</param>
         /// <param name="to">分页游标截至</param>
         /// <param name="limit">分页数据数量，默认100</param>

@@ -11,4 +11,10 @@
     <PackageReference Include="protobuf-net" Version="2.4.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="AppSetting.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

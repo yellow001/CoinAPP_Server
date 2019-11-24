@@ -31,7 +31,7 @@ namespace NetFrame.Tool
         public TimeEventModel(int time, int count, Action de) {
 
             this.Wait_time = time * 10000 * 1000;//把秒数转换成 ticks 的单位长度
-            this.Excute_time = 0;
+            this.Excute_time = DateTime.Now.Ticks+Wait_time;
             this.count = count;
             this.de = de;
         }
@@ -45,7 +45,7 @@ namespace NetFrame.Tool
         public TimeEventModel(float time, int count, Action de) {
 
             this.Wait_time = (int)(time * 10000 * 1000);//把秒数转换成 ticks 的单位长度
-            this.Excute_time = 0;
+            this.Excute_time = DateTime.Now.Ticks + Wait_time;
             this.count = count;
             this.de = de;
         }

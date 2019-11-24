@@ -9,7 +9,7 @@ public class KLineCache
 
     public KLineCache() { }
 
-    public void SetData(List<KLine> data) {
+    public void RefreshData(List<KLine> data) {
         if (V_KLineData == null) {
             V_KLineData = new List<KLine>();
         }
@@ -20,10 +20,10 @@ public class KLineCache
         }
     }
 
-    public void SetData(JContainer jcontainer)
+    public void RefreshData(JContainer jcontainer)
     {
         List<KLine> list = KLine.GetListFormJContainer(jcontainer);
-        SetData(list);
+        RefreshData(list);
     }
 
     public void FilterData() {

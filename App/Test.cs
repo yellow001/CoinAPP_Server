@@ -47,7 +47,7 @@ namespace CoinAPP_Server.App
             DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1, 0, 0, 0);
 
             DateTime t_end = DateTime.Now;
-            int length = 15;
+            int length = 5;
             while (t_start.AddMinutes(length * 200) < t_end)
             {
                 JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, t_start.AddMinutes(length * 200), length * 60);
@@ -106,6 +106,9 @@ namespace CoinAPP_Server.App
             KLineCache cache = new KLineCache();
             cache.RefreshData(data);
 
+            int winCount = 0;
+            float allMoney = 0;
+
             for (int loss = -10; loss >= -150; loss -= 10)
             {
                 for (int win = 10; win <= 150; win += 10)
@@ -115,10 +118,14 @@ namespace CoinAPP_Server.App
                     run.ma_helper.SetStopPercent(loss, win);
                     run.data_all = data;
 
-                    run.Start();
+                    float money = run.Run();
+                    if (money > 5) {
+                        allMoney += money;
+                        winCount++;
+                    }
                 }
             }
-
+            Console.WriteLine("winCount{0}  avg{1}",winCount,allMoney/winCount);
 
             //run = new MATacticsTest(cache);
             //run.data_all = data;

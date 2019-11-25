@@ -56,7 +56,10 @@ public class MATacticsTest
         cache = new KLineCache();
         //K线时长;采样点;周期(小_中_大);倍数
 
-        ma_helper.Init(string.Format("{0};{1};{2}_{3}_{4};{5}",15, 5, 5, 15, 30, 50));
+        ma_helper.Init(string.Format("{0};{1};{2}_{3}_{4};{5}",5, 5, 5, 15, 30, 50));
+        //ma_helper.Init(string.Format("{0};{1};{2}_{3}_{4};{5}", 5, 5, 5, 10, 20, 50));
+        //ma_helper.Init(string.Format("{0};{1};{2}_{3}_{4};{5}", 5, 5, 10, 15, 30, 50));
+
         //ma_helper.Init(string.Format("{0};{1};{2}_{3}_{4};{5}", 3, 5, 5, 15, 30, 50));
         //ma_helper.Init(string.Format("{0};{1};{2}_{3}_{4};{5}", 1, 5, 5, 15, 30, 50));
 
@@ -209,7 +212,7 @@ public class MATacticsTest
         return money;
     }
 
-    public void Over() {
+    public float Over() {
         //Console.WriteLine("result add count:" + resultList_add.Count);
         //Console.WriteLine("result mul count:" + resultList_mul.Count);
         //Console.WriteLine("result zero count:" + resultList_zero.Count);
@@ -244,11 +247,11 @@ public class MATacticsTest
 
         //Console.WriteLine("\n-----------------------------------------------------\n");
 
-        Console.WriteLine("win add count:" + winList_add.Count);
-        Console.WriteLine("win mul count:" + winList_mul.Count);
+        //Console.WriteLine("win add count:" + winList_add.Count);
+        //Console.WriteLine("win mul count:" + winList_mul.Count);
 
-        Console.WriteLine("win add 均值:" + GetAv(winList_add));
-        Console.WriteLine("win mul 均值:" + GetAv(winList_mul));
+        //Console.WriteLine("win add 均值:" + GetAv(winList_add));
+        //Console.WriteLine("win mul 均值:" + GetAv(winList_mul));
 
         List<float> winAll = new List<float>();
         winAll.AddRange(winList_add);
@@ -256,10 +259,13 @@ public class MATacticsTest
 
         //Console.WriteLine("win all count:" + winAll.Count);
         if (GetAv(winAll) > 0) {
-            Console.WriteLine("win all 均值:" + GetAv(winAll));
-
-            Console.WriteLine("loss {0} win {1} money {2} orderCount {3}", ma_helper.V_LossPercent, ma_helper.V_WinPercent, money, orderCount);
+            
         }
+        //Console.WriteLine("win all 均值:" + GetAv(winAll));
+
+        Console.WriteLine("loss {0} win {1} money {2} orderCount {3}", ma_helper.V_LossPercent, ma_helper.V_WinPercent, money, orderCount);
+
+        return money;
     }
 
     public void Start() {
@@ -271,7 +277,7 @@ public class MATacticsTest
     }
 
 
-    void Run()
+    public float Run()
     {
         if (count + curentIndex < data_all.Count)
         {
@@ -279,11 +285,11 @@ public class MATacticsTest
             testData.AddRange(data_all.GetRange(data_all.Count - 1 - count - curentIndex, count));
             Handle(testData);
             curentIndex++;
-            Run();
+            return Run();
         }
         else
         {
-            Over();
+            return Over();
             //TimeEventHandler.Ins.RemoveEvent(timeEvent);
         }
     }

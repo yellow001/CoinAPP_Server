@@ -67,4 +67,12 @@ public class KLine
         }
         return result;
     }
+
+    /// <summary>
+    /// 获取均价
+    /// </summary>
+    /// <returns></returns>
+    public float GetAvg() {
+        return MathF.Abs(V_OpenPrice - V_ClosePrice) / 2+(V_OpenPrice>V_ClosePrice?V_ClosePrice:V_OpenPrice);
+    }
 }

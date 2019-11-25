@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 /** MA 多空头排列
@@ -83,6 +84,8 @@ public class MATaticsHelper: BaseTaticsHelper
     /// 周期
     /// </summary>
     public List<int> V_CycleList = new List<int>() { 5, 15, 30 };
+
+    public List<KLine> kLineCache = new List<KLine>();
 
     /// <summary>
     /// 历史正均值
@@ -495,7 +498,7 @@ public class MATaticsHelper: BaseTaticsHelper
     /// </returns>
     public override int MakeOrder()
     {
-        return GetSign();
+        return GetSign(true);
         //float sign = GetSign();
         //if (sign > 0)
         //{
@@ -519,7 +522,8 @@ public class MATaticsHelper: BaseTaticsHelper
     /// <returns></returns>
     public override bool ShouldCloseOrder(int dir, float percent)
     {
-        float result = GetResult();
+        int sign = GetSign();
+
         if (percent <= lossPercent)
         {
             //无条件止损
@@ -527,34 +531,34 @@ public class MATaticsHelper: BaseTaticsHelper
         }
         else
         {
-            if (percent <= lossPercent * 0.8f)
-            {
-                //亏损率达止损的0.8，判断继续持有还是平仓
-                if (dir > 0)
-                {
-                    //多单 亏损
-                    if (result < result_mul_avg)
-                    {
-                        //有较为强烈的空头排列信号
-                        return true;
-                    }
-                }
-                else
-                {
-                    //空单 亏损
-                    if (result > result_add_avg)
-                    {
-                        //有较为强烈的多头排列信号
-                        return true;
-                    }
-                }
-            }
-            if (percent >= winPercent*0.8f)
+            //if (percent <= lossPercent * 0.8f)
+            //{
+            //    //亏损率达止损的0.8，判断继续持有还是平仓
+            //    if (dir > 0)
+            //    {
+            //        //多单 亏损
+            //        if (sign < 0)
+            //        {
+            //            //有较为强烈的空头排列信号
+            //            return true;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        //空单 亏损
+            //        if (sign > 0)
+            //        {
+            //            //有较为强烈的多头排列信号
+            //            return true;
+            //        }
+            //    }
+            //}
+            if (percent >= winPercent)
             {
                 //达到 止盈后，判断继续持有还是平仓
                 if (dir > 0)
                 {
-                    if (result < result_mul_avg)
+                    if (sign < 0)
                     {
                         //有较为强烈的空头排列信号
                         return true;
@@ -562,7 +566,7 @@ public class MATaticsHelper: BaseTaticsHelper
                 }
                 else
                 {
-                    if (result > result_add_avg)
+                    if (sign > 0)
                     {
                         //有较为强烈的多头排列信号
                         return true;
@@ -570,22 +574,53 @@ public class MATaticsHelper: BaseTaticsHelper
                 }
                 return true;
             }
+            //else {
+            //    V_MaxPercent = V_MaxPercent < percent ? percent : V_MaxPercent;
+            //    if ((percent - V_MaxPercent) < lossPercent*1.618f) {
+            //        return true;
+            //    }
+            //}
         }
         return false;
     }
 
-    int GetSign() {
+    /// <summary>
+    /// 获取信号
+    /// </summary>
+    /// <param name="order">下单 or 止损</param>
+    /// <returns></returns>
+    int GetSign(bool order=false) {
         float result = GetResult();
 
-        if (result > result_avg)
+        if (kLineCache.Count >= 3)
         {
-            //有较为强烈的多头排列信号
+            kLineCache.RemoveAt(0);
+        }
+        kLineCache.Add(V_Cache.V_KLineData[0]);
+
+        if (kLineCache.Count < 3) {
+            return 0;
+        }
+        if (kLineCache[2].GetAvg() > kLineCache[1].GetAvg() && kLineCache[1].GetAvg() > kLineCache[0].GetAvg())
+        {
+
+            float temp = result_add_avg;
+            if (order) {
+                temp = result_avg;
+            }
+
+            if(result>temp)
             return 1;
         }
-
-        if (result < result_avg)
+        if (kLineCache[2].GetAvg() < kLineCache[1].GetAvg() && kLineCache[1].GetAvg() < kLineCache[0].GetAvg())
         {
-            //有较为强烈的空头排列信号
+            float temp = result_mul_avg;
+            if (order)
+            {
+                temp = result_avg;
+            }
+
+            if (result< temp)
             return -1;
         }
 

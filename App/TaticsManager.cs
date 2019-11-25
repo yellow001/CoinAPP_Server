@@ -10,8 +10,6 @@ public class TaticsManager
         MATaticsHelper m_maHelper = new MATaticsHelper();
         m_maHelper.Init(AppSetting.Ins.GetValue("EOS"));
 
-        BaseTactics maTactics = new BaseTactics("EOS-USD-SWAP", m_maHelper);
-
-        maTactics.Start();
+        Tactics maTactics = new Tactics("EOS-USD-SWAP", m_maHelper);
     }
 }

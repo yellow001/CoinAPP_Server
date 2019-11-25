@@ -1,9 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 public class BaseTaticsHelper
 {
+
+    /// <summary>
+    /// 关联合约
+    /// </summary>
+    protected string V_Instrument_id;
+
     /// <summary>
     /// 倍数
     /// </summary>
@@ -47,14 +54,16 @@ public class BaseTaticsHelper
     /// <summary>
     /// 刷新历史数据
     /// </summary>
-    /// <param name="history"></param>
-    public virtual void RefreshHistory(KLineCache history)
+    public virtual async Task RunHistory()
     {
-        V_HistoryCache = history;
     }
 
     public virtual float GetResult()
     {
         return 0;
+    }
+
+    public virtual void ClearTempData() { 
+    
     }
 }

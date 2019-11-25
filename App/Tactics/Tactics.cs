@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// 基础策略类（永续合约）
 /// </summary>
-public class BaseTactics
+public class Tactics
 {
     /// <summary>
     /// 关联合约
@@ -29,18 +29,20 @@ public class BaseTactics
 
     bool init = true;
 
-    public BaseTactics(string instrument_id, BaseTaticsHelper helper) {
-        Init(instrument_id, helper);
+    public Tactics(string instrument_id, BaseTaticsHelper helper) {
+        Start(instrument_id, helper);
     }
 
     /// <summary>
     /// 初始化
     /// </summary>
     /// <returns></returns>
-    public virtual async void Init(string instrument_id, BaseTaticsHelper helper) {
+    public virtual async void Start(string instrument_id, BaseTaticsHelper helper) {
         V_Instrument_id = instrument_id;
 
         m_TaticsHelper = helper;
+
+        await m_TaticsHelper.RunHistory();
 
         accountInfo = new AccountInfo();
 
@@ -62,12 +64,15 @@ public class BaseTactics
         await CommonData.Ins.V_SwapApi.setLeverageByInstrumentAsync(V_Instrument_id, (int)m_TaticsHelper.V_Leverage, "3");
 
         cache = new KLineCache();
-    }
 
-    public void Start() {
-        Console.WriteLine("start {0}",V_Instrument_id);
+        Console.WriteLine("start {0}", V_Instrument_id);
         Update();
     }
+
+    //public void Start() {
+    //    Console.WriteLine("start {0}",V_Instrument_id);
+    //    Update();
+    //}
 
     public virtual async void Update() {
         SwapApi api = CommonData.Ins.V_SwapApi;

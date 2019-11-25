@@ -44,27 +44,27 @@ namespace CoinAPP_Server.App
 
 
 
-            SpotApi api = new SpotApi("", "", "");
-            DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1, 0, 0, 0);
+            //SpotApi api = new SpotApi("", "", "");
+            //DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1, 0, 0, 0);
 
-            DateTime t_end = DateTime.Now;
-            int length = 5;
-            while (t_start.AddMinutes(length * 200) < t_end)
-            {
-                JContainer con = await api.getCandlesAsync("ETH-USDT", t_start, t_start.AddMinutes(length * 200), length * 60);
+            //DateTime t_end = DateTime.Now;
+            //int length = 5;
+            //while (t_start.AddMinutes(length * 200) < t_end)
+            //{
+            //    JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, t_start.AddMinutes(length * 200), length * 60);
 
-                List<KLine> d = KLine.GetListFormJContainer(con);
+            //    List<KLine> d = KLine.GetListFormJContainer(con);
 
-                d.AddRange(data);
+            //    d.AddRange(data);
 
-                data.Clear();
+            //    data.Clear();
 
-                data.AddRange(d);
+            //    data.AddRange(d);
 
-                //Console.WriteLine(d.Count);
+            //    //Console.WriteLine(d.Count);
 
-                t_start = t_start.AddMinutes(length * 200);
-            }
+            //    t_start = t_start.AddMinutes(length * 200);
+            //}
 
             //JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, DateTime.Now, 300);
 
@@ -107,86 +107,102 @@ namespace CoinAPP_Server.App
             KLineCache cache = new KLineCache();
             cache.RefreshData(data);
 
-            int winCount = 0;
-            float allMoney = 0;
+            //int winCount = 0;
+            //float allMoney = 0;
 
-            Dictionary<int, int> lossCountDic = new Dictionary<int, int>();
+            //Dictionary<int, int> lossCountDic = new Dictionary<int, int>();
 
-            Dictionary<int, List<int>> lossWinDic = new Dictionary<int, List<int>>();
+            //Dictionary<int, List<int>> lossWinDic = new Dictionary<int, List<int>>();
 
-            Dictionary<int, int> winDic = new Dictionary<int, int>();
+            //Dictionary<int, int> winDic = new Dictionary<int, int>();
+
+            //Dictionary<int, Dictionary<int, float>> all_ResultDic = new Dictionary<int, Dictionary<int, float>>();
 
 
-            for (int loss = -10; loss >= -150; loss -= 5)
-            {
-                for (int win = 10; win <= 150; win += 5)
-                {
-                    run = new MATacticsTest(cache);
+            //for (int loss = -10; loss >= -150; loss -= 5)
+            //{
+            //    for (int win = 10; win <= 150; win += 5)
+            //    {
+            //        run = new MATacticsTest(cache);
 
-                    run.ma_helper.SetStopPercent(loss, win);
-                    run.data_all = data;
+            //        run.ma_helper.SetStopPercent(loss, win);
+            //        run.data_all = data;
 
-                    float money = run.Run();
-                    if (money > 5) {
-                        allMoney += money;
-                        winCount++;
-                        if (!lossCountDic.ContainsKey(loss)) { lossCountDic[loss] = 0; }
-                        lossCountDic[loss]++;
+            //        float money = run.Run();
+            //        if (money > 5) {
+            //            allMoney += money;
+            //            winCount++;
+            //            if (!lossCountDic.ContainsKey(loss)) { lossCountDic[loss] = 0; }
+            //            lossCountDic[loss]++;
 
-                        if (!winDic.ContainsKey(win)) { winDic[win] = 0; }
-                        winDic[win]++;
+            //            if (!winDic.ContainsKey(win)) { winDic[win] = 0; }
+            //            winDic[win]++;
 
-                        if (!lossWinDic.ContainsKey(loss)) {
-                            List<int> temp = new List<int>();
-                            lossWinDic[loss] = temp;
-                        }
-                        if (!lossWinDic[loss].Contains(win)) {
-                            lossWinDic[loss].Add(win);
-                        }
-                    }
-                }
-            }
+            //            if (!lossWinDic.ContainsKey(loss)) {
+            //                List<int> temp = new List<int>();
+            //                lossWinDic[loss] = temp;
+            //            }
+            //            if (!lossWinDic[loss].Contains(win)) {
+            //                lossWinDic[loss].Add(win);
+            //            }
+            //        }
 
-            if (lossCountDic.Count > 0) {
-                int max_loss = lossCountDic.Values.Max();
-                var result_loss = lossCountDic.Where(q => q.Value == max_loss).Select(q => q.Key);
-                foreach (var item in result_loss)
-                {
-                    int max = 0;
-                    int win_final = 0;
-                    if (lossWinDic.ContainsKey(item)) {
-                        foreach (var winItem in lossWinDic[item])
-                        {
-                            if (winDic.ContainsKey(winItem)) {
-                                int count = winDic[winItem];
-                                if (max < count) {
-                                    max = count;
-                                    win_final = winItem;
-                                }
-                            }
-                        } 
-                    }
-                }
-            }
+            //        if (!all_ResultDic.ContainsKey(loss)) {
+            //            Dictionary<int, float> temp = new Dictionary<int, float>();
+            //            all_ResultDic[loss] = temp;
+            //        }
+            //        all_ResultDic[loss][win] = money;
 
-            
+            //    }
+            //}
 
-            
+            //Dictionary<int, int> final_Dic = new Dictionary<int, int>();
+            //if (lossCountDic.Count > 0) {
+            //    int max_loss = lossCountDic.Values.Max();
+            //    List<int> result_loss = lossCountDic.Where(q => q.Value == max_loss).Select(q => q.Key).ToList();
 
-            int max_win = winDic.Values.Max();
+            //    foreach (var item in result_loss)
+            //    {
+            //        int max = 0;
+            //        int win_temp = 0;
+            //        if (lossWinDic.ContainsKey(item))
+            //        {
+            //            foreach (var winItem in lossWinDic[item])
+            //            {
+            //                if (winDic.ContainsKey(winItem))
+            //                {
+            //                    int count = winDic[winItem];
+            //                    if (max < count)
+            //                    {
+            //                        max = count;
+            //                        win_temp = winItem;
+            //                    }
+            //                }
+            //            }
+            //        }
+            //        final_Dic[item] = win_temp;
+            //    }
+            //}
 
-            var result_win = winDic.Where(q => q.Value == max_win).Select(q => q.Key);
+            //int loss_final = 0, win_final = 0;
+            //float maxMoney = 0;
+            //foreach (var item in final_Dic)
+            //{
+            //    float value = all_ResultDic[item.Key][item.Value];
+            //    if (maxMoney < value) {
+            //        maxMoney = value;
+            //        loss_final = item.Key;
+            //        win_final = item.Value;
+            //    }
+            //}
 
-            
 
-            foreach (var item in result_win)
-            {
-                Console.WriteLine("best win " + item);
-            }
 
-            Console.WriteLine("winCount{0}  avg{1}",winCount,allMoney/winCount);
+            //Console.WriteLine("best loss {0}  best win {1}", loss_final, win_final);
 
-            //run = new MATacticsTest(cache);
+            //Console.WriteLine("winCount{0}  avg{1}",winCount,allMoney/winCount);
+
+            run = new MATacticsTest(cache);
             //run.data_all = data;
             //run.ma_helper.SetStopPercent(-20, 10);
             //run.Start();

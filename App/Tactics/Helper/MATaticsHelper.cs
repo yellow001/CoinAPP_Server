@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using OKExSDK;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 /** MA 多空头排列
  
@@ -85,6 +88,9 @@ public class MATaticsHelper: BaseTaticsHelper
     /// </summary>
     public List<int> V_CycleList = new List<int>() { 5, 15, 30 };
 
+    /// <summary>
+    /// 最近K线缓存
+    /// </summary>
     public List<KLine> kLineCache = new List<KLine>();
 
     /// <summary>
@@ -97,6 +103,9 @@ public class MATaticsHelper: BaseTaticsHelper
     /// </summary>
     float result_mul_avg = 0;
 
+    /// <summary>
+    /// 结果均值
+    /// </summary>
     float result_avg = 0;
 
     /// <summary>
@@ -129,23 +138,19 @@ public class MATaticsHelper: BaseTaticsHelper
     /// </summary>
     /// <param name="index">下标</param>
     /// <returns></returns>
-    float GetMAValue(int count, int index = 0)
+    float GetMAValue(int length, int index = 0)
     {
         if (V_Cache == null)
         {
             return 0;
         }
 
-        if (V_Cache.V_KLineData.Count < count + index)
+        if (V_Cache.V_KLineData.Count < length + index)
         {
             return 0;
         }
-        float sum = 0;
-        for (int i = 0; i < count; i++)
-        {
-            sum += V_Cache.V_KLineData[index + i].V_ClosePrice;
-        }
-        return sum / count;
+
+        return MA.GetMA(length, V_Cache.V_KLineData.GetRange(V_Cache.V_KLineData.Count - length - index, length));
     }
 
     /// <summary>
@@ -343,6 +348,7 @@ public class MATaticsHelper: BaseTaticsHelper
         //return temp/Util.GetAddListCount(pList120.Count)*100;
         return temp / pList120.Count * 100;
     }
+
     #endregion
 
     #region 公有方法
@@ -352,36 +358,67 @@ public class MATaticsHelper: BaseTaticsHelper
     }
 
     /// <summary>
-    /// 初始化设置 K线时长;采样点;周期(小_中_大);倍数
+    /// 初始化设置 合约;K线时长;采样点;周期(小_中_大);倍数
     /// </summary>
     /// <param name="setting"></param>
     public void Init(string setting)
     {
-
+        Console.WriteLine("初始化 MA策略 设置");
         string[] strs = setting.Split(';');
-        if (strs.Length >= 4)
+        if (strs.Length >= 5)
         {
-            V_Min = int.Parse(strs[0]);
-            V_Length = int.Parse(strs[1]);
+            V_Instrument_id = strs[0];
+            V_Min = int.Parse(strs[1]);
+            V_Length = int.Parse(strs[2]);
 
-            string[] cycles = strs[2].Split('_');
+            string[] cycles = strs[3].Split('_');
             if (cycles.Length >= 3)
             {
                 V_CycleList[0] = int.Parse(cycles[0]);
                 V_CycleList[1] = int.Parse(cycles[1]);
                 V_CycleList[2] = int.Parse(cycles[2]);
             }
-            V_Leverage = float.Parse(strs[3]);
+            V_Leverage = float.Parse(strs[4]);
         }
+        Console.WriteLine("合约 " + V_Instrument_id);
     }
 
     /// <summary>
     /// 刷新历史数据
     /// </summary>
-    /// <param name="history"></param>
-    public override void RefreshHistory(KLineCache history)
+    public override async Task RunHistory()
     {
-        base.RefreshHistory(history);
+        Console.WriteLine("获取历史数据");
+
+        V_HistoryCache = new KLineCache();
+
+        List<KLine> history_data = new List<KLine>();
+
+        SwapApi api = CommonData.Ins.V_SwapApi;
+
+        int length = V_Min;
+
+        DateTime t_start = DateTime.Now.AddMinutes(-length*2000);
+
+        DateTime t_end = DateTime.Now;
+        
+        while (t_start.AddMinutes(length * 200) < t_end)
+        {
+            JContainer con = await api.getCandlesDataAsync(V_Instrument_id, t_start, t_start.AddMinutes(length * 200), length * 60);
+
+            List<KLine> d = KLine.GetListFormJContainer(con);
+
+            d.AddRange(history_data);
+
+            history_data.Clear();
+
+            history_data.AddRange(d);
+
+            t_start = t_start.AddMinutes(length * 200);
+        }
+        V_HistoryCache.RefreshData(history_data);
+
+        Console.WriteLine("分析结果");
 
         List<float> resultList_add = new List<float>();
         List<float> resultList_mul = new List<float>();
@@ -439,9 +476,9 @@ public class MATaticsHelper: BaseTaticsHelper
 
         result_avg = (result_add_avg + result_mul_avg) * 0.5f;
 
-        //todo
-        //winPercent = Util.GetAvg(klineList_add);
-        //lossPercent = Util.GetAvg(klineList_mul);
+        MATaticsTestRunner.TestRun(this);
+
+        Console.WriteLine("分析历史数据完毕");
     }
 
 
@@ -626,6 +663,11 @@ public class MATaticsHelper: BaseTaticsHelper
 
         //无信号
         return 0;
+    }
+
+    public override void ClearTempData()
+    {
+        kLineCache.Clear();
     }
     #endregion
 }

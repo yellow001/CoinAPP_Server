@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace CoinAPP_Server.App
@@ -50,7 +51,7 @@ namespace CoinAPP_Server.App
             int length = 5;
             while (t_start.AddMinutes(length * 200) < t_end)
             {
-                JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, t_start.AddMinutes(length * 200), length * 60);
+                JContainer con = await api.getCandlesAsync("ETH-USDT", t_start, t_start.AddMinutes(length * 200), length * 60);
 
                 List<KLine> d = KLine.GetListFormJContainer(con);
 
@@ -109,9 +110,16 @@ namespace CoinAPP_Server.App
             int winCount = 0;
             float allMoney = 0;
 
-            for (int loss = -10; loss >= -150; loss -= 10)
+            Dictionary<int, int> lossCountDic = new Dictionary<int, int>();
+
+            Dictionary<int, List<int>> lossWinDic = new Dictionary<int, List<int>>();
+
+            Dictionary<int, int> winDic = new Dictionary<int, int>();
+
+
+            for (int loss = -10; loss >= -150; loss -= 5)
             {
-                for (int win = 10; win <= 150; win += 10)
+                for (int win = 10; win <= 150; win += 5)
                 {
                     run = new MATacticsTest(cache);
 
@@ -122,9 +130,60 @@ namespace CoinAPP_Server.App
                     if (money > 5) {
                         allMoney += money;
                         winCount++;
+                        if (!lossCountDic.ContainsKey(loss)) { lossCountDic[loss] = 0; }
+                        lossCountDic[loss]++;
+
+                        if (!winDic.ContainsKey(win)) { winDic[win] = 0; }
+                        winDic[win]++;
+
+                        if (!lossWinDic.ContainsKey(loss)) {
+                            List<int> temp = new List<int>();
+                            lossWinDic[loss] = temp;
+                        }
+                        if (!lossWinDic[loss].Contains(win)) {
+                            lossWinDic[loss].Add(win);
+                        }
                     }
                 }
             }
+
+            if (lossCountDic.Count > 0) {
+                int max_loss = lossCountDic.Values.Max();
+                var result_loss = lossCountDic.Where(q => q.Value == max_loss).Select(q => q.Key);
+                foreach (var item in result_loss)
+                {
+                    int max = 0;
+                    int win_final = 0;
+                    if (lossWinDic.ContainsKey(item)) {
+                        foreach (var winItem in lossWinDic[item])
+                        {
+                            if (winDic.ContainsKey(winItem)) {
+                                int count = winDic[winItem];
+                                if (max < count) {
+                                    max = count;
+                                    win_final = winItem;
+                                }
+                            }
+                        } 
+                    }
+                }
+            }
+
+            
+
+            
+
+            int max_win = winDic.Values.Max();
+
+            var result_win = winDic.Where(q => q.Value == max_win).Select(q => q.Key);
+
+            
+
+            foreach (var item in result_win)
+            {
+                Console.WriteLine("best win " + item);
+            }
+
             Console.WriteLine("winCount{0}  avg{1}",winCount,allMoney/winCount);
 
             //run = new MATacticsTest(cache);

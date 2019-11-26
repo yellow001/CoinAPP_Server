@@ -27,7 +27,7 @@ public class Tactics
 
     BaseTaticsHelper m_TaticsHelper;
 
-    bool init = true;
+    DateTime m_LastRefreshTime;
 
     public Tactics(string instrument_id, BaseTaticsHelper helper) {
         Start(instrument_id, helper);
@@ -43,6 +43,8 @@ public class Tactics
         m_TaticsHelper = helper;
 
         await m_TaticsHelper.RunHistory();
+
+        m_LastRefreshTime = DateTime.UtcNow;
 
         accountInfo = new AccountInfo();
 
@@ -75,27 +77,37 @@ public class Tactics
     //}
 
     public virtual async void Update() {
-        SwapApi api = CommonData.Ins.V_SwapApi;
 
-        //更新账号信息
-        JObject obj = await api.getAccountsByInstrumentAsync(V_Instrument_id);
-        accountInfo.RefreshData(obj["info"].ToString());
+        if ((DateTime.UtcNow - m_LastRefreshTime).Ticks > 0)
+        {
+            //更新参数
+            await m_TaticsHelper.RunHistory();
 
-        //更新持仓信息
-        obj = await api.getPositionByInstrumentAsync(V_Instrument_id);
-        accountInfo.RefreshPositions(Position.GetPositionList(obj["holding"].ToString()));
+            m_LastRefreshTime = DateTime.UtcNow;
+        }
+        else {
+            SwapApi api = CommonData.Ins.V_SwapApi;
 
-        //更新未完成订单信息，全部撤销掉
-        await accountInfo.ClearOrders();
+            //更新账号信息
+            JObject obj = await api.getAccountsByInstrumentAsync(V_Instrument_id);
+            accountInfo.RefreshData(obj["info"].ToString());
 
-        //获取近200条K线
-        JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-5 * 200), DateTime.Now, 300);
+            //更新持仓信息
+            obj = await api.getPositionByInstrumentAsync(V_Instrument_id);
+            accountInfo.RefreshPositions(Position.GetPositionList(obj["holding"].ToString()));
 
-        cache.RefreshData(con);
+            //更新未完成订单信息，全部撤销掉
+            await accountInfo.ClearOrders();
 
-        accountInfo.V_CurPrice = cache.V_KLineData[0].V_ClosePrice;
+            //获取近200条K线
+            JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-5 * 200), DateTime.Now, 300);
 
-        await Handle();
+            cache.RefreshData(con);
+
+            accountInfo.V_CurPrice = cache.V_KLineData[0].V_ClosePrice;
+
+            await Handle();
+        }
 
         TimeEventHandler.Ins.AddEvent(new TimeEventModel(2, 1, Update));
     }
@@ -103,12 +115,6 @@ public class Tactics
     public async Task Handle()
     {
         m_TaticsHelper.V_Cache = cache;
-        float result = m_TaticsHelper.GetResult();
-
-        if (DateTime.Now.Minute % 1 == 0 && DateTime.Now.Second < 10)
-        {
-            Console.WriteLine("dateTime:{0} result {1}", DateTime.Now, result);
-        }
 
         if (accountInfo.V_Positions != null && accountInfo.V_Positions.Count > 1)
         {
@@ -119,16 +125,14 @@ public class Tactics
         {
             if (accountInfo.V_Positions == null || accountInfo.V_Positions.Count == 0)
             {
-                if (!init)
+                //cd 中 ，不开单
+                long leave = m_TaticsHelper.GetCoolDown();
+                if (leave < 0)
                 {
-                    //cd 中 ，不开单
-                    long leave = m_TaticsHelper.GetCoolDown();
-                    if (leave < 0)
-                    {
-                        //Console.WriteLine("冷却中 cd " + leave);
-                        return;
-                    }
+                    //Console.WriteLine("冷却中 cd " + leave);
+                    return;
                 }
+
                 int o = m_TaticsHelper.MakeOrder();
 
                 if (o > 0)

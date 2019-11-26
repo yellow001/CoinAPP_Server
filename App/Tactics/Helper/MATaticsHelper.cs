@@ -1,12 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using OKExSDK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-/** MA 多空头排列
+﻿/** MA 多空头排列
  
     V1.0 2019-11-20
 
@@ -71,13 +63,20 @@ using System.Threading.Tasks;
     V3.0 2019-11-21 去他妈的权重，干掉
  * **/
 
+
+using Newtonsoft.Json.Linq;
+using OKExSDK;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+/// <summary>
+/// MA 多空头排列策略
+/// </summary>
 public class MATaticsHelper: BaseTaticsHelper
 {
-    /// <summary>
-    /// K线时长
-    /// </summary>
-    public int V_Min = 5;
-
     /// <summary>
     /// 采样点
     /// </summary>
@@ -107,17 +106,6 @@ public class MATaticsHelper: BaseTaticsHelper
     /// 结果均值
     /// </summary>
     float result_avg = 0;
-
-    /// <summary>
-    /// 历史建议止损百分比值
-    /// </summary>
-    float lossPercent = 0;
-
-    public float V_LossPercent {
-        get {
-            return lossPercent;
-        }
-    }
 
     /// <summary>
     /// 历史建议止盈百分比值
@@ -352,7 +340,7 @@ public class MATaticsHelper: BaseTaticsHelper
     #endregion
 
     #region 公有方法
-    public override float GetResult()
+    public float GetResult()
     {
         return GetValue(1) - GetValue(-1);
     }
@@ -361,7 +349,7 @@ public class MATaticsHelper: BaseTaticsHelper
     /// 初始化设置 合约;K线时长;采样点;周期(小_中_大);倍数
     /// </summary>
     /// <param name="setting"></param>
-    public void Init(string setting)
+    public override void Init(string setting)
     {
         Console.WriteLine("初始化 MA策略 设置");
         string[] strs = setting.Split(';');
@@ -388,35 +376,7 @@ public class MATaticsHelper: BaseTaticsHelper
     /// </summary>
     public override async Task RunHistory()
     {
-        Console.WriteLine("获取历史数据");
-
-        V_HistoryCache = new KLineCache();
-
-        List<KLine> history_data = new List<KLine>();
-
-        SwapApi api = CommonData.Ins.V_SwapApi;
-
-        int length = V_Min;
-
-        DateTime t_start = DateTime.Now.AddMinutes(-length*2000);
-
-        DateTime t_end = DateTime.Now;
-        
-        while (t_start.AddMinutes(length * 200) < t_end)
-        {
-            JContainer con = await api.getCandlesDataAsync(V_Instrument_id, t_start, t_start.AddMinutes(length * 200), length * 60);
-
-            List<KLine> d = KLine.GetListFormJContainer(con);
-
-            d.AddRange(history_data);
-
-            history_data.Clear();
-
-            history_data.AddRange(d);
-
-            t_start = t_start.AddMinutes(length * 200);
-        }
-        V_HistoryCache.RefreshData(history_data);
+        await base.RunHistory();
 
         Console.WriteLine("分析结果");
 
@@ -468,7 +428,6 @@ public class MATaticsHelper: BaseTaticsHelper
             }
         }
 
-
         result_add_avg = Util.GetAvg(resultList_add);
         result_mul_avg = Util.GetAvg(resultList_mul);
 
@@ -514,15 +473,6 @@ public class MATaticsHelper: BaseTaticsHelper
     {
         lossPercent = loss;
         winPercent = win;
-    }
-
-    /// <summary>
-    /// 获取冷却
-    /// </summary>
-    /// <returns></returns>
-    public override long GetCoolDown() {
-        long leave = (V_Cache.V_KLineData[0].V_Timestamp - V_LastOpTime).Ticks - cooldown * 60 * 10000 * 1000 * V_Min;
-        return leave;
     }
 
     /// <summary>

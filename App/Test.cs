@@ -23,8 +23,6 @@ namespace CoinAPP_Server.App
 
         int curentIndex = 0;
 
-        MATacticsTest run;
-
         public Test()
         {
             web = new WebSocketor();
@@ -202,7 +200,7 @@ namespace CoinAPP_Server.App
 
             //Console.WriteLine("winCount{0}  avg{1}",winCount,allMoney/winCount);
 
-            run = new MATacticsTest(cache);
+            //run = new MATacticsTest(cache);
             //run.data_all = data;
             //run.ma_helper.SetStopPercent(-20, 10);
             //run.Start();
@@ -264,23 +262,23 @@ namespace CoinAPP_Server.App
             Console.WriteLine(msg);
         }
 
-        void Run() {
-            if (count + curentIndex < data.Count)
-            {
-                List<KLine> testData = new List<KLine>();
-                testData.AddRange(data.GetRange(data.Count - 1 - count - curentIndex, count));
-                run.Handle(testData);
-                curentIndex++;
-            }
-            else {
-                run.Over();
+        //void Run() {
+        //    if (count + curentIndex < data.Count)
+        //    {
+        //        List<KLine> testData = new List<KLine>();
+        //        testData.AddRange(data.GetRange(data.Count - 1 - count - curentIndex, count));
+        //        run.Handle(testData);
+        //        curentIndex++;
+        //    }
+        //    else {
+        //        run.Over();
 
-                StreamWriter standardOutput = new StreamWriter(Console.OpenStandardOutput());
-                standardOutput.AutoFlush = true;
-                Console.SetOut(standardOutput);
-                Console.WriteLine("over");
-                TimeEventHandler.Ins.RemoveEvent(timeEvent);
-            }
-        }
+        //        StreamWriter standardOutput = new StreamWriter(Console.OpenStandardOutput());
+        //        standardOutput.AutoFlush = true;
+        //        Console.SetOut(standardOutput);
+        //        Console.WriteLine("over");
+        //        TimeEventHandler.Ins.RemoveEvent(timeEvent);
+        //    }
+        //}
     }
 }

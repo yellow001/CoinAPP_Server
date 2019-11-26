@@ -3,130 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-public class MATaticsTestRunner
+/// <summary>
+/// MA 多空头排列测试
+/// </summary>
+public class MATaticsTestRunner:BaseTaticsTestRunner
 {
-    /// <summary>
-    /// 初始模拟金额
-    /// </summary>
-    float init_Money = 5f;
-
-    /// <summary>
-    /// 当前金额
-    /// </summary>
-    float money = 5f;
-
-    /// <summary>
-    /// 当前持仓
-    /// </summary>
-    Position position;
-
-    /// <summary>
-    /// 所有模拟数据
-    /// </summary>
-    List<KLine> data_all;
-
-    /// <summary>
-    /// 当前计算数据缓存
-    /// </summary>
-    KLineCache cache;
-
-    /// <summary>
-    /// 策略处理类
-    /// </summary>
-    MATaticsHelper ma_helper;
-
-    int curentIndex = 0;
-
-    int count = 150;
-
-    void SetHistoryData(List<KLine> data) {
-        data_all = data;
-    }
-
-    float Run()
-    {
-        if (count + curentIndex < data_all.Count)
-        {
-            List<KLine> testData = new List<KLine>();
-            testData.AddRange(data_all.GetRange(data_all.Count - 1 - count - curentIndex, count));
-            Handle(testData);
-            curentIndex++;
-            return Run();
-        }
-        else
-        {
-            return money;
-        }
-    }
-
-    void Handle(List<KLine> data)
-    {
-
-        KLine line = data[0];
-        cache.RefreshData(data);
-        ma_helper.V_Cache = cache;
-        float result = ma_helper.GetResult();
-
-        if (position == null)
-        {
-            //cd 中 ，不开单
-            long leave = ma_helper.GetCoolDown();
-            if (leave < 0)
-            {
-                return;
-            }
-
-            int o = ma_helper.MakeOrder();
-
-            if (o > 0)
-            {
-                //多单
-                OpenOrder(1, cache.V_KLineData[0]);
-            }
-            else if (o < 0)
-            {
-                //空单
-                OpenOrder(-1, cache.V_KLineData[0]);
-            }
-        }
-        else
-        {
-            //有单就算下是否需要平仓
-            float v = position.GetPercentTest(data[0]);
-            if (ma_helper.ShouldCloseOrder(position.V_Dir, v))
-            {
-                CloseOrder(data[0]);
-            }
-        }
-    }
-
-    /// <summary>
-    /// 开单
-    /// </summary>
-    void OpenOrder(int dir, KLine kline)
-    {
-        if (position != null) { return; }
-
-        position = new Position("btc", dir, money * 0.2f, money * 0.2f, kline.V_ClosePrice, ma_helper.V_Leverage, kline.V_Timestamp);
-    }
-
-    /// <summary>
-    /// 平仓
-    /// </summary>
-    void CloseOrder(KLine kline)
-    {
-        if (position == null) { return; }
-
-        float p = position.GetPercentTest(kline);
-        p = p < ma_helper.V_LossPercent ? ma_helper.V_LossPercent : p;
-
-        float temp = 0;
-        temp = p * 0.01f * position.V_AllVol;
-        money += temp;
-
-        position = null;
-    }
-
 
     public static void TestRun(MATaticsHelper helper) {
 
@@ -144,13 +25,13 @@ public class MATaticsTestRunner
             for (int win = 30; win <= 150; win += 5)
             {
                 MATaticsTestRunner run = new MATaticsTestRunner();
-                run.cache = new KLineCache();
-                run.ma_helper = helper;
-                run.ma_helper.SetStopPercent(loss, win);
-                run.data_all = helper.V_HistoryCache.V_KLineData;
+                run.Cur_Cache = new KLineCache();
+                helper.SetStopPercent(loss, win);
+                run.Data_All = helper.V_HistoryCache.V_KLineData;
+                run.helper = helper;
 
                 float money = run.Run();
-                if (money > run.init_Money)
+                if (money > run.Init_Money)
                 {
                     if (!lossCountDic.ContainsKey(loss)) { lossCountDic[loss] = 0; }
                     lossCountDic[loss]++;

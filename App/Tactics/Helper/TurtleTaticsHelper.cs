@@ -59,7 +59,7 @@ public class TurtleTaticsHelper : BaseTaticsHelper
         await base.RunHistory();
 
         Console.WriteLine("分析结果");
-        TurtleTaticTestRunner.TestRun(this);
+        TaticsTestRunner.TestRun(this);
         Console.WriteLine("分析历史数据完毕");
     }
 

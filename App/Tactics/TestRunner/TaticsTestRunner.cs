@@ -3,13 +3,136 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-/// <summary>
-/// 海龟交易测试
-/// </summary>
-public class TurtleTaticTestRunner : BaseTaticsTestRunner
+public class TaticsTestRunner
 {
-    public static void TestRun(TurtleTaticsHelper helper)
+    /// <summary>
+    /// 初始模拟金额
+    /// </summary>
+    protected float Init_Money = 5f;
+
+    /// <summary>
+    /// 当前金额
+    /// </summary>
+    protected float V_CurMoney = 5f;
+
+    /// <summary>
+    /// 当前持仓
+    /// </summary>
+    protected Position Position;
+
+    /// <summary>
+    /// 所有模拟数据
+    /// </summary>
+    protected List<KLine> Data_All;
+
+    /// <summary>
+    /// 当前计算数据缓存
+    /// </summary>
+    protected KLineCache Cur_Cache;
+
+    /// <summary>
+    /// 策略处理类
+    /// </summary>
+    protected BaseTaticsHelper helper;
+
+    public int V_OrderCount = 0;
+
+    int curentIndex = 0;
+
+    int count = 150;
+
+    public virtual void SetHistoryData(List<KLine> data)
     {
+        Data_All = data;
+    }
+
+    public virtual float Run()
+    {
+        if (count + curentIndex < Data_All.Count)
+        {
+            List<KLine> testData = new List<KLine>();
+            testData.AddRange(Data_All.GetRange(Data_All.Count - 1 - count - curentIndex, count));
+            Handle(testData);
+            curentIndex++;
+            return Run();
+        }
+        else
+        {
+            return V_CurMoney;
+        }
+    }
+
+    public virtual void Handle(List<KLine> data)
+    {
+
+        KLine line = data[0];
+        Cur_Cache.RefreshData(data);
+        helper.V_Cache = Cur_Cache;
+
+        if (Position == null)
+        {
+            ////cd 中 ，不开单
+            //long leave = helper.GetCoolDown();
+            //if (leave < 0)
+            //{
+            //    return;
+            //}
+
+            int o = helper.MakeOrder();
+
+            if (o > 0)
+            {
+                //多单
+                OpenOrder(1, Cur_Cache.V_KLineData[0]);
+            }
+            else if (o < 0)
+            {
+                //空单
+                OpenOrder(-1, Cur_Cache.V_KLineData[0]);
+            }
+        }
+        else
+        {
+            //有单就算下是否需要平仓
+            float v = Position.GetPercentTest(data[0]);
+            if (helper.ShouldCloseOrder(Position.V_Dir, v))
+            {
+                CloseOrder(data[0]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 开单
+    /// </summary>
+    public virtual void OpenOrder(int dir, KLine kline)
+    {
+        if (Position != null) { return; }
+
+        V_OrderCount++;
+        Position = new Position("btc", dir, V_CurMoney * 0.2f, V_CurMoney * 0.2f, kline.V_ClosePrice, helper.V_Leverage, kline.V_Timestamp);
+    }
+
+    /// <summary>
+    /// 平仓
+    /// </summary>
+    public virtual void CloseOrder(KLine kline)
+    {
+        if (Position == null) { return; }
+
+        float p = Position.GetPercentTest(kline);
+        p = p < helper.V_LossPercent ? helper.V_LossPercent : p;
+
+        float temp = 0;
+        temp = p * 0.01f * Position.V_AllVol;
+        V_CurMoney += temp;
+
+        Position = null;
+    }
+
+    public static void TestRun(BaseTaticsHelper helper)
+    {
+
         Dictionary<int, int> lossCountDic = new Dictionary<int, int>();
 
         Dictionary<int, List<int>> lossWinDic = new Dictionary<int, List<int>>();
@@ -20,11 +143,12 @@ public class TurtleTaticTestRunner : BaseTaticsTestRunner
 
         Dictionary<int, Dictionary<int, float>> all_CountDic = new Dictionary<int, Dictionary<int, float>>();
 
-        for (int loss = -10; loss >= -150; loss -= 5)
+
+        for (int loss = -25; loss >= -150; loss -= 5)
         {
-            for (int win = 10; win <= 150; win += 5)
+            for (int win = 25; win <= 150; win += 5)
             {
-                TurtleTaticTestRunner run = new TurtleTaticTestRunner();
+                TaticsTestRunner run = new TaticsTestRunner();
                 run.Cur_Cache = new KLineCache();
                 helper.SetStopPercent(loss, win);
                 run.Data_All = helper.V_HistoryCache.V_KLineData;
@@ -63,6 +187,7 @@ public class TurtleTaticTestRunner : BaseTaticsTestRunner
                     all_CountDic[loss] = temp;
                 }
                 all_CountDic[loss][win] = run.V_OrderCount;
+
             }
         }
 

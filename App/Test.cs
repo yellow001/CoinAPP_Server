@@ -105,11 +105,11 @@ namespace CoinAPP_Server.App
             //KLineCache cache = new KLineCache();
             //cache.RefreshData(data);
 
-            //MATaticsHelper helper = new MATaticsHelper();
-            //helper.Init(AppSetting.Ins.GetValue("MA_EOS"));
+            MATaticsHelper helper = new MATaticsHelper();
+            helper.Init(AppSetting.Ins.GetValue("MA_EOS"));
 
-            TurtleTaticsHelper helper = new TurtleTaticsHelper();
-            helper.Init(AppSetting.Ins.GetValue("Turtle_EOS"));
+            //TurtleTaticsHelper helper = new TurtleTaticsHelper();
+            //helper.Init(AppSetting.Ins.GetValue("Turtle_EOS"));
 
             await helper.RunHistory();
 

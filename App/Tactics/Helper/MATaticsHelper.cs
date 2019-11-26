@@ -420,7 +420,7 @@ public class MATaticsHelper: BaseTaticsHelper
 
         result_avg = (result_add_avg + result_mul_avg) * 0.5f;
 
-        MATaticsTestRunner.TestRun(this);
+        TaticsTestRunner.TestRun(this);
 
         Console.WriteLine("分析历史数据完毕");
     }

@@ -466,8 +466,6 @@ public class MATaticsHelper: BaseTaticsHelper
                     klineList_add.Add(p);
                 }
             }
-
-
         }
 
 

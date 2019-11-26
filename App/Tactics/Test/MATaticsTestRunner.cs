@@ -222,6 +222,16 @@ public class MATaticsTestRunner
         }
         helper.SetStopPercent(loss_final, win_final);
         helper.ClearTempData();
+
+
+        foreach (var loss in all_ResultDic)
+        {
+            foreach (var win in loss.Value)
+            {
+                Console.WriteLine("止损 {0} 止盈 {1} 模拟剩余 {2}", loss, win.Key, win.Value);
+            }
+        }
+
         Console.WriteLine("最佳止盈止损百分比值: {0} {1}  模拟剩余资金: {2}", loss_final, win_final,all_ResultDic[loss_final][win_final]);
     }
 }

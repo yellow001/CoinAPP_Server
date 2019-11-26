@@ -8,7 +8,7 @@ public class TaticsManager
     public TaticsManager() {
 
         MATaticsHelper m_maHelper = new MATaticsHelper();
-        m_maHelper.Init(AppSetting.Ins.GetValue("EOS"));
+        m_maHelper.Init(AppSetting.Ins.GetValue("MA_EOS"));
 
         Tactics maTactics = new Tactics("EOS-USD-SWAP", m_maHelper);
     }

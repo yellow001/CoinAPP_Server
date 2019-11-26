@@ -1,16 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-/**
+﻿/**
  * 海龟交易法则 简化版
  * V1.0 2019-11-26
  * 
  * 
  * 
  * **/
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+/// <summary>
+/// 海龟交易 简化版
+/// </summary>
 public class TurtleTaticsHelper : BaseTaticsHelper
 {
     /// <summary>

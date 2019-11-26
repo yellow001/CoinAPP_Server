@@ -45,6 +45,7 @@ namespace CoinAPP_Server.App
             //SpotApi api = new SpotApi("", "", "");
             //DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1, 0, 0, 0);
 
+
             //DateTime t_end = DateTime.Now;
             //int length = 5;
             //while (t_start.AddMinutes(length * 200) < t_end)
@@ -64,9 +65,17 @@ namespace CoinAPP_Server.App
             //    t_start = t_start.AddMinutes(length * 200);
             //}
 
-            //JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, DateTime.Now, 300);
+            //SwapApi api = new SwapApi("", "", "");
+            //DateTime t_start = DateTime.Now.AddMinutes(-5 * 181);
+            //JContainer con = await api.getCandlesDataAsync("BTC-USD-SWAP", t_start, DateTime.Now, 300);
 
             //data = KLine.GetListFormJContainer(con);
+
+            //float f_10 = EMA.GetEMA(10, data);
+            //float f_30 = EMA.GetEMA(30, data);
+            //float f_180 = EMA.GetEMA(180, data);
+            //float f_120 = EMA.GetEMA(120, data);
+            //float f_60 = EMA.GetEMA(60, data);
 
             //Console.WriteLine(data.Count);
 
@@ -105,11 +114,14 @@ namespace CoinAPP_Server.App
             //KLineCache cache = new KLineCache();
             //cache.RefreshData(data);
 
-            MATaticsHelper helper = new MATaticsHelper();
-            helper.Init(AppSetting.Ins.GetValue("MA_EOS"));
+            //MATaticsHelper helper = new MATaticsHelper();
+            //helper.Init(AppSetting.Ins.GetValue("MA_EOS"));
 
-            //TurtleTaticsHelper helper = new TurtleTaticsHelper();
-            //helper.Init(AppSetting.Ins.GetValue("Turtle_EOS"));
+            EMATaticsHelper helper = new EMATaticsHelper();
+            helper.Init(AppSetting.Ins.GetValue("EMA_EOS"));
+
+            ////TurtleTaticsHelper helper = new TurtleTaticsHelper();
+            ////helper.Init(AppSetting.Ins.GetValue("Turtle_EOS"));
 
             await helper.RunHistory();
 

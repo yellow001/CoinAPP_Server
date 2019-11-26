@@ -48,13 +48,25 @@ public class BaseTaticsHelper
             return lossPercent;
         }
     }
+    /// <summary>
+    /// 历史建议止盈百分比值
+    /// </summary>
+    protected float winPercent = 0;
+
+    public float V_WinPercent {
+        get {
+            return winPercent;
+        }
+    }
 
     /// <summary>
     /// 冷却
     /// </summary>
-    protected long cooldown;//秒
+    protected long cooldown=2;
 
-    public BaseTaticsHelper() { }
+    public BaseTaticsHelper() {
+        cooldown *= V_Min*60 * 10000 * 1000;
+    }
 
     /// <summary>
     /// 初始化设置
@@ -67,6 +79,26 @@ public class BaseTaticsHelper
     public long GetCoolDown() {
         long leave = (V_Cache.V_KLineData[0].V_Timestamp - V_LastOpTime).Ticks - cooldown * 60 * 10000 * 1000 * V_Min;
         return leave;
+    }
+
+    /// <summary>
+    /// 设置倍数
+    /// </summary>
+    /// <param name="m"></param>
+    public void SetLeverage(float m)
+    {
+        V_Leverage = m;
+    }
+
+    /// <summary>
+    /// 设置止盈止损百分比值
+    /// </summary>
+    /// <param name="loss"></param>
+    /// <param name="win"></param>
+    public void SetStopPercent(float loss, float win)
+    {
+        lossPercent = loss;
+        winPercent = win;
     }
 
     /// <summary>
@@ -85,9 +117,16 @@ public class BaseTaticsHelper
     /// <param name="dir">大于0多  其余空</param>
     /// <param name="percent">当前盈利百分比值</param>
     /// <returns></returns>
-    public virtual bool ShouldCloseOrder(int dir, float percent) {
-        V_LastOpTime = DateTime.UtcNow;
-        return true;
+    public bool ShouldCloseOrder(int dir, float percent) {
+        bool result = OnShouldCloseOrder(dir,percent);
+        if (result) {
+            V_LastOpTime = DateTime.UtcNow;
+        }
+        return result;
+    }
+
+    protected virtual bool OnShouldCloseOrder(int dir, float percent) {
+        return false;
     }
 
     /// <summary>
@@ -127,12 +166,13 @@ public class BaseTaticsHelper
             t_start = t_start.AddMinutes(length * 200);
         }
         V_HistoryCache.RefreshData(history_data);
+        V_LastOpTime = history_data[history_data.Count - 1].V_Timestamp;
     }
     
     /// <summary>
     /// 清除临时数据
     /// </summary>
-    public virtual void ClearTempData() { 
-    
+    public virtual void ClearTempData() {
+        V_LastOpTime = DateTime.UtcNow;
     }
 }

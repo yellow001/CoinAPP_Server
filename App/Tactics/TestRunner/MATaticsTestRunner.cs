@@ -19,10 +19,12 @@ public class MATaticsTestRunner:BaseTaticsTestRunner
 
         Dictionary<int, Dictionary<int, float>> all_ResultDic = new Dictionary<int, Dictionary<int, float>>();
 
+        Dictionary<int, Dictionary<int, float>> all_CountDic = new Dictionary<int, Dictionary<int, float>>();
 
-        for (int loss = -30; loss >= -150; loss -= 5)
+
+        for (int loss = -10; loss >= -150; loss -= 5)
         {
-            for (int win = 30; win <= 150; win += 5)
+            for (int win = 10; win <= 150; win += 5)
             {
                 MATaticsTestRunner run = new MATaticsTestRunner();
                 run.Cur_Cache = new KLineCache();
@@ -56,6 +58,13 @@ public class MATaticsTestRunner:BaseTaticsTestRunner
                     all_ResultDic[loss] = temp;
                 }
                 all_ResultDic[loss][win] = money;
+
+                if (!all_CountDic.ContainsKey(loss))
+                {
+                    Dictionary<int, float> temp = new Dictionary<int, float>();
+                    all_CountDic[loss] = temp;
+                }
+                all_CountDic[loss][win] = run.V_OrderCount;
 
             }
         }
@@ -109,10 +118,10 @@ public class MATaticsTestRunner:BaseTaticsTestRunner
         {
             foreach (var win in loss.Value)
             {
-                Console.WriteLine("止损 {0} 止盈 {1} 模拟剩余 {2}", loss, win.Key, win.Value);
+                Console.WriteLine("止损 {0} 止盈 {1} 开单次数 {2}  模拟剩余 {3}", loss.Key, win.Key, all_CountDic[loss.Key][win.Key],win.Value);
             }
         }
 
-        Console.WriteLine("最佳止盈止损百分比值: {0} {1}  模拟剩余资金: {2}", loss_final, win_final,all_ResultDic[loss_final][win_final]);
+        Console.WriteLine("最佳止盈止损百分比值: {0} {1} 开单次数 {2} 模拟剩余资金: {3}", loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
     }
 }

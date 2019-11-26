@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,23 +16,38 @@ public class TurtleTaticsHelper : BaseTaticsHelper
     /// <summary>
     /// 买入采样点
     /// </summary>
-    public int V_BuyLength = 5;
+    public int V_BuyLength;
 
     /// <summary>
     /// 卖出采样点
     /// </summary>
-    public int V_SellLength = 5;
+    public int V_SellLength;
 
 
     #region 重载
 
     /// <summary>
-    /// 初始化设置
+    /// 初始化设置  合约;K线时长;最高价采样点_最低价采样点;倍数
     /// </summary>
     /// <param name="setting"></param>
     public override void Init(string setting)
     {
+        Console.WriteLine("初始化 海龟策略 设置");
+        string[] strs = setting.Split(';');
+        if (strs.Length >= 4)
+        {
+            V_Instrument_id = strs[0];
+            V_Min = int.Parse(strs[1]);
 
+            string[] samples = strs[2].Split('_');
+            if (samples.Length >= 2)
+            {
+                V_BuyLength = int.Parse(samples[0]);
+                V_SellLength = int.Parse(samples[1]);
+            }
+            V_Leverage = float.Parse(strs[3]);
+        }
+        Console.WriteLine("合约 " + V_Instrument_id);
     }
 
     /// <summary>
@@ -43,7 +59,7 @@ public class TurtleTaticsHelper : BaseTaticsHelper
         await base.RunHistory();
 
         Console.WriteLine("分析结果");
-
+        TurtleTaticTestRunner.TestRun(this);
         Console.WriteLine("分析历史数据完毕");
     }
 
@@ -55,7 +71,7 @@ public class TurtleTaticsHelper : BaseTaticsHelper
     /// </returns>
     public override int MakeOrder()
     {
-        return base.MakeOrder();
+        return GetResult();
     }
 
     /// <summary>
@@ -64,9 +80,69 @@ public class TurtleTaticsHelper : BaseTaticsHelper
     /// <param name="dir"></param>
     /// <param name="percent"></param>
     /// <returns></returns>
-    public override bool ShouldCloseOrder(int dir, float percent)
+    protected override bool OnShouldCloseOrder(int dir, float percent)
     {
-        return base.ShouldCloseOrder(dir, percent);
+        if (percent <= lossPercent)
+        {
+            //无条件止损
+            return true;
+        }
+
+        int result = GetResult();
+        if (percent > winPercent) {
+            if (dir > 0)
+            {
+                //多单盈利
+                if (result < 0) {
+                    return true;
+                }
+            }
+            else {
+                //空单盈利
+                if (result > 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
+    #endregion
+
+
+    #region 策略方法
+
+
+    int GetResult() {
+
+        //买入？
+        if (V_Cache != null && V_Cache.V_KLineData != null && V_Cache.V_KLineData.Count > V_BuyLength + 1)
+        {
+            //最新的一条k线要剔除
+            List<KLine> data = V_Cache.V_KLineData.GetRange(1, V_BuyLength);
+            List<float> list = data.Select(q => q.V_HightPrice).ToList();
+            float avg = Util.GetAvg(list);
+            if (V_Cache.V_KLineData[0].V_ClosePrice > avg)
+            {
+                return 1;
+            }
+        }
+
+        //卖出？
+        if (V_Cache != null && V_Cache.V_KLineData != null && V_Cache.V_KLineData.Count > V_SellLength + 1)
+        {
+            //最新的一条k线要剔除
+            List<KLine> data = V_Cache.V_KLineData.GetRange(1, V_SellLength);
+            List<float> list = data.Select(q => q.V_LowPrice).ToList();
+            float avg = Util.GetAvg(list);
+            if (V_Cache.V_KLineData[0].V_ClosePrice < avg)
+            {
+                return -1;
+            }
+        }
+
+        return 0;
+    }
+    
     #endregion
 }

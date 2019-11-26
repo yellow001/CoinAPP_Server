@@ -34,6 +34,8 @@ public class BaseTaticsTestRunner
     /// </summary>
     protected BaseTaticsHelper helper;
 
+    public int V_OrderCount = 0;
+
     int curentIndex = 0;
 
     int count = 150;
@@ -68,12 +70,12 @@ public class BaseTaticsTestRunner
 
         if (Position == null)
         {
-            //cd 中 ，不开单
-            long leave = helper.GetCoolDown();
-            if (leave < 0)
-            {
-                return;
-            }
+            ////cd 中 ，不开单
+            //long leave = helper.GetCoolDown();
+            //if (leave < 0)
+            //{
+            //    return;
+            //}
 
             int o = helper.MakeOrder();
 
@@ -106,6 +108,7 @@ public class BaseTaticsTestRunner
     {
         if (Position != null) { return; }
 
+        V_OrderCount++;
         Position = new Position("btc", dir, V_CurMoney * 0.2f, V_CurMoney * 0.2f, kline.V_ClosePrice, helper.V_Leverage, kline.V_Timestamp);
     }
 

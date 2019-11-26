@@ -102,8 +102,16 @@ namespace CoinAPP_Server.App
 
             //curentIndex = 0;
 
-            KLineCache cache = new KLineCache();
-            cache.RefreshData(data);
+            //KLineCache cache = new KLineCache();
+            //cache.RefreshData(data);
+
+            //MATaticsHelper helper = new MATaticsHelper();
+            //helper.Init(AppSetting.Ins.GetValue("MA_EOS"));
+
+            TurtleTaticsHelper helper = new TurtleTaticsHelper();
+            helper.Init(AppSetting.Ins.GetValue("Turtle_EOS"));
+
+            await helper.RunHistory();
 
             //int winCount = 0;
             //float allMoney = 0;

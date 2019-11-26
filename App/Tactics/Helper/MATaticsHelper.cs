@@ -107,19 +107,6 @@ public class MATaticsHelper: BaseTaticsHelper
     /// </summary>
     float result_avg = 0;
 
-    /// <summary>
-    /// 历史建议止盈百分比值
-    /// </summary>
-    float winPercent = 0;
-
-    public float V_WinPercent {
-        get {
-            return winPercent;
-        }
-    }
-
-   
-
     #region 私有方法
     /// <summary>
     /// 获取 MA 值
@@ -456,26 +443,6 @@ public class MATaticsHelper: BaseTaticsHelper
     }
 
     /// <summary>
-    /// 设置倍数
-    /// </summary>
-    /// <param name="m"></param>
-    public void SetLeverage(float m)
-    {
-        V_Leverage = m;
-    }
-
-    /// <summary>
-    /// 设置止盈止损百分比值
-    /// </summary>
-    /// <param name="loss"></param>
-    /// <param name="win"></param>
-    public void SetStopPercent(float loss, float win)
-    {
-        lossPercent = loss;
-        winPercent = win;
-    }
-
-    /// <summary>
     /// 下单
     /// </summary>
     /// <returns>
@@ -505,7 +472,7 @@ public class MATaticsHelper: BaseTaticsHelper
     /// <param name="dir">大于0多  其余空</param>
     /// <param name="percent">当前盈利百分比值</param>
     /// <returns></returns>
-    public override bool ShouldCloseOrder(int dir, float percent)
+    protected override bool OnShouldCloseOrder(int dir, float percent)
     {
         int sign = GetSign();
 

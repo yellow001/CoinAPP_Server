@@ -2,5 +2,9 @@ test:yellow
 connstring:server=120.25.84.142;database=TaskServer;uid=yellow;pwd=qW789456123=
 pos:50_0_30;15_0_-25;15_0_20;40_0_-5;28_0_95;36_0_18;41_0_6;-4_0_-26;-4_0_-26;41_0_-13
 
-//合约名;K线时长(min);采样点;周期(小_中_大);倍数
-MA_EOS:EOS-USD-SWAP;5;5;5_15_30;50
+
+//MA多空头排列	合约名;K线时长(min);采样点;周期(小_中_大);倍数
+MA_EOS:BTC-USD-SWAP;5;5;5_15_30;50
+
+//海龟	合约;K线时长;最高价采样点_最低价采样点;倍数
+Turtle_EOS:BTC-USD-SWAP;5;20_10;50

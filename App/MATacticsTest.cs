@@ -57,7 +57,7 @@ public class MATacticsTest
 
 
         //合约名;K线时长(min);采样点;周期(小_中_大);倍数
-        ma_helper.Init(AppSetting.Ins.GetValue("EOS"));
+        ma_helper.Init(AppSetting.Ins.GetValue("MA_EOS"));
         //ma_helper.Init(string.Format("{0};{1};{2}_{3}_{4};{5}", 5, 5, 5, 10, 20, 50));
         //ma_helper.Init(string.Format("{0};{1};{2}_{3}_{4};{5}", 5, 5, 10, 15, 30, 50));
 

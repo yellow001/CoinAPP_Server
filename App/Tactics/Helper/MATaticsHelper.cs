@@ -150,7 +150,7 @@ public class MATaticsHelper: BaseTaticsHelper
             return 0;
         }
 
-        return MA.GetMA(length, V_Cache.V_KLineData.GetRange(V_Cache.V_KLineData.Count - length - index, length));
+        return MA.GetMA(length, V_Cache.V_KLineData.GetRange(index, length));
     }
 
     /// <summary>

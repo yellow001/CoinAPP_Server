@@ -155,6 +155,7 @@ public class EMATaticsHelper:BaseTaticsHelper
                     if (sign < 0)
                     {
                         //有较为强烈的空头排列信号
+                        Console.WriteLine("result {0}", GetResult());
                         return true;
                     }
                 }
@@ -163,6 +164,7 @@ public class EMATaticsHelper:BaseTaticsHelper
                     if (sign > 0)
                     {
                         //有较为强烈的多头排列信号
+                        Console.WriteLine("result {0}", GetResult());
                         return true;
                     }
                 }

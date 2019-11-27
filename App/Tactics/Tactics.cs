@@ -109,7 +109,7 @@ public class Tactics
             await Handle();
         }
 
-        TimeEventHandler.Ins.AddEvent(new TimeEventModel(2, 1, Update));
+        TimeEventHandler.Ins.AddEvent(new TimeEventModel(1, 1, Update));
     }
 
     public async Task Handle()

@@ -116,7 +116,7 @@ public class EMATaticsHelper:BaseTaticsHelper
 
         TaticsTestRunner.TestRun(this);
 
-        Console.WriteLine("分析历史数据完毕");
+        Console.WriteLine("分析历史数据完毕 result_add_avg {0}  result_mul_avg {1}  result_avg {2}",result_add_avg,result_mul_avg,result_avg);
     }
 
     /// <summary>

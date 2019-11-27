@@ -151,7 +151,7 @@ public class Tactics
                 //有单就算下是否需要平仓
                 float v = accountInfo.V_Position.GetPercent(accountInfo.V_CurPrice);
 
-                if (m_TaticsHelper.ShouldCloseOrder(accountInfo.V_Position.V_Dir,v, cache.V_KLineData[0]))
+                if (m_TaticsHelper.ShouldCloseOrder(accountInfo.V_Position.V_Dir,v))
                 {
                     await accountInfo.ClearPositions();
                 }

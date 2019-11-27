@@ -76,8 +76,14 @@ public class BaseTaticsHelper
 
     }
 
-    public long GetCoolDown() {
+    public long GetCoolDownTest() {
         long leave = (V_Cache.V_KLineData[0].V_Timestamp - V_LastOpTime).Ticks - cooldown;
+        return leave;
+    }
+
+    public long GetCoolDown()
+    {
+        long leave = (DateTime.UtcNow - V_LastOpTime).Ticks - cooldown;
         return leave;
     }
 
@@ -121,6 +127,22 @@ public class BaseTaticsHelper
         bool result = OnShouldCloseOrder(dir,percent);
         if (result) {
             V_LastOpTime = line.V_Timestamp;
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// 是否要平仓
+    /// </summary>
+    /// <param name="dir">大于0多  其余空</param>
+    /// <param name="percent">当前盈利百分比值</param>
+    /// <returns></returns>
+    public bool ShouldCloseOrder(int dir, float percent)
+    {
+        bool result = OnShouldCloseOrder(dir, percent);
+        if (result)
+        {
+            V_LastOpTime = DateTime.UtcNow;
         }
         return result;
     }

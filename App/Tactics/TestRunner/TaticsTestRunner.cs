@@ -77,7 +77,7 @@ public class TaticsTestRunner
         if (Position == null)
         {
             //cd 中 ，不开单
-            long leave = helper.GetCoolDown();
+            long leave = helper.GetCoolDownTest();
             if (leave < 0)
             {
                 return;

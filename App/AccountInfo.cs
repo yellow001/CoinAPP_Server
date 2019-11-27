@@ -31,6 +31,10 @@ public class AccountInfo
     /// 更新时间戳
     /// </summary>
     public DateTime V_TimeStamp;
+    /// <summary>
+    /// 当前价格
+    /// </summary>
+    public float V_CurPrice;
 
     /// <summary>
     /// 持仓信息（多 空）
@@ -50,11 +54,6 @@ public class AccountInfo
     }
 
     public AccountAPIKey V_APIKey;
-
-    /// <summary>
-    /// 当前价格
-    /// </summary>
-    public float V_CurPrice;
 
     /// <summary>
     /// 杠杆倍数

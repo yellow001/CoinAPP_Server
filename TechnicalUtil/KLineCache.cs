@@ -14,8 +14,7 @@ public class KLineCache
             V_KLineData = new List<KLine>();
         }
         V_KLineData.Clear();
-        if (data != null && data.Count > 1) {
-            data.RemoveAt(0);
+        if (data != null) {
             V_KLineData.AddRange(data);
         }
     }

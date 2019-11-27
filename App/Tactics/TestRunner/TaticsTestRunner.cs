@@ -152,9 +152,9 @@ public class TaticsTestRunner
         int allWinCount = 0;
         int allCount = 0;
 
-        for (int loss = -15; loss >= -120; loss -= 5)
+        for (int loss = -20; loss >= -120; loss -= 5)
         {
-            for (int win = 25; win <= 180; win += 5)
+            for (int win = 40; win <= 180; win += 5)
             {
                 allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();

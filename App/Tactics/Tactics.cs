@@ -100,7 +100,7 @@ public class Tactics
             await accountInfo.ClearOrders();
 
             //获取近200条K线
-            JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-5 * 199), DateTime.Now, 300);
+            JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-5 * 200), DateTime.Now, 300);
 
             cache.RefreshData(con);
 

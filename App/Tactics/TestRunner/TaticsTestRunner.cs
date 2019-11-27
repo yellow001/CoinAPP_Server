@@ -144,10 +144,14 @@ public class TaticsTestRunner
         Dictionary<int, Dictionary<int, float>> all_CountDic = new Dictionary<int, Dictionary<int, float>>();
 
 
-        for (int loss = -25; loss >= -150; loss -= 5)
+        int allWinCount = 0;
+        int allCount = 0;
+
+        for (int loss = -15; loss >= -150; loss -= 5)
         {
             for (int win = 25; win <= 150; win += 5)
             {
+                allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();
                 run.Cur_Cache = new KLineCache();
                 helper.SetStopPercent(loss, win);
@@ -157,6 +161,8 @@ public class TaticsTestRunner
                 float money = run.Run();
                 if (money > run.Init_Money)
                 {
+                    allWinCount++;
+
                     if (!lossCountDic.ContainsKey(loss)) { lossCountDic[loss] = 0; }
                     lossCountDic[loss]++;
 
@@ -199,20 +205,26 @@ public class TaticsTestRunner
 
             foreach (var item in result_loss)
             {
-                int max = 0;
+                float max = 0;
                 int win_temp = 0;
                 if (lossWinDic.ContainsKey(item))
                 {
                     foreach (var winItem in lossWinDic[item])
                     {
-                        if (winDic.ContainsKey(winItem))
+                        //if (winDic.ContainsKey(winItem))
+                        //{
+                        //    int count = winDic[winItem];
+                        //    if (max < count)
+                        //    {
+                        //        max = count;
+                        //        win_temp = winItem;
+                        //    }
+                        //}
+                        float money = all_ResultDic[item][winItem];
+                        if (max < money)
                         {
-                            int count = winDic[winItem];
-                            if (max < count)
-                            {
-                                max = count;
-                                win_temp = winItem;
-                            }
+                            max = money;
+                            win_temp = winItem;
                         }
                     }
                 }
@@ -235,14 +247,19 @@ public class TaticsTestRunner
         helper.SetStopPercent(loss_final, win_final);
         helper.ClearTempData();
 
-
+        float allWinMoney = 0;
         foreach (var loss in all_ResultDic)
         {
             foreach (var win in loss.Value)
             {
+                if (win.Value > 5) {
+                    allWinMoney += win.Value;
+                }
                 Console.WriteLine("止损 {0} 止盈 {1} 开单次数 {2}  模拟剩余 {3}", loss.Key, win.Key, all_CountDic[loss.Key][win.Key], win.Value);
             }
         }
+
+        Console.WriteLine("盈利情况：{0}/{1}   盈利平均值：{2}", allWinCount, allCount, allWinMoney / allWinCount);
 
         Console.WriteLine("最佳止盈止损百分比值: {0} {1} 开单次数 {2} 模拟剩余资金: {3}", loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
     }

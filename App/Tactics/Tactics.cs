@@ -78,7 +78,7 @@ public class Tactics
 
     public virtual async void Update() {
 
-        if ((DateTime.UtcNow - m_LastRefreshTime).Ticks > m_TaticsHelper.V_Min*240*60 *10000*1000)
+        if ((DateTime.UtcNow - m_LastRefreshTime).Ticks > m_TaticsHelper.V_Min*100*60 *10000*1000)
         {
             //更新参数
             await m_TaticsHelper.RunHistory();

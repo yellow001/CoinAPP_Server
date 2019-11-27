@@ -26,11 +26,6 @@ public class EMATaticsHelper:BaseTaticsHelper
     public List<int> V_CycleList = new List<int>() { 5, 10, 20 };
 
     /// <summary>
-    /// 最近K线缓存
-    /// </summary>
-    public List<KLine> kLineCache = new List<KLine>();
-
-    /// <summary>
     /// 历史正均值
     /// </summary>
     float result_add_avg = 0;
@@ -176,11 +171,7 @@ public class EMATaticsHelper:BaseTaticsHelper
         }
         return false;
     }
-
-    public override void ClearTempData()
-    {
-        kLineCache.Clear();
-    }
+    
     #endregion
 
     #region 策略方法
@@ -197,40 +188,26 @@ public class EMATaticsHelper:BaseTaticsHelper
     int GetSign(bool order = false)
     {
         float result = GetResult();
-
-        if (kLineCache.Count >= 3)
+        float temp = result_add_avg;
+        if (order)
         {
-            kLineCache.RemoveAt(0);
+            temp = result_avg;
         }
-        kLineCache.Add(V_Cache.V_KLineData[0]);
 
-        if (kLineCache.Count < 3)
+        if (result > temp)
+            return 1;
+
+
+        temp = result_mul_avg;
+        if (order)
         {
-            return 0;
+            temp = result_avg;
         }
-        if (kLineCache[2].GetAvg() > kLineCache[1].GetAvg() && kLineCache[1].GetAvg() > kLineCache[0].GetAvg())
-        {
 
-            float temp = result_add_avg;
-            if (order)
-            {
-                temp = result_avg;
-            }
+        if (result < temp)
+            return -1;
 
-            if (result > temp)
-                return 1;
-        }
-        if (kLineCache[2].GetAvg() < kLineCache[1].GetAvg() && kLineCache[1].GetAvg() < kLineCache[0].GetAvg())
-        {
-            float temp = result_mul_avg;
-            if (order)
-            {
-                temp = result_avg;
-            }
-
-            if (result < temp)
-                return -1;
-        }
+        //return (MathF.Abs(result) > 0.01f?(result>0?1:-1):0);
 
         //无信号
         return 0;
@@ -286,33 +263,6 @@ public class EMATaticsHelper:BaseTaticsHelper
         }
         #endregion
 
-        #region 斜率计算
-
-        //斜率计算最后都是有 价格本身介入
-
-        List<float> kList_1 = new List<float>();
-        List<float> kList_2 = new List<float>();
-        List<float> kList_3 = new List<float>();
-
-        for (int i = 0; i + 1 < V_Length; i++)
-        {
-            float k1 = (pList_1[i] - pList_1[i + 1]) / pList_1[i + 1];
-            float k2 = (pList_2[i] - pList_2[i + 1]) / pList_2[i + 1];
-            float k3 = (pList_3[i] - pList_3[i + 1]) / pList_3[i + 1];
-
-            if (dir <= 0)
-            {
-                k1 = -k1;
-                k2 = -k2;
-                k3 = -k3;
-            }
-            kList_1.Add(k1);
-            kList_2.Add(k2);
-            kList_3.Add(k3);
-        }
-        #endregion
-
-
         #region 1. 计算 EMA 排列
         float temp = 0;
 
@@ -355,23 +305,13 @@ public class EMATaticsHelper:BaseTaticsHelper
 
         #endregion
 
-        #region 2.计算斜率
-        float kTemp1 = GetKValue(kList_1);
-        float kTemp2 = GetKValue(kList_2);
-        float kTemp3 = GetKValue(kList_3);
-
-        float result_K = (kTemp1 * 3 + kTemp2 * 2 + kTemp3) / 6;
-
-        #endregion
-
-        #region 3.EMA60 相关计算
+        #region 2.EMA60 相关计算
 
         float result_MA60 = GetMA60Value(pList60, dir);
 
         #endregion
 
-        //result_all = (result_MA * 3 + result_K * 2 + result_120 * 1) / 6
-        return (result_MA * 5 + result_K * 2 + result_MA60 * 3) / 10;
+        return (result_MA * 5 + result_MA60 * 3) / 8;
     }
 
     float GetKValue(List<float> kList)
@@ -387,12 +327,10 @@ public class EMATaticsHelper:BaseTaticsHelper
             float abs = MathF.Abs(value);
             if (abs > 0.08f)
             {
-                //temp += ((abs - 0.08f) * 2 + abs)*(value > 0?1:-1)* (kList.Count - i);
                 temp += ((abs - 0.08f) * 2 + abs) * (value > 0 ? 1 : -1);
             }
             else
             {
-                //temp += value * (kList.Count - i);
                 temp += value;
             }
         }

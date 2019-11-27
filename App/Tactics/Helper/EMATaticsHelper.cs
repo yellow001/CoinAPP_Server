@@ -188,24 +188,33 @@ public class EMATaticsHelper:BaseTaticsHelper
     int GetSign(bool order = false)
     {
         float result = GetResult();
-        float temp = result_add_avg;
-        if (order)
-        {
-            temp = result_avg;
-        }
+        //float temp = result_add_avg;
+        //if (order)
+        //{
+        //    temp = result_avg;
+        //}
 
-        if (result > temp)
+        //if (result > temp)
+        //    return 1;
+
+
+        //temp = result_mul_avg;
+        //if (order)
+        //{
+        //    temp = result_avg;
+        //}
+
+        //if (result < temp)
+        //    return -1;
+
+        if (result > result_avg) {
             return 1;
-
-
-        temp = result_mul_avg;
-        if (order)
-        {
-            temp = result_avg;
         }
 
-        if (result < temp)
+        if (result < result_avg) {
             return -1;
+        }
+
 
         //return (MathF.Abs(result) > 0.01f?(result>0?1:-1):0);
 

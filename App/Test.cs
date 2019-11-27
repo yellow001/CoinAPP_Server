@@ -115,13 +115,13 @@ namespace CoinAPP_Server.App
             //cache.RefreshData(data);
 
             MATaticsHelper helper = new MATaticsHelper();
-            helper.Init(AppSetting.Ins.GetValue("MA_BSV"));
+            helper.Init(AppSetting.Ins.GetValue("MA_ETH"));
 
             EMATaticsHelper helper2 = new EMATaticsHelper();
-            helper2.Init(AppSetting.Ins.GetValue("EMA_BSV"));
+            helper2.Init(AppSetting.Ins.GetValue("EMA_ETH"));
 
             TurtleTaticsHelper helper3 = new TurtleTaticsHelper();
-            helper3.Init(AppSetting.Ins.GetValue("Turtle_BSV"));
+            helper3.Init(AppSetting.Ins.GetValue("Turtle_ETH"));
 
             await helper.RunHistory();
 

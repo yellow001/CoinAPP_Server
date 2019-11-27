@@ -147,9 +147,9 @@ public class TaticsTestRunner
         int allWinCount = 0;
         int allCount = 0;
 
-        for (int loss = -15; loss >= -150; loss -= 5)
+        for (int loss = -15; loss >= -120; loss -= 5)
         {
-            for (int win = 25; win <= 150; win += 5)
+            for (int win = 25; win <= 180; win += 5)
             {
                 allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();
@@ -261,6 +261,6 @@ public class TaticsTestRunner
 
         Console.WriteLine("盈利情况：{0}/{1}   盈利平均值：{2}", allWinCount, allCount, allWinMoney / allWinCount);
 
-        Console.WriteLine("最佳止盈止损百分比值: {0} {1} 开单次数 {2} 模拟剩余资金: {3}", loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
+        Console.WriteLine("最佳止盈止损百分比值: {0} {1} 开单次数 {2} \n模拟剩余资金: {3}", loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
     }
 }

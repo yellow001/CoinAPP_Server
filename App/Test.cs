@@ -114,16 +114,20 @@ namespace CoinAPP_Server.App
             //KLineCache cache = new KLineCache();
             //cache.RefreshData(data);
 
-            //MATaticsHelper helper = new MATaticsHelper();
-            //helper.Init(AppSetting.Ins.GetValue("MA_EOS"));
+            MATaticsHelper helper = new MATaticsHelper();
+            helper.Init(AppSetting.Ins.GetValue("MA_BSV"));
 
-            EMATaticsHelper helper = new EMATaticsHelper();
-            helper.Init(AppSetting.Ins.GetValue("EMA_EOS"));
+            EMATaticsHelper helper2 = new EMATaticsHelper();
+            helper2.Init(AppSetting.Ins.GetValue("EMA_BSV"));
 
-            ////TurtleTaticsHelper helper = new TurtleTaticsHelper();
-            ////helper.Init(AppSetting.Ins.GetValue("Turtle_EOS"));
+            TurtleTaticsHelper helper3 = new TurtleTaticsHelper();
+            helper3.Init(AppSetting.Ins.GetValue("Turtle_BSV"));
 
             await helper.RunHistory();
+
+            await helper2.RunHistory();
+
+            await helper3.RunHistory();
 
             //int winCount = 0;
             //float allMoney = 0;

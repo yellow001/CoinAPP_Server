@@ -7,10 +7,10 @@ public class TaticsManager
 {
     public TaticsManager() {
 
-        MATaticsHelper m_maHelper = new MATaticsHelper();
-        m_maHelper.Init(AppSetting.Ins.GetValue("MA_EOS"));
+        EMATaticsHelper m_emaHelper = new EMATaticsHelper();
+        m_emaHelper.Init(AppSetting.Ins.GetValue("EMA_ETH"));
 
-        Tactics maTactics = new Tactics("EOS-USD-SWAP", m_maHelper);
+        Tactics maTactics = new Tactics("ETH-USD-SWAP", m_emaHelper);
 
         //TurtleTaticsHelper m_turtleHelper = new TurtleTaticsHelper();
         //m_turtleHelper.Init(AppSetting.Ins.GetValue("Turtle_EOS"));

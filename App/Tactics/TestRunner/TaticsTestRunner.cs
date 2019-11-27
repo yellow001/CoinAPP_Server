@@ -52,6 +52,11 @@ public class TaticsTestRunner
         {
             List<KLine> testData = new List<KLine>();
             testData.AddRange(Data_All.GetRange(Data_All.Count - 1 - count - curentIndex, count));
+
+            if (curentIndex == 0) {
+                helper.V_LastOpTime = testData[0].V_Timestamp;
+            }
+
             Handle(testData);
             curentIndex++;
             return Run();
@@ -71,12 +76,12 @@ public class TaticsTestRunner
 
         if (Position == null)
         {
-            ////cd 中 ，不开单
-            //long leave = helper.GetCoolDown();
-            //if (leave < 0)
-            //{
-            //    return;
-            //}
+            //cd 中 ，不开单
+            long leave = helper.GetCoolDown();
+            if (leave < 0)
+            {
+                return;
+            }
 
             int o = helper.MakeOrder();
 
@@ -95,7 +100,7 @@ public class TaticsTestRunner
         {
             //有单就算下是否需要平仓
             float v = Position.GetPercentTest(data[0]);
-            if (helper.ShouldCloseOrder(Position.V_Dir, v))
+            if (helper.ShouldCloseOrder(Position.V_Dir, v,Cur_Cache.V_KLineData[0]))
             {
                 CloseOrder(data[0]);
             }

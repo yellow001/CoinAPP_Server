@@ -120,14 +120,14 @@ namespace CoinAPP_Server.App
             EMATaticsHelper helper2 = new EMATaticsHelper();
             helper2.Init(AppSetting.Ins.GetValue("EMA_ETH"));
 
-            TurtleTaticsHelper helper3 = new TurtleTaticsHelper();
-            helper3.Init(AppSetting.Ins.GetValue("Turtle_ETH"));
+            //TurtleTaticsHelper helper3 = new TurtleTaticsHelper();
+            //helper3.Init(AppSetting.Ins.GetValue("Turtle_ETH"));
 
             await helper.RunHistory();
 
             await helper2.RunHistory();
 
-            await helper3.RunHistory();
+            //await helper3.RunHistory();
 
             //int winCount = 0;
             //float allMoney = 0;

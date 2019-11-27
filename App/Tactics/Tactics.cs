@@ -78,7 +78,7 @@ public class Tactics
 
     public virtual async void Update() {
 
-        if ((DateTime.UtcNow - m_LastRefreshTime).Ticks > m_TaticsHelper.V_Min*100*60 *10000*1000)
+        if ((DateTime.UtcNow - m_LastRefreshTime).Ticks > (long)m_TaticsHelper.V_Min*100*60 *10000*1000)
         {
             //更新参数
             await m_TaticsHelper.RunHistory();
@@ -100,7 +100,7 @@ public class Tactics
             await accountInfo.ClearOrders();
 
             //获取近200条K线
-            JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-5 * 200), DateTime.Now, 300);
+            JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-5 * 199), DateTime.Now, 300);
 
             cache.RefreshData(con);
 
@@ -151,7 +151,7 @@ public class Tactics
                 //有单就算下是否需要平仓
                 float v = accountInfo.V_Position.GetPercent(accountInfo.V_CurPrice);
 
-                if (m_TaticsHelper.ShouldCloseOrder(accountInfo.V_Position.V_Dir,v))
+                if (m_TaticsHelper.ShouldCloseOrder(accountInfo.V_Position.V_Dir,v, cache.V_KLineData[0]))
                 {
                     await accountInfo.ClearPositions();
                 }

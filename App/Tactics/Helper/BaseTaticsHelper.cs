@@ -62,10 +62,10 @@ public class BaseTaticsHelper
     /// <summary>
     /// 冷却
     /// </summary>
-    protected long cooldown=5;
+    protected long cooldown=1;
 
     public BaseTaticsHelper() {
-        cooldown *= V_Min*60 * 10000 * 1000;
+        cooldown *= (long)V_Min*60 * 10000 * 1000;
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ public class BaseTaticsHelper
     }
 
     public long GetCoolDown() {
-        long leave = (V_Cache.V_KLineData[0].V_Timestamp - V_LastOpTime).Ticks - cooldown * 60 * 10000 * 1000 * V_Min;
+        long leave = (V_Cache.V_KLineData[0].V_Timestamp - V_LastOpTime).Ticks - cooldown;
         return leave;
     }
 
@@ -117,10 +117,10 @@ public class BaseTaticsHelper
     /// <param name="dir">大于0多  其余空</param>
     /// <param name="percent">当前盈利百分比值</param>
     /// <returns></returns>
-    public bool ShouldCloseOrder(int dir, float percent) {
+    public bool ShouldCloseOrder(int dir, float percent,KLine line) {
         bool result = OnShouldCloseOrder(dir,percent);
         if (result) {
-            V_LastOpTime = DateTime.UtcNow;
+            V_LastOpTime = line.V_Timestamp;
         }
         return result;
     }

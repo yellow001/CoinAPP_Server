@@ -112,7 +112,9 @@ public class EMATaticsHelper:BaseTaticsHelper
         result_add_avg = Util.GetAvg(resultList_add);
         result_mul_avg = Util.GetAvg(resultList_mul);
 
-        result_avg = (result_add_avg + result_mul_avg) * 0.5f;
+        resultList_add.AddRange(resultList_mul);
+
+        result_avg = Util.GetAvg(resultList_add);
 
         TaticsTestRunner.TestRun(this);
 
@@ -208,15 +210,22 @@ public class EMATaticsHelper:BaseTaticsHelper
         //if (result < temp)
         //    return -1;
 
-        if (result > result_avg) {
+        //if (result > result_avg) {
+        //    return 1;
+        //}
+
+        //if (result < result_avg) {
+        //    return -1;
+        //}
+        if (result > 0)
+        {
             return 1;
         }
 
-        if (result < result_avg) {
+        if (result < 0)
+        {
             return -1;
         }
-
-
         //return (MathF.Abs(result) > 0.01f?(result>0?1:-1):0);
 
         //无信号
@@ -282,7 +291,7 @@ public class EMATaticsHelper:BaseTaticsHelper
         {
             if (dir > 0)
             {
-                if (pList_1[i] >= pList_2[i] - pList_1[i] * 0.01f && pList_2[i] >= pList_3[i] - pList_2[i] * 0.01f)
+                if (pList_1[i] >= pList_2[i] && pList_2[i] >= pList_3[i])
                 {
                     //符合多头排列
                     //temp += count - i;
@@ -296,7 +305,7 @@ public class EMATaticsHelper:BaseTaticsHelper
             }
             else
             {
-                if (pList_1[i] <= pList_2[i] + pList_1[i] * 0.01f && pList_2[i] <= pList_3[i] + pList_2[i] * 0.01f)
+                if (pList_1[i] <= pList_2[i]&& pList_2[i] <= pList_3[i])
                 {
                     //符合空头排列
                     //temp += count - i;

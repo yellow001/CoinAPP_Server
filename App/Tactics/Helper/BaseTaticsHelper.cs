@@ -62,7 +62,7 @@ public class BaseTaticsHelper
     /// <summary>
     /// 冷却
     /// </summary>
-    protected long cooldown=2;
+    protected long cooldown=1;
 
     public BaseTaticsHelper() {
         cooldown *= (long)V_Min*60 * 10000 * 1000;
@@ -169,7 +169,7 @@ public class BaseTaticsHelper
 
         int length = V_Min;
 
-        DateTime t_start = DateTime.Now.AddMinutes(-length * 1000);
+        DateTime t_start = DateTime.Now.AddMinutes(-length * 2000);
 
         DateTime t_end = DateTime.Now;
 

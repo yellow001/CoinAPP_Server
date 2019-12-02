@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetFrame.Tool;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -137,7 +138,38 @@ public class TaticsTestRunner
 
     public static void TestRun(BaseTaticsHelper helper)
     {
+        int win=0, loss=0;
+        if (helper is ICycleTatics)
+        {
+            float maxMoney = 0;
+            string best_Cycle="";
+            
 
+            string[] cycleList = AppSetting.Ins.GetValue("CycleList").Split(';');
+            for (int i = 0; i < cycleList.Length; i++)
+            {
+                ((ICycleTatics)helper).SetCycle(cycleList[i]);
+                int temp_loss = 0, temp_win = 0;
+                float temp = OnTestRun(helper,ref temp_loss,ref temp_win);
+                if (maxMoney<temp) {
+                    maxMoney = temp;
+                    best_Cycle = cycleList[i];
+                    loss = temp_loss;
+                    win = temp_win;
+                }
+                Console.WriteLine("周期：" + cycleList[i]);
+            }
+            ((ICycleTatics)helper).SetCycle(best_Cycle);
+            helper.SetStopPercent(loss, win);
+            Console.WriteLine("最佳周期 {0} 止损 {1}  止盈{2}  剩余{3}", best_Cycle, loss, win, maxMoney); ;
+        }
+        else {
+            OnTestRun(helper,ref loss,ref win);
+        }
+    }
+
+    private static float OnTestRun(BaseTaticsHelper helper,ref int loss_result,ref int win_result)
+    {
         Dictionary<int, int> lossCountDic = new Dictionary<int, int>();
 
         Dictionary<int, List<int>> lossWinDic = new Dictionary<int, List<int>>();
@@ -148,13 +180,12 @@ public class TaticsTestRunner
 
         Dictionary<int, Dictionary<int, float>> all_CountDic = new Dictionary<int, Dictionary<int, float>>();
 
-
         int allWinCount = 0;
         int allCount = 0;
 
-        for (int loss = -20; loss >= -120; loss -= 5)
+        for (int loss = -10; loss >= -100; loss -= 5)
         {
-            for (int win = 40; win <= 180; win += 5)
+            for (int win = 10; win <= 150; win += 5)
             {
                 allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();
@@ -257,15 +288,21 @@ public class TaticsTestRunner
         {
             foreach (var win in loss.Value)
             {
-                if (win.Value > 5) {
+                if (win.Value > 5)
+                {
                     allWinMoney += win.Value;
                 }
-                Console.WriteLine("止损 {0} 止盈 {1} 开单次数 {2}  模拟剩余 {3}", loss.Key, win.Key, all_CountDic[loss.Key][win.Key], win.Value);
+                //Console.WriteLine("止损 {0} 止盈 {1} 开单次数 {2}  模拟剩余 {3}", loss.Key, win.Key, all_CountDic[loss.Key][win.Key], win.Value);
             }
         }
 
         Console.WriteLine("盈利情况：{0}/{1}   盈利平均值：{2}", allWinCount, allCount, allWinMoney / allWinCount);
 
         Console.WriteLine("最佳止盈止损百分比值: {0} {1} 开单次数 {2} \n模拟剩余资金: {3}", loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
+
+        loss_result = loss_final;
+        win_result = win_final;
+
+        return all_ResultDic[loss_final][win_final];
     }
 }

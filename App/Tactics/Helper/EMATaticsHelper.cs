@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// EMA 多空头排列
 /// </summary>
-public class EMATaticsHelper:BaseTaticsHelper
+public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
 {
     /// <summary>
     /// 采样点
@@ -49,20 +49,12 @@ public class EMATaticsHelper:BaseTaticsHelper
     {
         Console.WriteLine("初始化 EMA策略 设置");
         string[] strs = setting.Split(';');
-        if (strs.Length >= 5)
+        if (strs.Length >= 4)
         {
             V_Instrument_id = strs[0];
             V_Min = int.Parse(strs[1]);
             V_Length = int.Parse(strs[2]);
-
-            string[] cycles = strs[3].Split('_');
-            if (cycles.Length >= 3)
-            {
-                V_CycleList[0] = int.Parse(cycles[0]);
-                V_CycleList[1] = int.Parse(cycles[1]);
-                V_CycleList[2] = int.Parse(cycles[2]);
-            }
-            V_Leverage = float.Parse(strs[4]);
+            V_Leverage = float.Parse(strs[3]);
         }
         Console.WriteLine("合约 " + V_Instrument_id);
     }
@@ -379,6 +371,17 @@ public class EMATaticsHelper:BaseTaticsHelper
             }
         }
         return temp / pList60.Count * 100;
+    }
+
+    public void SetCycle(string setting)
+    {
+        string[] cycles = setting.Split('_');
+        if (cycles.Length >= 3)
+        {
+            V_CycleList[0] = int.Parse(cycles[0]);
+            V_CycleList[1] = int.Parse(cycles[1]);
+            V_CycleList[2] = int.Parse(cycles[2]);
+        }
     }
     #endregion
 }

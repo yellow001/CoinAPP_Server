@@ -195,7 +195,9 @@ public class MATaticsHelper: BaseTaticsHelper
         result_add_avg = Util.GetAvg(resultList_add);
         result_mul_avg = Util.GetAvg(resultList_mul);
 
-        result_avg = (result_add_avg + result_mul_avg) * 0.5f;
+        resultList_add.AddRange(resultList_mul);
+
+        result_avg = Util.GetAvg(resultList_add);
 
         TaticsTestRunner.TestRun(this);
 
@@ -329,24 +331,34 @@ public class MATaticsHelper: BaseTaticsHelper
         if (kLineCache[2].GetAvg() > kLineCache[1].GetAvg() && kLineCache[1].GetAvg() > kLineCache[0].GetAvg())
         {
 
-            float temp = result_add_avg;
-            if (order) {
-                temp = result_avg;
+            //float temp = result_add_avg;
+            //if (order) {
+            //    temp = result_avg;
+            //}
+
+            //if(result>temp)
+            //return 1;
+            if (result > 0)
+            {
+                return 1;
             }
 
-            if(result>temp)
-            return 1;
         }
         if (kLineCache[2].GetAvg() < kLineCache[1].GetAvg() && kLineCache[1].GetAvg() < kLineCache[0].GetAvg())
         {
-            float temp = result_mul_avg;
-            if (order)
-            {
-                temp = result_avg;
-            }
+            //float temp = result_mul_avg;
+            //if (order)
+            //{
+            //    temp = result_avg;
+            //}
 
-            if (result< temp)
-            return -1;
+            //if (result< temp)
+            //return -1;
+
+            if (result < 0)
+            {
+                return -1;
+            }
         }
 
         //无信号
@@ -489,7 +501,8 @@ public class MATaticsHelper: BaseTaticsHelper
         #endregion
 
         //result_all = (result_MA * 3 + result_K * 2 + result_120 * 1) / 6
-        return (result_MA * 5 + result_K * 2 + result_MA120 * 3) / 10;
+        //return (result_MA * 5 + result_K * 2 + result_MA120 * 3) / 10;
+        return (result_MA * 5+ result_MA120 * 3) / 8;
     }
 
     float GetKValue(List<float> kList)

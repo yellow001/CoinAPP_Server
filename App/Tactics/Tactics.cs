@@ -78,36 +78,45 @@ public class Tactics
 
     public virtual async void Update() {
 
-        if ((DateTime.UtcNow - m_LastRefreshTime).Ticks > (long)m_TaticsHelper.V_Min*100*60 *10000*1000)
+        try
         {
-            //更新参数
-            await m_TaticsHelper.RunHistory();
+            if ((DateTime.UtcNow - m_LastRefreshTime).Ticks > (long)m_TaticsHelper.V_Min * 100 * 60 * 10000 * 1000)
+            {
+                //更新参数
+                await m_TaticsHelper.RunHistory();
 
-            m_LastRefreshTime = DateTime.UtcNow;
+                m_LastRefreshTime = DateTime.UtcNow;
+            }
+            else
+            {
+                SwapApi api = CommonData.Ins.V_SwapApi;
+
+                //更新账号信息
+                JObject obj = await api.getAccountsByInstrumentAsync(V_Instrument_id);
+                accountInfo.RefreshData(obj["info"].ToString());
+
+                //更新持仓信息
+                obj = await api.getPositionByInstrumentAsync(V_Instrument_id);
+                accountInfo.RefreshPositions(Position.GetPositionList(obj["holding"].ToString()));
+
+                //更新未完成订单信息，全部撤销掉
+                await accountInfo.ClearOrders();
+
+                //获取近200条K线
+                JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-5 * 200), DateTime.Now, 300);
+
+                cache.RefreshData(con);
+
+                accountInfo.V_CurPrice = cache.V_KLineData[0].V_ClosePrice;
+
+                await Handle();
+            }
         }
-        else {
-            SwapApi api = CommonData.Ins.V_SwapApi;
-
-            //更新账号信息
-            JObject obj = await api.getAccountsByInstrumentAsync(V_Instrument_id);
-            accountInfo.RefreshData(obj["info"].ToString());
-
-            //更新持仓信息
-            obj = await api.getPositionByInstrumentAsync(V_Instrument_id);
-            accountInfo.RefreshPositions(Position.GetPositionList(obj["holding"].ToString()));
-
-            //更新未完成订单信息，全部撤销掉
-            await accountInfo.ClearOrders();
-
-            //获取近200条K线
-            JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-5 * 200), DateTime.Now, 300);
-
-            cache.RefreshData(con);
-
-            accountInfo.V_CurPrice = cache.V_KLineData[0].V_ClosePrice;
-
-            await Handle();
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
         }
+        
 
         TimeEventHandler.Ins.AddEvent(new TimeEventModel(1, 1, Update));
     }

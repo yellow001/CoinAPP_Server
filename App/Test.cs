@@ -114,8 +114,8 @@ namespace CoinAPP_Server.App
             //KLineCache cache = new KLineCache();
             //cache.RefreshData(data);
 
-            //MATaticsHelper helper = new MATaticsHelper();
-            //helper.Init(AppSetting.Ins.GetValue("MA_ETH"));
+            MATaticsHelper helper = new MATaticsHelper();
+            helper.Init(AppSetting.Ins.GetValue("MA_ETH"));
 
             EMATaticsHelper helper2 = new EMATaticsHelper();
             helper2.Init(AppSetting.Ins.GetValue("EMA_ETH"));
@@ -123,7 +123,7 @@ namespace CoinAPP_Server.App
             //TurtleTaticsHelper helper3 = new TurtleTaticsHelper();
             //helper3.Init(AppSetting.Ins.GetValue("Turtle_ETH"));
 
-            //await helper.RunHistory();
+            await helper.RunHistory();
 
             await helper2.RunHistory();
 

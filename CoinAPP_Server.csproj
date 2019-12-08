@@ -21,4 +21,9 @@
     <PackageReference Include="protobuf-net" Version="2.4.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="App\Net\Data\Account\" />
+    <Folder Include="App\Net\Data\Operation\" />
+  </ItemGroup>
+
 </Project>

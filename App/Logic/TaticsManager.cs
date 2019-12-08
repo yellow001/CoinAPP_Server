@@ -5,6 +5,10 @@ using System.Text;
 
 public class TaticsManager
 {
+    public TaticsNetLogic V_NetLogic;
+
+    public TaticsModel V_Model;
+
     public TaticsManager() {
 
         EMATaticsHelper m_emaHelper = new EMATaticsHelper();

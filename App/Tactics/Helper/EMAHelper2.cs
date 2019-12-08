@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// EMA 多空头排列
 /// </summary>
-public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
+public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
 {
     /// <summary>
     /// 采样点
@@ -24,21 +24,6 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
     /// 周期
     /// </summary>
     public List<int> V_CycleList = new List<int>() { 5, 10, 20 };
-
-    /// <summary>
-    /// 历史正均值
-    /// </summary>
-    float result_add_avg = 0;
-
-    /// <summary>
-    /// 历史负均值
-    /// </summary>
-    float result_mul_avg = 0;
-
-    /// <summary>
-    /// 结果均值
-    /// </summary>
-    float result_avg = 0;
 
     /// <summary>
     /// 最近K线缓存
@@ -73,46 +58,9 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
 
         Console.WriteLine("分析结果");
 
-        List<float> resultList_add = new List<float>();
-        List<float> resultList_mul = new List<float>();
-
-        List<float> klineList_add = new List<float>();
-        List<float> klineList_mul = new List<float>();
-
-        int start = 150;
-        List<KLine> all_data = V_HistoryCache.V_KLineData;
-        for (int i = start; i < all_data.Count - start; i++)
-        {
-            List<KLine> data = all_data.GetRange(all_data.Count - 1 - start - i, start);
-
-            if (V_Cache == null)
-            {
-                V_Cache = new KLineCache();
-            }
-            V_Cache.RefreshData(data);
-
-            float result = GetResult();
-
-            if (result > 0)
-            {
-                resultList_add.Add(result);
-            }
-            else
-            {
-                resultList_mul.Add(result);
-            }
-        }
-
-        result_add_avg = Util.GetAvg(resultList_add);
-        result_mul_avg = Util.GetAvg(resultList_mul);
-
-        resultList_add.AddRange(resultList_mul);
-
-        result_avg = Util.GetAvg(resultList_add);
-
         TaticsTestRunner.TestRun(this);
 
-        Console.WriteLine("分析历史数据完毕 result_add_avg {0}  result_mul_avg {1}  result_avg {2}",result_add_avg,result_mul_avg,result_avg);
+        Console.WriteLine("分析历史数据完毕");
     }
 
     /// <summary>
@@ -168,7 +116,7 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
         }
         return false;
     }
-    
+
     #endregion
 
     #region 策略方法
@@ -184,7 +132,8 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
     /// <returns></returns>
     int GetSign(bool order = false)
     {
-        if (order) {
+        if (order)
+        {
             kLineCache.Clear();
 
             if (V_Cache.V_KLineData.Count < 10)
@@ -203,50 +152,9 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
                 }
             }
         }
-        
 
         float result = GetResult();
-        //float temp = result_add_avg;
-        //if (order)
-        //{
-        //    temp = result_avg;
-        //}
-
-        //if (result > temp)
-        //    return 1;
-
-
-        //temp = result_mul_avg;
-        //if (order)
-        //{
-        //    temp = result_avg;
-        //}
-
-        //if (result < temp)
-        //    return -1;
-
-        //if (result > result_avg)
-        //{
-        //    return 1;
-        //}
-
-        //if (result < result_avg)
-        //{
-        //    return -1;
-        //}
-        //if (result > 0)
-        //{
-        //    return 1;
-        //}
-
-        //if (result < 0)
-        //{
-        //    return -1;
-        //}
         return (MathF.Abs(result) > 0.01f?(result>0?1:-1):0);
-
-        //无信号
-        return 0;
     }
 
     /// <summary>
@@ -300,9 +208,6 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
         #endregion
 
         #region 1. 计算 EMA 排列
-        float temp = 0;
-
-        float rightCount = 0;
 
         for (int i = 0; i < V_Length; i++)
         {
@@ -311,43 +216,27 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
                 if (pList_1[i] >= pList_2[i] && pList_2[i] >= pList_3[i])
                 {
                     //符合多头排列
-                    //temp += count - i;
-                    temp += 1;
-                    rightCount += 1;
                 }
                 else
                 {
-                    temp -= 1;
+                    return 0;
                 }
             }
             else
             {
-                if (pList_1[i] <= pList_2[i]&& pList_2[i] <= pList_3[i])
+                if (pList_1[i] <= pList_2[i] && pList_2[i] <= pList_3[i])
                 {
                     //符合空头排列
-                    //temp += count - i;
-                    temp += 1;
-                    rightCount += 1;
                 }
                 else
                 {
-                    temp -= 1;
+                    return 0;
                 }
             }
 
         }
-
-        float result_MA = temp / V_Length;
-
         #endregion
-
-        #region 2.EMA60 相关计算
-
-        float result_MA60 = GetMA60Value(pList60, dir);
-
-        #endregion
-
-        return (result_MA * 5 + result_MA60 * 3) / 8;
+        return 1;
     }
 
     float GetKValue(List<float> kList)

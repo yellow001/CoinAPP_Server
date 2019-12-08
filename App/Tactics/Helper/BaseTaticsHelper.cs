@@ -43,6 +43,11 @@ public class BaseTaticsHelper
     /// </summary>
     protected float lossPercent = 0;
 
+    /// <summary>
+    /// 上次是否盈利平仓
+    /// </summary>
+    public bool winClose = false;
+
     public float V_LossPercent {
         get {
             return lossPercent;
@@ -62,7 +67,7 @@ public class BaseTaticsHelper
     /// <summary>
     /// 冷却
     /// </summary>
-    protected long cooldown=1;
+    protected long cooldown=5;
 
     public BaseTaticsHelper() {
         cooldown *= (long)V_Min*60 * 10000 * 1000;
@@ -126,6 +131,7 @@ public class BaseTaticsHelper
     public bool ShouldCloseOrder(int dir, float percent,KLine line) {
         bool result = OnShouldCloseOrder(dir,percent);
         if (result) {
+            winClose = percent > 0;
             V_LastOpTime = line.V_Timestamp;
         }
         return result;
@@ -142,6 +148,7 @@ public class BaseTaticsHelper
         bool result = OnShouldCloseOrder(dir, percent);
         if (result)
         {
+            winClose = percent > 0;
             V_LastOpTime = DateTime.UtcNow;
         }
         return result;

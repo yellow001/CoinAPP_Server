@@ -116,16 +116,26 @@ namespace CoinAPP_Server.App
 
             //MATaticsHelper helper = new MATaticsHelper();
             //helper.Init(AppSetting.Ins.GetValue("MA_ETH"));
+            //await helper.RunHistory();
 
-            EMATaticsHelper helper2 = new EMATaticsHelper();
-            helper2.Init(AppSetting.Ins.GetValue("EMA_ETH"));
+            MATaticsHelper2 helper = new MATaticsHelper2();
+            helper.Init(AppSetting.Ins.GetValue("MA_BTC"));
+            await helper.RunHistory();
 
             //TurtleTaticsHelper helper3 = new TurtleTaticsHelper();
             //helper3.Init(AppSetting.Ins.GetValue("Turtle_ETH"));
 
-            //await helper.RunHistory();
+
+
+            EMATaticsHelper helper2 = new EMATaticsHelper();
+            helper2.Init(AppSetting.Ins.GetValue("EMA_BTC"));
 
             await helper2.RunHistory();
+
+            EMATaticsHelper2 helper3 = new EMATaticsHelper2();
+            helper3.Init(AppSetting.Ins.GetValue("EMA_BTC"));
+
+            await helper3.RunHistory();
 
             //await helper3.RunHistory();
 

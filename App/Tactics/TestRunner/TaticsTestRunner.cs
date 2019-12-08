@@ -77,9 +77,9 @@ public class TaticsTestRunner
 
         if (Position == null)
         {
-            //cd 中 ，不开单
+            //cd 中 且上次是盈利平仓，不开单
             long leave = helper.GetCoolDownTest();
-            if (leave < 0)
+            if (leave < 0&&helper.winClose)
             {
                 return;
             }
@@ -249,10 +249,10 @@ public class TaticsTestRunner
                     {
                         //if (winDic.ContainsKey(winItem))
                         //{
-                        //    int count = winDic[winItem];
-                        //    if (max < count)
+                        //    int money = winDic[winItem];
+                        //    if (max < money)
                         //    {
-                        //        max = count;
+                        //        max = money;
                         //        win_temp = winItem;
                         //    }
                         //}

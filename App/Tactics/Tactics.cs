@@ -80,7 +80,20 @@ public class Tactics
 
         try
         {
-            if ((DateTime.UtcNow - m_LastRefreshTime).Ticks > (long)m_TaticsHelper.V_Min * 100 * 60 * 10000 * 1000)
+            SwapApi api = CommonData.Ins.V_SwapApi;
+
+            //更新账号信息
+            JObject obj = await api.getAccountsByInstrumentAsync(V_Instrument_id);
+            accountInfo.RefreshData(obj["info"].ToString());
+
+            //更新持仓信息
+            obj = await api.getPositionByInstrumentAsync(V_Instrument_id);
+            accountInfo.RefreshPositions(Position.GetPositionList(obj["holding"].ToString()));
+
+            //更新未完成订单信息，全部撤销掉
+            await accountInfo.ClearOrders();
+
+            if (accountInfo.V_Position == null&&(DateTime.UtcNow - m_LastRefreshTime).Ticks > (long)m_TaticsHelper.V_Min * 100 * 60 * 10000 * 1000)
             {
                 //更新参数
                 await m_TaticsHelper.RunHistory();
@@ -89,18 +102,6 @@ public class Tactics
             }
             else
             {
-                SwapApi api = CommonData.Ins.V_SwapApi;
-
-                //更新账号信息
-                JObject obj = await api.getAccountsByInstrumentAsync(V_Instrument_id);
-                accountInfo.RefreshData(obj["info"].ToString());
-
-                //更新持仓信息
-                obj = await api.getPositionByInstrumentAsync(V_Instrument_id);
-                accountInfo.RefreshPositions(Position.GetPositionList(obj["holding"].ToString()));
-
-                //更新未完成订单信息，全部撤销掉
-                await accountInfo.ClearOrders();
 
                 //获取近200条K线
                 JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-5 * 200), DateTime.Now, 300);
@@ -114,7 +115,7 @@ public class Tactics
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            //Console.WriteLine(ex.ToString());
         }
         
 
@@ -127,8 +128,8 @@ public class Tactics
 
         if (accountInfo.V_Positions != null && accountInfo.V_Positions.Count > 1)
         {
-            //持仓有两个，异常，平仓
-            await accountInfo.ClearPositions();
+            //持仓有两个，异常（不管了。。。）
+            //await accountInfo.ClearPositions();
         }
         else
         {
@@ -136,7 +137,7 @@ public class Tactics
             {
                 //cd 中 ，不开单
                 long leave = m_TaticsHelper.GetCoolDown();
-                if (leave < 0)
+                if (leave < 0 && m_TaticsHelper.winClose)
                 {
                     //Console.WriteLine("冷却中 cd " + leave);
                     return;

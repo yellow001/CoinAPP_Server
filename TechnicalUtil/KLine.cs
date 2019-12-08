@@ -75,4 +75,12 @@ public class KLine
     public float GetAvg() {
         return MathF.Abs(V_OpenPrice - V_ClosePrice) / 2+(V_OpenPrice>V_ClosePrice?V_ClosePrice:V_OpenPrice);
     }
+
+    /// <summary>
+    /// 获取波动 百分比值（开盘 与 收盘 价差）
+    /// </summary>
+    /// <returns></returns>
+    public float GetPercent() {
+        return Math.Abs(V_HightPrice - V_LowPrice) / GetAvg() * 100;
+    }
 }

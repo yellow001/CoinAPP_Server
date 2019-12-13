@@ -101,7 +101,7 @@ public class TaticsTestRunner
         {
             //有单就算下是否需要平仓
             float v = Position.GetPercentTest(data[0]);
-            if (helper.ShouldCloseOrder(Position.V_Dir, v,Cur_Cache.V_KLineData[0]))
+            if (helper.ShouldCloseOrderTest(Position.V_Dir, v,Cur_Cache.V_KLineData[0]))
             {
                 CloseOrder(data[0]);
             }
@@ -157,11 +157,11 @@ public class TaticsTestRunner
                     loss = temp_loss;
                     win = temp_win;
                 }
-                Console.WriteLine("周期：" + cycleList[i]);
+                //Console.WriteLine(helper.V_Instrument_id+": 周期 " + cycleList[i]);
             }
             ((ICycleTatics)helper).SetCycle(best_Cycle);
             helper.SetStopPercent(loss, win);
-            Console.WriteLine("最佳周期 {0} 止损 {1}  止盈{2}  剩余{3}", best_Cycle, loss, win, maxMoney); ;
+            Console.WriteLine((helper.V_Instrument_id + ": 最佳周期 {0} 止损 {1}  止盈{2}  剩余{3}", best_Cycle, loss, win, maxMoney); ;
         }
         else {
             OnTestRun(helper,ref loss,ref win);
@@ -296,9 +296,9 @@ public class TaticsTestRunner
             }
         }
 
-        Console.WriteLine("盈利情况：{0}/{1}   盈利平均值：{2}", allWinCount, allCount, allWinMoney / allWinCount);
+        Console.WriteLine((helper.V_Instrument_id + ": 盈利情况：{0}/{1}   盈利平均值：{2}", allWinCount, allCount, allWinMoney / allWinCount);
 
-        Console.WriteLine("最佳止盈止损百分比值: {0} {1} 开单次数 {2} \n模拟剩余资金: {3}", loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
+        Console.WriteLine((helper.V_Instrument_id + ": 最佳止盈止损百分比值: {0} {1} 开单次数 {2} \n模拟剩余资金: {3}", loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
 
         loss_result = loss_final;
         win_result = win_final;

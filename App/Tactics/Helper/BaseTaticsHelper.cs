@@ -11,7 +11,7 @@ public class BaseTaticsHelper
     /// <summary>
     /// 关联合约
     /// </summary>
-    protected string V_Instrument_id;
+    public string V_Instrument_id;
 
     /// <summary>
     /// 倍数
@@ -128,7 +128,7 @@ public class BaseTaticsHelper
     /// <param name="dir">大于0多  其余空</param>
     /// <param name="percent">当前盈利百分比值</param>
     /// <returns></returns>
-    public bool ShouldCloseOrder(int dir, float percent,KLine line) {
+    public bool ShouldCloseOrderTest(int dir, float percent,KLine line) {
         bool result = OnShouldCloseOrder(dir,percent);
         if (result) {
             winClose = percent > 0;
@@ -163,7 +163,7 @@ public class BaseTaticsHelper
     /// </summary>
     public virtual async Task RunHistory()
     {
-        Console.WriteLine("获取历史数据");
+        Console.WriteLine(V_Instrument_id + ":获取历史数据");
 
         if (V_HistoryCache == null)
         {

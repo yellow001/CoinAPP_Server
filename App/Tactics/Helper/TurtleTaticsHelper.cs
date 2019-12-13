@@ -36,7 +36,7 @@ public class TurtleTaticsHelper : BaseTaticsHelper
     /// <param name="setting"></param>
     public override void Init(string setting)
     {
-        Console.WriteLine("初始化 海龟策略 设置");
+        Console.WriteLine(V_Instrument_id + ":初始化 海龟策略 设置");
         string[] strs = setting.Split(';');
         if (strs.Length >= 4)
         {
@@ -51,7 +51,7 @@ public class TurtleTaticsHelper : BaseTaticsHelper
             }
             V_Leverage = float.Parse(strs[3]);
         }
-        Console.WriteLine("合约 " + V_Instrument_id);
+        Console.WriteLine(V_Instrument_id + ":合约 " + V_Instrument_id);
     }
 
     /// <summary>
@@ -62,9 +62,9 @@ public class TurtleTaticsHelper : BaseTaticsHelper
     {
         await base.RunHistory();
 
-        Console.WriteLine("分析结果");
+        Console.WriteLine(V_Instrument_id + ":分析结果");
         TaticsTestRunner.TestRun(this);
-        Console.WriteLine("分析历史数据完毕");
+        Console.WriteLine(V_Instrument_id + ":分析历史数据完毕");
     }
 
     /// <summary>

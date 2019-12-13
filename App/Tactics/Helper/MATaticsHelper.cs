@@ -114,7 +114,7 @@ public class MATaticsHelper: BaseTaticsHelper,ICycleTatics
     /// <param name="setting"></param>
     public override void Init(string setting)
     {
-        Console.WriteLine("初始化 MA策略 设置");
+        Console.WriteLine(V_Instrument_id + ":初始化 MA策略 设置");
         string[] strs = setting.Split(';');
         if (strs.Length >= 4)
         {
@@ -133,7 +133,7 @@ public class MATaticsHelper: BaseTaticsHelper,ICycleTatics
     {
         await base.RunHistory();
 
-        Console.WriteLine("分析结果");
+        Console.WriteLine(V_Instrument_id + ":分析结果");
 
         List<float> resultList_add = new List<float>();
         List<float> resultList_mul = new List<float>();
@@ -193,7 +193,7 @@ public class MATaticsHelper: BaseTaticsHelper,ICycleTatics
 
         TaticsTestRunner.TestRun(this);
 
-        Console.WriteLine("分析历史数据完毕");
+        Console.WriteLine(V_Instrument_id + ":分析历史数据完毕");
     }
 
     /// <summary>

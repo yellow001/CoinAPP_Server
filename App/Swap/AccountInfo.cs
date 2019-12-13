@@ -103,8 +103,9 @@ public class AccountInfo
             return;
         }
 
-        Console.WriteLine("{0} 平仓: price {1}，方向：{2}，盈利率{3},剩余 {4}",
+        Console.WriteLine("{0} {1}:  平仓: price {1}，方向：{2}，盈利率{3},剩余 {4}",
             DateTime.Now,
+            V_Instrument_id,
             V_CurPrice,
             V_Position.V_Dir > 0 ? "平多" : "平空",
             V_Position.GetPercent(V_CurPrice),
@@ -137,7 +138,7 @@ public class AccountInfo
             int v = (int)((vol * V_CurPrice* V_Leverage) / V_Contract_val);
             SwapApi api = CommonData.Ins.V_SwapApi;
             await api.makeOrderAsync(V_Instrument_id, dir > 0 ? "1" : "2", (decimal)V_CurPrice, v, "", 0, "1");
-            Console.WriteLine("{0}  开仓:{1} 价格:{2} 张数:{3}",DateTime.Now,dir > 0 ? "多" : "空", V_CurPrice,v);
+            Console.WriteLine("{0}  {1}:  开仓:{2} 价格:{3} 张数:{4}",DateTime.Now,V_Instrument_id,dir > 0 ? "多" : "空", V_CurPrice,v);
             return true;
         }
     }

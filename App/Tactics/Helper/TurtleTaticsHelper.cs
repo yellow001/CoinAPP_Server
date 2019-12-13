@@ -36,7 +36,6 @@ public class TurtleTaticsHelper : BaseTaticsHelper
     /// <param name="setting"></param>
     public override void Init(string setting)
     {
-        Console.WriteLine(V_Instrument_id + ":初始化 海龟策略 设置");
         string[] strs = setting.Split(';');
         if (strs.Length >= 4)
         {

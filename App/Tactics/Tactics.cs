@@ -130,11 +130,11 @@ public class Tactics
     {
         if (error) {
             error = false;
-            Console.WriteLine("{0}  {1}:恢复处理");
+            Console.WriteLine("{0}  {1}:恢复处理", DateTime.Now, V_Instrument_id);
         }
 
         bool debug = false;
-        if (DateTime.Now.Minute % 10 == 0 && DateTime.Now.Second < 20)
+        if (DateTime.Now.Minute % 10 == 0 && DateTime.Now.Second < 10)
         {
             debug = true;
         }

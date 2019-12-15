@@ -53,18 +53,27 @@ namespace NetFrame.Tool
 
                 mutexLock.WaitOne();
 
-                foreach (var item in removeList)
+                for (int i = 0; i < removeList.Count; i++)
                 {
-                    if (models.Contains(item)) {
-                        models.Remove(item);
+                    if (i < removeList.Count) {
+                        var item = removeList[i];
+                        if (models.Contains(item))
+                        {
+                            models.Remove(item);
+                        }
                     }
                 }
                 removeList.Clear();
 
-                foreach (var item in addList)
+                for (int i = 0; i < addList.Count; i++)
                 {
-                    if (!models.Contains(item)) {
-                        models.Add(item);
+                    if (i < addList.Count)
+                    {
+                        var item = addList[i];
+                        if (!models.Contains(item))
+                        {
+                            models.Add(item);
+                        }
                     }
                 }
                 addList.Clear();

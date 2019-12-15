@@ -103,7 +103,7 @@ public class AccountInfo
             return;
         }
 
-        Console.WriteLine("{0} {1}:  平仓: price {1}，方向：{2}，盈利率{3},剩余 {4}",
+        Console.WriteLine("{0} {1}:  平仓: price {2}，方向：{3}，盈利率{4},剩余 {5}",
             DateTime.Now,
             V_Instrument_id,
             V_CurPrice,

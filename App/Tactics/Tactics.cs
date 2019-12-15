@@ -93,7 +93,7 @@ public class Tactics
             //更新未完成订单信息，全部撤销掉
             await accountInfo.ClearOrders();
 
-            if (accountInfo.V_Position == null&&(DateTime.UtcNow - m_LastRefreshTime).Ticks > (long)m_TaticsHelper.V_Min * 100 * 60 * 10000 * 1000)
+            if ((DateTime.UtcNow - m_LastRefreshTime).Ticks > (long)m_TaticsHelper.V_Min * 100 * 60 * 10000 * 1000)
             {
                 //更新参数
                 await m_TaticsHelper.RunHistory();
@@ -116,6 +116,7 @@ public class Tactics
         catch (Exception ex)
         {
             //Console.WriteLine(ex.ToString());
+            Console.WriteLine("{0} {1}:处理数据异常",DateTime.Now,V_Instrument_id);
         }
         
 
@@ -124,6 +125,22 @@ public class Tactics
 
     public async Task Handle()
     {
+        bool debug = false;
+        if (DateTime.Now.Minute % 10 == 0) {
+            debug = true;
+        }
+
+        if (debug)
+        {
+            Console.WriteLine("{0} {1}:当前盈利率{2}  止损{3}  止盈{4}", 
+                DateTime.Now, 
+                V_Instrument_id, 
+                accountInfo.V_Position.GetPercent(accountInfo.V_CurPrice),
+                m_TaticsHelper.V_LossPercent,
+                m_TaticsHelper.V_WinPercent
+                );
+        }
+
         m_TaticsHelper.V_Cache = cache;
 
         if (accountInfo.V_Positions != null && accountInfo.V_Positions.Count > 1)
@@ -139,7 +156,9 @@ public class Tactics
                 long leave = m_TaticsHelper.GetCoolDown();
                 if (leave < 0 && m_TaticsHelper.winClose)
                 {
-                    //Console.WriteLine("冷却中 cd " + leave);
+                    if (debug) {
+                        Console.WriteLine("{0} {1}:冷却中 cd {2}",DateTime.Now,V_Instrument_id,leave);
+                    }
                     return;
                 }
 

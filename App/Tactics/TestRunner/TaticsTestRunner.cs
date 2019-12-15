@@ -295,14 +295,17 @@ public class TaticsTestRunner
                 //Console.WriteLine("止损 {0} 止盈 {1} 开单次数 {2}  模拟剩余 {3}", loss.Key, win.Key, all_CountDic[loss.Key][win.Key], win.Value);
             }
         }
+        if (!(helper is ICycleTatics)) {
+            Console.WriteLine("{0}:盈利情况：{1}/{2}   盈利平均值：{3}", helper.V_Instrument_id, allWinCount, allCount, allWinMoney / allWinCount);
 
-        //Console.WriteLine("{0}:盈利情况：{1}/{2}   盈利平均值：{3}", helper.V_Instrument_id ,allWinCount, allCount, allWinMoney / allWinCount);
-
-        //Console.WriteLine("{0}:最佳止盈止损百分比值: {1} {2} 开单次数 {3} \n模拟剩余资金: {4}", helper.V_Instrument_id ,loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
-
+            Console.WriteLine("{0}:最佳止盈止损百分比值: {1} {2} 开单次数 {3} \n模拟剩余资金: {4}", helper.V_Instrument_id, loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
+        }
         loss_result = loss_final;
         win_result = win_final;
 
+        if (loss_final == 0 || win_final == 0) {
+            return 0;
+        }
         return all_ResultDic[loss_final][win_final];
     }
 }

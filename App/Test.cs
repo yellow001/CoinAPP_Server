@@ -118,24 +118,24 @@ namespace CoinAPP_Server.App
             //helper.Init(AppSetting.Ins.GetValue("MA_ETH"));
             //await helper.RunHistory();
 
-            MATaticsHelper2 helper = new MATaticsHelper2();
-            helper.Init(AppSetting.Ins.GetValue("MA_BTC"));
-            await helper.RunHistory();
+            //MATaticsHelper2 helper = new MATaticsHelper2();
+            //helper.Init(AppSetting.Ins.GetValue("MA_BTC"));
+            //await helper.RunHistory();
 
-            //TurtleTaticsHelper helper3 = new TurtleTaticsHelper();
-            //helper3.Init(AppSetting.Ins.GetValue("Turtle_ETH"));
+            ////TurtleTaticsHelper helper3 = new TurtleTaticsHelper();
+            ////helper3.Init(AppSetting.Ins.GetValue("Turtle_ETH"));
 
 
 
-            EMATaticsHelper helper2 = new EMATaticsHelper();
-            helper2.Init(AppSetting.Ins.GetValue("EMA_BTC"));
+            //EMATaticsHelper helper2 = new EMATaticsHelper();
+            //helper2.Init(AppSetting.Ins.GetValue("EMA_BTC"));
 
-            await helper2.RunHistory();
+            //await helper2.RunHistory();
 
-            EMATaticsHelper2 helper3 = new EMATaticsHelper2();
-            helper3.Init(AppSetting.Ins.GetValue("EMA_BTC"));
+            //EMATaticsHelper2 helper3 = new EMATaticsHelper2();
+            //helper3.Init(AppSetting.Ins.GetValue("EMA_BTC"));
 
-            await helper3.RunHistory();
+            //await helper3.RunHistory();
 
             //await helper3.RunHistory();
 
@@ -149,6 +149,17 @@ namespace CoinAPP_Server.App
             //Dictionary<int, int> winDic = new Dictionary<int, int>();
 
             //Dictionary<int, Dictionary<int, float>> all_ResultDic = new Dictionary<int, Dictionary<int, float>>();
+
+            string[] coins = AppSetting.Ins.GetValue("Run").Split(';');
+            Console.WriteLine(AppSetting.Ins.GetValue("Run"));
+            for (int i = 0; i < coins.Length; i++)
+            {
+                string item = coins[i];
+                EMATaticsHelper2 m_emaHelper = new EMATaticsHelper2();
+                m_emaHelper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+
+                await m_emaHelper.RunHistory();
+            }
 
 
             //for (int loss = -10; loss >= -150; loss -= 5)

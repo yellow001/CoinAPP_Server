@@ -112,6 +112,28 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
                     }
                 }
             }
+            else if (percent < lossPercent*0.8f)
+            {
+                //亏损时，判断继续持有还是平仓
+                if (dir > 0)
+                {
+                    if (sign < 0)
+                    {
+                        //有较为强烈的空头排列信号
+                        //Console.WriteLine("result {0}", GetResult());
+                        return true;
+                    }
+                }
+                else
+                {
+                    if (sign > 0)
+                    {
+                        //有较为强烈的多头排列信号
+                        //Console.WriteLine("result {0}", GetResult());
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }

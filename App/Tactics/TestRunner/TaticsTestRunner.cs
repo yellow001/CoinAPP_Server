@@ -185,7 +185,7 @@ public class TaticsTestRunner
 
         for (int loss = -10; loss >= -100; loss -= 5)
         {
-            for (int win = 10; win <= 150; win += 5)
+            for (int win = Math.Abs(loss); win <= 150; win += 5)
             {
                 allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();

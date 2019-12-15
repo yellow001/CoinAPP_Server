@@ -67,7 +67,7 @@ public class BaseTaticsHelper
     /// <summary>
     /// 冷却
     /// </summary>
-    protected long cooldown=5;
+    protected long cooldown=8;
 
     public BaseTaticsHelper() {
         cooldown *= (long)V_Min*60 * 10000 * 1000;

@@ -92,29 +92,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         {
             if (percent >= winPercent)
             {
-                //达到 止盈后，判断继续持有还是平仓
-                if (dir > 0)
-                {
-                    if (sign < 0)
-                    {
-                        //有较为强烈的空头排列信号
-                        //Console.WriteLine("result {0}", GetResult());
-                        return true;
-                    }
-                }
-                else
-                {
-                    if (sign > 0)
-                    {
-                        //有较为强烈的多头排列信号
-                        //Console.WriteLine("result {0}", GetResult());
-                        return true;
-                    }
-                }
-            }
-            else if (percent < lossPercent*0.8f)
-            {
-                //亏损时，判断继续持有还是平仓
+                //达到 止盈 或后亏损时，判断继续持有还是平仓
                 if (dir > 0)
                 {
                     if (sign < 0)

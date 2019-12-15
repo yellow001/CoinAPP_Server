@@ -29,6 +29,8 @@ public class Tactics
 
     DateTime m_LastRefreshTime;
 
+
+    bool error = false;
     public Tactics(string instrument_id, BaseTaticsHelper helper) {
         Start(instrument_id, helper);
     }
@@ -117,6 +119,7 @@ public class Tactics
         {
             //Console.WriteLine(ex.ToString());
             Console.WriteLine("{0} {1}:处理数据异常",DateTime.Now,V_Instrument_id);
+            error = true;
         }
         
 
@@ -125,8 +128,14 @@ public class Tactics
 
     public async Task Handle()
     {
+        if (error) {
+            error = false;
+            Console.WriteLine("{0}  {1}:恢复处理");
+        }
+
         bool debug = false;
-        if (DateTime.Now.Minute % 10 == 0) {
+        if (DateTime.Now.Minute % 10 == 0 && DateTime.Now.Second < 20)
+        {
             debug = true;
         }
 

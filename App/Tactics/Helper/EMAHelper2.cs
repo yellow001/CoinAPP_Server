@@ -37,6 +37,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     /// <param name="setting"></param>
     public override void Init(string setting)
     {
+        Console.WriteLine(setting);
         string[] strs = setting.Split(';');
         if (strs.Length >= 4)
         {

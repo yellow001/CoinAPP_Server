@@ -185,7 +185,9 @@ public class TaticsTestRunner
 
         for (int loss = -10; loss >= -100; loss -= 5)
         {
-            for (int win = Math.Abs(loss); win <= 150; win += 5)
+            int start = Math.Abs(loss) - 40;
+            start = start < 20 ? 20 : start;
+            for (int win = start; win <= 150; win += 5)
             {
                 allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();
@@ -247,21 +249,21 @@ public class TaticsTestRunner
                 {
                     foreach (var winItem in lossWinDic[item])
                     {
-                        //if (winDic.ContainsKey(winItem))
-                        //{
-                        //    int money = winDic[winItem];
-                        //    if (max < money)
-                        //    {
-                        //        max = money;
-                        //        win_temp = winItem;
-                        //    }
-                        //}
-                        float money = all_ResultDic[item][winItem];
-                        if (max < money)
+                        if (winDic.ContainsKey(winItem))
                         {
-                            max = money;
-                            win_temp = winItem;
+                            int money = winDic[winItem];
+                            if (max < money)
+                            {
+                                max = money;
+                                win_temp = winItem;
+                            }
                         }
+                        //float money = all_ResultDic[item][winItem];
+                        //if (max < money)
+                        //{
+                        //    max = money;
+                        //    win_temp = winItem;
+                        //}
                     }
                 }
                 final_Dic[item] = win_temp;

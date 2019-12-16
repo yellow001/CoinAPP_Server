@@ -31,6 +31,8 @@ public class Tactics
 
 
     bool error = false;
+
+    bool debug = false;
     public Tactics(string instrument_id, BaseTaticsHelper helper) {
         Start(instrument_id, helper);
     }
@@ -79,6 +81,10 @@ public class Tactics
     //}
 
     public virtual async void Update() {
+        if (DateTime.Now.Minute % 10 == 0 && DateTime.Now.Second < 5)
+        {
+            debug = true;
+        }
 
         try
         {
@@ -95,7 +101,7 @@ public class Tactics
             //更新未完成订单信息，全部撤销掉
             await accountInfo.ClearOrders();
 
-            if ((DateTime.UtcNow - m_LastRefreshTime).Ticks > (long)m_TaticsHelper.V_Min * 100 * 60 * 10000 * 1000)
+            if (accountInfo.V_Position==null&&(DateTime.UtcNow - m_LastRefreshTime).Ticks > (long)2 *24* 60 * 60 * 10000 * 1000)//2天
             {
                 //更新参数
                 await m_TaticsHelper.RunHistory();
@@ -104,6 +110,11 @@ public class Tactics
             }
             else
             {
+
+                if (debug)
+                {
+                    Console.WriteLine("{0} {1}:获取数据", DateTime.Now, V_Instrument_id);
+                }
 
                 //获取近200条K线
                 JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-5 * 200), DateTime.Now, 300);
@@ -121,9 +132,11 @@ public class Tactics
             Console.WriteLine("{0} {1}:处理数据异常",DateTime.Now,V_Instrument_id);
             error = true;
         }
-        
 
-        TimeEventHandler.Ins.AddEvent(new TimeEventModel(1, 1, Update));
+        debug = false;
+        Update();
+
+        //TimeEventHandler.Ins.AddEvent(new TimeEventModel(1, 1, Update));
     }
 
     public async Task Handle()
@@ -131,12 +144,6 @@ public class Tactics
         if (error) {
             error = false;
             Console.WriteLine("{0}  {1}:恢复处理", DateTime.Now, V_Instrument_id);
-        }
-
-        bool debug = false;
-        if (DateTime.Now.Minute % 10 == 0 && DateTime.Now.Second < 10)
-        {
-            debug = true;
         }
 
         if (debug)

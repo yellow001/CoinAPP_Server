@@ -79,7 +79,7 @@ public class TaticsTestRunner
         {
             //cd 中 且上次是盈利平仓，不开单
             long leave = helper.GetCoolDownTest();
-            if (leave < 0&&helper.winClose)
+            if (leave < 0 && helper.winClose)
             {
                 return;
             }

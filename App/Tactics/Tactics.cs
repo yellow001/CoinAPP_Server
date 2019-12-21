@@ -101,6 +101,11 @@ public class Tactics
             //更新未完成订单信息，全部撤销掉
             await accountInfo.ClearOrders();
 
+            if (accountInfo.GetAvailMoney() < 0.0001f)
+            {
+                return;
+            }
+
             if (accountInfo.V_Position==null&&(DateTime.UtcNow - m_LastRefreshTime).Ticks > (long)2 *24* 60 * 60 * 10000 * 1000)//2天
             {
                 //更新参数

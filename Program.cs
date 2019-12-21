@@ -6,6 +6,7 @@ using NetFrame.Interfaces;
 using NetFrame.Tool;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace CoinAPP_Server
 {
@@ -46,11 +47,12 @@ namespace CoinAPP_Server
 
             TaticsManager manager = new TaticsManager();
 
-            string r= Console.ReadLine();
-
-            while (!r.Equals("0"))
+            while (true)
             {
-                r = Console.ReadLine();
+                Task.Run(delegate
+                {
+                    Thread.Sleep(36000000);
+                }).Wait();
             }
 
             //sw.Flush();

@@ -136,9 +136,13 @@ public class TaticsTestRunner
         Position = null;
     }
 
+    public virtual void Clear() {
+        V_OrderCount = 0;
+    }
+
     public static void TestRun(BaseTaticsHelper helper)
     {
-        int win=0, loss=0;
+        int win=0, loss=0,count=0;
         if (helper is ICycleTatics)
         {
             float maxMoney = 0;
@@ -149,26 +153,27 @@ public class TaticsTestRunner
             for (int i = 0; i < cycleList.Length; i++)
             {
                 ((ICycleTatics)helper).SetCycle(cycleList[i]);
-                int temp_loss = 0, temp_win = 0;
-                float temp = OnTestRun(helper,ref temp_loss,ref temp_win);
+                int temp_loss = 0, temp_win = 0, temp_count=0;
+                float temp = OnTestRun(helper,ref temp_loss,ref temp_win,ref temp_count);
                 if (maxMoney<temp) {
                     maxMoney = temp;
                     best_Cycle = cycleList[i];
                     loss = temp_loss;
                     win = temp_win;
+                    count = temp_count;
                 }
                 //Console.WriteLine(helper.V_Instrument_id+": 周期 " + cycleList[i]);
             }
             ((ICycleTatics)helper).SetCycle(best_Cycle);
             helper.SetStopPercent(loss, win);
-            Console.WriteLine("{0}:最佳周期 {1} 止损 {2}  止盈{3}  剩余{4}", helper.V_Instrument_id ,best_Cycle, loss, win, maxMoney);
+            Console.WriteLine("{0}:最佳周期 {1} 止损 {2}  止盈{3}  剩余{4}  开单次数{5}", helper.V_Instrument_id ,best_Cycle, loss, win, maxMoney,count);
         }
         else {
-            OnTestRun(helper,ref loss,ref win);
+            OnTestRun(helper,ref loss,ref win,ref count);
         }
     }
 
-    private static float OnTestRun(BaseTaticsHelper helper,ref int loss_result,ref int win_result)
+    private static float OnTestRun(BaseTaticsHelper helper,ref int loss_result,ref int win_result,ref int orderCount)
     {
         Dictionary<int, int> lossCountDic = new Dictionary<int, int>();
 
@@ -178,12 +183,12 @@ public class TaticsTestRunner
 
         Dictionary<int, Dictionary<int, float>> all_ResultDic = new Dictionary<int, Dictionary<int, float>>();
 
-        Dictionary<int, Dictionary<int, float>> all_CountDic = new Dictionary<int, Dictionary<int, float>>();
+        Dictionary<int, Dictionary<int, int>> all_CountDic = new Dictionary<int, Dictionary<int, int>>();
 
         int allWinCount = 0;
         int allCount = 0;
 
-        for (int loss = -10; loss >= -100; loss -= 5)
+        for (int loss = -10; loss >= -55; loss -= 5)
         {
             int start = Math.Abs(loss) - 40;
             start = start < 20 ? 20 : start;
@@ -196,6 +201,7 @@ public class TaticsTestRunner
                 run.Data_All = helper.V_HistoryCache.V_KLineData;
                 run.helper = helper;
 
+                run.Clear();
                 float money = run.Run();
                 if (money > run.Init_Money)
                 {
@@ -227,7 +233,7 @@ public class TaticsTestRunner
 
                 if (!all_CountDic.ContainsKey(loss))
                 {
-                    Dictionary<int, float> temp = new Dictionary<int, float>();
+                    Dictionary<int, int> temp = new Dictionary<int, int>();
                     all_CountDic[loss] = temp;
                 }
                 all_CountDic[loss][win] = run.V_OrderCount;
@@ -249,28 +255,28 @@ public class TaticsTestRunner
                 {
                     foreach (var winItem in lossWinDic[item])
                     {
-                        if (winDic.ContainsKey(winItem))
-                        {
-                            int money = winDic[winItem];
-                            if (max < money)
-                            {
-                                max = money;
-                                win_temp = winItem;
-                            }
-                        }
-                        //float money = all_ResultDic[item][winItem];
-                        //if (max < money)
+                        //if (winDic.ContainsKey(winItem))
                         //{
-                        //    max = money;
-                        //    win_temp = winItem;
+                        //    int money = winDic[winItem];
+                        //    if (max < money)
+                        //    {
+                        //        max = money;
+                        //        win_temp = winItem;
+                        //    }
                         //}
+                        float money = all_ResultDic[item][winItem];
+                        if (max < money)
+                        {
+                            max = money;
+                            win_temp = winItem;
+                        }
                     }
                 }
                 final_Dic[item] = win_temp;
             }
         }
 
-        int loss_final = 0, win_final = 0;
+        int loss_final = 0, win_final = 0,orderCount_final=0;
         float maxMoney = 0;
         foreach (var item in final_Dic)
         {
@@ -280,6 +286,7 @@ public class TaticsTestRunner
                 maxMoney = value;
                 loss_final = item.Key;
                 win_final = item.Value;
+                orderCount_final = all_CountDic[item.Key][item.Value];
             }
         }
         helper.SetStopPercent(loss_final, win_final);
@@ -304,6 +311,7 @@ public class TaticsTestRunner
         }
         loss_result = loss_final;
         win_result = win_final;
+        orderCount = orderCount_final;
 
         if (loss_final == 0 || win_final == 0) {
             return 0;

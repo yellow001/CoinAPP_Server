@@ -132,26 +132,26 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     /// <returns></returns>
     int GetSign(bool order = false)
     {
-        if (order)
-        {
-            kLineCache.Clear();
+        //if (order)
+        //{
+        //    kLineCache.Clear();
 
-            if (V_Cache.V_KLineData.Count < 10)
-            {
-                return 0;
-            }
+        //    if (V_Cache.V_KLineData.Count < 10)
+        //    {
+        //        return 0;
+        //    }
 
-            kLineCache = V_Cache.V_KLineData.GetRange(0, 10);
+        //    kLineCache = V_Cache.V_KLineData.GetRange(0, 10);
 
-            foreach (var item in kLineCache)
-            {
-                //其中一条k线波动大于 1.382% ,先不开单
-                if (item.GetPercent() > 1.382)
-                {
-                    return 0;
-                }
-            }
-        }
+        //    foreach (var item in kLineCache)
+        //    {
+        //        //其中一条k线波动大于 1.382% ,先不开单
+        //        if (item.GetPercent() > 1.382)
+        //        {
+        //            return 0;
+        //        }
+        //    }
+        //}
 
         float result = GetResult();
         return (MathF.Abs(result) > 0.01f?(result>0?1:-1):0);

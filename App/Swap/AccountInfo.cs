@@ -1,11 +1,14 @@
 ﻿using Newtonsoft.Json.Linq;
 using OKExSDK;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using System.Threading.Tasks;
 
+[Serializable]
+[ProtoContract]
 /// <summary>
 /// 永续账号信息
 /// </summary>
@@ -14,31 +17,38 @@ public class AccountInfo
     /// <summary>
     /// 所属合约
     /// </summary>
+    [ProtoMember(1)]
     public string V_Instrument_id;
     /// <summary>
     /// 动态权益（可用+已用+挂单冻结 资金）
     /// </summary>
+    [ProtoMember(2)]
     public float V_Equity;
     /// <summary>
     /// 已用保证金
     /// </summary>
+    [ProtoMember(3)]
     public float V_Margin;
     /// <summary>
     /// 开仓冻结保证金
     /// </summary>
+    [ProtoMember(4)]
     public float V_Margin_frozen;
     /// <summary>
     /// 更新时间戳
     /// </summary>
+    [ProtoMember(5)]
     public DateTime V_TimeStamp;
     /// <summary>
     /// 当前价格
     /// </summary>
+    [ProtoMember(6)]
     public float V_CurPrice;
 
     /// <summary>
     /// 持仓信息（多 空）
     /// </summary>
+    [ProtoMember(7)]
     public List<Position> V_Positions;
 
     /// <summary>
@@ -58,6 +68,7 @@ public class AccountInfo
     /// <summary>
     /// 杠杆倍数
     /// </summary>
+    [ProtoMember(8)]
     public float V_Leverage;
 
     /// <summary>

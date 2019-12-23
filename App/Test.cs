@@ -1,4 +1,7 @@
-﻿using NetFrame.Tool;
+﻿using NetFrame.Base;
+using NetFrame.EnDecode;
+using NetFrame.EnDecode.Extend;
+using NetFrame.Tool;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OKExSDK;
@@ -161,7 +164,20 @@ namespace CoinAPP_Server.App
                 await m_emaHelper.RunHistory();
             }
 
+            //AbsCoding.Ins = new PbCoding();
 
+            //NetCenter.Ins.AddMsgEvent<ReqAccountInfoMessage>(ReqAccountInfoMessage.pid, (msg) => {
+
+            //    ReqAccountInfoMessage m = msg as ReqAccountInfoMessage;
+            //    Console.WriteLine(m.tt);
+            //});
+
+            //ReqAccountInfoMessage mm = new ReqAccountInfoMessage();
+            //mm.tt = 111;
+            //TransModel model = new TransModel(ReqAccountInfoMessage.pid, 0);
+            //model.SetMsg(mm);
+
+            //NetCenter.Ins.OnMsgReceive(null, model);
             //for (int loss = -10; loss >= -150; loss -= 5)
             //{
             //    for (int win = 10; win <= 150; win += 5)

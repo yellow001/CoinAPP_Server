@@ -1,9 +1,12 @@
 ﻿using Newtonsoft.Json;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
+[Serializable]
+[ProtoContract]
 /// <summary>
 /// 永续持仓信息
 /// </summary>
@@ -12,30 +15,37 @@ public class Position
     /// <summary>
     /// 所属合约
     /// </summary>
+    [ProtoMember(1)]
     public string V_Instrument_id;
     /// <summary>
     /// 均价
     /// </summary>
+    [ProtoMember(2)]
     public float V_Avg_Price;
     /// <summary>
     /// 持仓量
     /// </summary>
+    [ProtoMember(3)]
     public float V_AllVol;
     /// <summary>
     /// 可平仓量
     /// </summary>
+    [ProtoMember(4)]
     public float V_AvailVol;
     /// <summary>
     /// 方向（ 大于0 多）
     /// </summary>
+    [ProtoMember(5)]
     public int V_Dir;
     /// <summary>
     /// 杠杆倍数
     /// </summary>
+    [ProtoMember(6)]
     public float V_Leverage;
     /// <summary>
     /// 下单时间
     /// </summary>
+    [ProtoMember(7)]
     public DateTime V_TimeStamp;
 
     public Position() { }

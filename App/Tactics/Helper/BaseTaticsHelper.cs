@@ -85,7 +85,11 @@ public class BaseTaticsHelper
 
     public long GetCoolDown()
     {
-        long leave = (DateTime.UtcNow - V_LastOpTime).Ticks - cooldown;
+        long cd = cooldown;
+        if (!winClose) {
+            cd = (long)V_Min * 60 * 10000 * 1000;
+        }
+        long leave = (DateTime.UtcNow - V_LastOpTime).Ticks - cd;
         return leave;
     }
 

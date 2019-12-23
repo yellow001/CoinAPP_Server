@@ -44,9 +44,9 @@ namespace CoinAPP_Server
 
             //Console.WriteLine(dr.rows);
 
-            Test t = new Test();
+            //Test t = new Test();
 
-            //TaticsManager manager = new TaticsManager();
+            TaticsManager manager = new TaticsManager();
 
             while (true)
             {

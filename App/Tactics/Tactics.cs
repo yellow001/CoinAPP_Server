@@ -81,7 +81,7 @@ public class Tactics
     //}
 
     public virtual async void Update() {
-        if (DateTime.Now.Minute % 10 == 0 && DateTime.Now.Second < 5)
+        if (DateTime.Now.Minute % 30 == 0 && DateTime.Now.Second < 5)
         {
             debug = true;
         }

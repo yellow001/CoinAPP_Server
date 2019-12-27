@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using NetFrame.Tool;
+using Newtonsoft.Json.Linq;
 using OKExSDK;
 using System;
 using System.Collections.Generic;
@@ -64,10 +65,15 @@ public class BaseTaticsHelper
     /// </summary>
     protected long cooldown=10;
 
+    /// <summary>
+    /// 止损后冷却（止损次数越多，冷却越长，止盈后重置）
+    /// </summary>
+    protected long lossCooldown = 0;
+
     public bool winClose = false;
 
     public BaseTaticsHelper() {
-        cooldown *= (long)V_Min*60 * 10000 * 1000;
+        //cooldown *= (long)V_Min*60 * Util.Second_Ticks;
     }
 
     /// <summary>
@@ -79,15 +85,21 @@ public class BaseTaticsHelper
     }
 
     public long GetCoolDownTest() {
-        long leave = (V_Cache.V_KLineData[0].V_Timestamp - V_LastOpTime).Ticks - cooldown;
+
+        long cd = (long)V_Min * cooldown * Util.Minute_Ticks; ;
+        if (!winClose)
+        {
+            cd = (long)V_Min * lossCooldown * Util.Minute_Ticks;
+        }
+        long leave = (V_Cache.V_KLineData[0].V_Timestamp - V_LastOpTime).Ticks - cd;
         return leave;
     }
 
     public long GetCoolDown()
     {
-        long cd = cooldown;
+        long cd = (long)V_Min * cooldown * Util.Minute_Ticks; ;
         if (!winClose) {
-            cd = (long)V_Min * 60 * 10000 * 1000;
+            cd = (long)V_Min * lossCooldown * Util.Minute_Ticks;
         }
         long leave = (DateTime.UtcNow - V_LastOpTime).Ticks - cd;
         return leave;
@@ -133,7 +145,15 @@ public class BaseTaticsHelper
         bool result = OnShouldCloseOrder(dir, percent);
         if (result)
         {
+            bool lastResult = winClose;
             winClose = percent > 0;
+            if (winClose)
+            {
+                lossCooldown = 0;
+            }
+            else {
+                if (!lastResult) { lossCooldown += AppSetting.Ins.GetInt("LossCoolDown"); }
+            }
             V_LastOpTime = line.V_Timestamp;
         }
         return result;
@@ -205,5 +225,6 @@ public class BaseTaticsHelper
     /// </summary>
     public virtual void ClearTempData() {
         V_LastOpTime = DateTime.UtcNow;
+        lossCooldown = 0;
     }
 }

@@ -2,6 +2,12 @@ test:yellow
 connstring:server=120.25.84.142;database=TaskServer;uid=yellow;pwd=qW789456123=
 pos:50_0_30;15_0_-25;15_0_20;40_0_-5;28_0_95;36_0_18;41_0_6;-4_0_-26;-4_0_-26;41_0_-13
 
+//止损递增K线个数
+LossCoolDown:10
+
+//刷新设置时间（单位为K线时长*配置）
+RefreshSettingTime:250
+
 //周期列表
 CycleList:5_10_15;5_10_20;5_15_20;5_15_30;10_20_30
 

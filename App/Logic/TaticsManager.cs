@@ -18,10 +18,10 @@ public class TaticsManager
         {
             ins = new TaticsManager();
 
-            //ins.V_NetLogic = new TaticsNetLogic();
-            //ins.V_Model = new TaticsModel();
+            ins.V_NetLogic = new TaticsNetLogic();
+            ins.V_Model = new TaticsModel();
 
-            //ins.V_NetLogic.Init();
+            ins.V_NetLogic.Init();
         }
         return ins;
     }

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OKExSDK;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,17 +12,27 @@ using System.Threading.Tasks;
 /// <summary>
 /// 基础策略类（永续合约）
 /// </summary>
+[Serializable]
+[ProtoContract]
 public class Tactics
 {
     /// <summary>
     /// 关联合约
     /// </summary>
-    protected string V_Instrument_id;
+    [ProtoMember(1)]
+    public string V_Instrument_id;
 
     /// <summary>
     /// 当前持仓信息
     /// </summary>
-    protected AccountInfo accountInfo;
+    [ProtoMember(2)]
+    public AccountInfo V_AccountInfo;
+
+    /// <summary>
+    /// 状态
+    /// </summary>
+    [ProtoMember(3)]
+    public int V_State;
 
     protected KLineCache cache;
 
@@ -33,6 +44,9 @@ public class Tactics
     bool error = false;
 
     bool debug = false;
+
+    public Tactics() { }
+
     public Tactics(string instrument_id, BaseTaticsHelper helper) {
         Start(instrument_id, helper);
     }
@@ -48,11 +62,11 @@ public class Tactics
 
         await m_TaticsHelper.RunHistory();
 
-        m_LastRefreshTime = DateTime.UtcNow;
+        m_LastRefreshTime = DateTime.Now;
 
-        accountInfo = new AccountInfo();
+        V_AccountInfo = new AccountInfo();
 
-        accountInfo.V_Leverage = m_TaticsHelper.V_Leverage;
+        V_AccountInfo.V_Leverage = m_TaticsHelper.V_Leverage;
 
         //获取一下合约面值
         JContainer con = await CommonData.Ins.V_SwapApi.getInstrumentsAsync();
@@ -61,7 +75,7 @@ public class Tactics
         {
             if (dr["instrument_id"].Equals(V_Instrument_id))
             {
-                accountInfo.V_Contract_val = float.Parse(dr["contract_val"].ToString());
+                V_AccountInfo.V_Contract_val = float.Parse(dr["contract_val"].ToString());
                 break;
             }
         }
@@ -92,26 +106,28 @@ public class Tactics
 
             //更新账号信息
             JObject obj = await api.getAccountsByInstrumentAsync(V_Instrument_id);
-            accountInfo.RefreshData(obj["info"].ToString());
+            V_AccountInfo.RefreshData(obj["info"].ToString());
 
             //更新持仓信息
             obj = await api.getPositionByInstrumentAsync(V_Instrument_id);
-            accountInfo.RefreshPositions(Position.GetPositionList(obj["holding"].ToString()));
+            V_AccountInfo.RefreshPositions(Position.GetPositionList(obj["holding"].ToString()));
 
             //更新未完成订单信息，全部撤销掉
-            await accountInfo.ClearOrders();
+            await V_AccountInfo.ClearOrders();
 
-            if (accountInfo.GetAvailMoney() < 0.0001f)
+            if (V_AccountInfo.GetAvailMoney() < 0.0001f)
             {
                 return;
             }
 
-            if (accountInfo.V_Position==null&&(DateTime.UtcNow - m_LastRefreshTime).Ticks > (long)2 *24* 60 * 60 * 10000 * 1000)//2天
+            if (V_AccountInfo.V_Position==null&&(DateTime.Now - m_LastRefreshTime).Ticks > (long)m_TaticsHelper.V_Min *Util.Minute_Ticks*AppSetting.Ins.GetInt("RefreshSettingTime"))//更新设置操作
             {
                 //更新参数
                 await m_TaticsHelper.RunHistory();
 
-                m_LastRefreshTime = DateTime.UtcNow;
+                m_LastRefreshTime = DateTime.Now;
+
+                Console.WriteLine("{0} {1}:更新设置", DateTime.Now, V_Instrument_id);
             }
             else
             {
@@ -122,11 +138,11 @@ public class Tactics
                 }
 
                 //获取近200条K线
-                JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-5 * 200), DateTime.Now, 300);
+                JContainer con = await api.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-m_TaticsHelper.V_Min * 200), DateTime.Now, m_TaticsHelper.V_Min * 60);
 
                 cache.RefreshData(con);
 
-                accountInfo.V_CurPrice = cache.V_KLineData[0].V_ClosePrice;
+                V_AccountInfo.V_CurPrice = cache.V_KLineData[0].V_ClosePrice;
 
                 await Handle();
             }
@@ -156,7 +172,7 @@ public class Tactics
             Console.WriteLine("{0} {1}:当前盈利率{2}  止损{3}  止盈{4}", 
                 DateTime.Now, 
                 V_Instrument_id, 
-                accountInfo.V_Position.GetPercent(accountInfo.V_CurPrice),
+                V_AccountInfo.V_Position.GetPercent(V_AccountInfo.V_CurPrice),
                 m_TaticsHelper.V_LossPercent,
                 m_TaticsHelper.V_WinPercent
                 );
@@ -164,18 +180,18 @@ public class Tactics
 
         m_TaticsHelper.V_Cache = cache;
 
-        if (accountInfo.V_Positions != null && accountInfo.V_Positions.Count > 1)
+        if (V_AccountInfo.V_Positions != null && V_AccountInfo.V_Positions.Count > 1)
         {
             //持仓有两个，异常（不管了。。。）
             //await accountInfo.ClearPositions();
         }
         else
         {
-            if (accountInfo.V_Positions == null || accountInfo.V_Positions.Count == 0)
+            if (V_AccountInfo.V_Positions == null || V_AccountInfo.V_Positions.Count == 0)
             {
                 //cd 中 ，不开单
                 long leave = m_TaticsHelper.GetCoolDown();
-                if (leave < 0 && m_TaticsHelper.winClose)
+                if (leave < 0)
                 {
                     if (debug) {
                         Console.WriteLine("{0} {1}:冷却中 cd {2}",DateTime.Now,V_Instrument_id,leave);
@@ -188,24 +204,28 @@ public class Tactics
                 if (o > 0)
                 {
                     //多单
-                    await accountInfo.MakeOrder(1, accountInfo.GetAvailMoney() * 0.2f);
+                    await V_AccountInfo.MakeOrder(1, V_AccountInfo.GetAvailMoney() * 0.2f);
                 }
                 else if (o < 0)
                 {
                     //空单
-                    await accountInfo.MakeOrder(-1, accountInfo.GetAvailMoney() * 0.2f);
+                    await V_AccountInfo.MakeOrder(-1, V_AccountInfo.GetAvailMoney() * 0.2f);
                 }
             }
             else
             {
                 //有单就算下是否需要平仓
-                float v = accountInfo.V_Position.GetPercent(accountInfo.V_CurPrice);
+                float v = V_AccountInfo.V_Position.GetPercent(V_AccountInfo.V_CurPrice);
 
-                if (m_TaticsHelper.ShouldCloseOrder(accountInfo.V_Position.V_Dir,v))
+                if (m_TaticsHelper.ShouldCloseOrder(V_AccountInfo.V_Position.V_Dir,v))
                 {
-                    await accountInfo.ClearPositions();
+                    await V_AccountInfo.ClearPositions();
                 }
             }
         }
+    }
+
+    public AccountInfo F_GetAccountInfo() {
+        return V_AccountInfo;
     }
 }

@@ -42,6 +42,17 @@ namespace NetFrame.Tool
             }
         }
 
+        public int GetInt(string name)
+        {
+            int result = 0;
+            if (Ins.Settings.ContainsKey(name))
+            {
+                int.TryParse(Ins.Settings[name],out result);
+            }
+
+            return result;
+        }
+
         void InitSetting() {
             try {
                 using (StreamReader sr = new StreamReader(settingPath)) {

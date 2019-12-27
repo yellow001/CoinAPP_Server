@@ -4,21 +4,24 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+/// <summary>
+/// 运行策略
+/// </summary>
 [Serializable]
 [ProtoContract]
-public class ReqAccountInfoMessage : BaseMessage
+public class ReqRunTacticsMessage : BaseMessage
 {
+    public static int V_Pid = 100003;
+
     /// <summary>
-    /// 合约id，不填表示请求所有
+    /// 币种
     /// </summary>
     [ProtoMember(1)]
-    public string V_Instrument_id;
-
-    public static int V_Pid=100001;
+    public string coin; 
 
     public override BaseMessage ReadData(byte[] msgBytes)
     {
-        return AbsCoding.Ins.MsgDecoding<ReqAccountInfoMessage>(msgBytes);
+        return AbsCoding.Ins.MsgDecoding<ReqRunTacticsMessage>(msgBytes);
     }
 
     public override byte[] WriteData()

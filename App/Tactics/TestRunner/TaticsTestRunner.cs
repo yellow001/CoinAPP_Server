@@ -9,7 +9,7 @@ public class TaticsTestRunner
     /// <summary>
     /// 初始模拟金额
     /// </summary>
-    protected float Init_Money = 5f;
+    static float Init_Money = 5f;
 
     /// <summary>
     /// 当前金额
@@ -142,38 +142,66 @@ public class TaticsTestRunner
 
     public static void TestRun(BaseTaticsHelper helper)
     {
-        int win=0, loss=0,count=0;
+        int win=0, loss=0,count=999999;
+        float avg_win = 0;
         if (helper is ICycleTatics)
         {
             float maxMoney = 0;
             string best_Cycle="";
-            
+            float avg_win_max = 0;
 
             string[] cycleList = AppSetting.Ins.GetValue("CycleList").Split(';');
             for (int i = 0; i < cycleList.Length; i++)
             {
                 ((ICycleTatics)helper).SetCycle(cycleList[i]);
                 int temp_loss = 0, temp_win = 0, temp_count=0;
-                float temp = OnTestRun(helper,ref temp_loss,ref temp_win,ref temp_count);
-                if (maxMoney<temp) {
-                    maxMoney = temp;
-                    best_Cycle = cycleList[i];
-                    loss = temp_loss;
-                    win = temp_win;
-                    count = temp_count;
+                float temp = OnTestRun(helper,ref temp_loss,ref temp_win,ref avg_win_max, ref temp_count);
+
+                //if (maxMoney < temp)
+                //{
+                //    maxMoney = temp;
+                //    best_Cycle = cycleList[i];
+                //    loss = temp_loss;
+                //    win = temp_win;
+                //    avg_win = avg_win_max;
+                //    count = temp_count;
+                //}
+
+                //if (avg_win < avg_win_max)
+                //{
+                //    maxMoney = temp;
+                //    best_Cycle = cycleList[i];
+                //    loss = temp_loss;
+                //    win = temp_win;
+                //    avg_win = avg_win_max;
+                //    count = temp_count;
+                //}
+
+                if (temp > TaticsTestRunner.Init_Money) {
+                    if (count > temp_count)
+                    {
+                        maxMoney = temp;
+                        best_Cycle = cycleList[i];
+                        loss = temp_loss;
+                        win = temp_win;
+                        avg_win = avg_win_max;
+                        count = temp_count;
+                    }
                 }
+                
+
                 //Console.WriteLine(helper.V_Instrument_id+": 周期 " + cycleList[i]);
             }
             ((ICycleTatics)helper).SetCycle(best_Cycle);
             helper.SetStopPercent(loss, win);
-            Console.WriteLine("{0}:最佳周期 {1} 止损 {2}  止盈{3}  剩余{4}  开单次数{5}", helper.V_Instrument_id ,best_Cycle, loss, win, maxMoney,count);
+            Console.WriteLine("{0}:最佳周期 {1} 止损 {2}  止盈{3}  剩余{4}  盈利平均值 {5}  开单次数{6}", helper.V_Instrument_id ,best_Cycle, loss, win, maxMoney,avg_win,count);
         }
         else {
-            OnTestRun(helper,ref loss,ref win,ref count);
+            OnTestRun(helper,ref loss,ref win,ref avg_win, ref count);
         }
     }
 
-    private static float OnTestRun(BaseTaticsHelper helper,ref int loss_result,ref int win_result,ref int orderCount)
+    private static float OnTestRun(BaseTaticsHelper helper,ref int loss_result,ref int win_result,ref float avg_win,ref int orderCount)
     {
         Dictionary<int, int> lossCountDic = new Dictionary<int, int>();
 
@@ -188,11 +216,11 @@ public class TaticsTestRunner
         int allWinCount = 0;
         int allCount = 0;
 
-        for (int loss = -10; loss >= -55; loss -= 5)
+        for (int loss = -10; loss >= -80; loss -= 5)
         {
             int start = Math.Abs(loss) - 40;
             start = start < 20 ? 20 : start;
-            for (int win = start; win <= 150; win += 5)
+            for (int win = start; win <= 180; win += 5)
             {
                 allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();
@@ -203,7 +231,7 @@ public class TaticsTestRunner
 
                 run.Clear();
                 float money = run.Run();
-                if (money > run.Init_Money)
+                if (money > TaticsTestRunner.Init_Money)
                 {
                     allWinCount++;
 
@@ -309,6 +337,9 @@ public class TaticsTestRunner
 
             Console.WriteLine("{0}:最佳止盈止损百分比值: {1} {2} 开单次数 {3} \n模拟剩余资金: {4}", helper.V_Instrument_id, loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
         }
+
+        avg_win = allWinMoney / allWinCount;
+
         loss_result = loss_final;
         win_result = win_final;
         orderCount = orderCount_final;

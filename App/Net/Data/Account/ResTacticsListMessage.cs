@@ -6,16 +6,16 @@ using System.Text;
 
 [Serializable]
 [ProtoContract]
-public class ResAccountInfoMessage : BaseMessage
+public class ResTacticsListMessage : BaseMessage
 {
     [ProtoMember(1)]
-    public List<AccountInfo> V_AccountInfoList;
+    public List<Tactics> V_AccountInfoList;
 
-    public static int pid = 100002;
+    public static int V_Pid = 100002;
 
     public override BaseMessage ReadData(byte[] msgBytes)
     {
-        return AbsCoding.Ins.MsgDecoding<ReqAccountInfoMessage>(msgBytes);
+        return AbsCoding.Ins.MsgDecoding<ReqTacticsInfoMessage>(msgBytes);
     }
 
     public override byte[] WriteData()

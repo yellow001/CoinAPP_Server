@@ -142,7 +142,7 @@ public class BaseTaticsHelper
     /// <param name="percent">当前盈利百分比值</param>
     /// <returns></returns>
     public bool ShouldCloseOrderTest(int dir, float percent,KLine line) {
-        bool result = OnShouldCloseOrder(dir, percent);
+        bool result = OnShouldCloseOrder(dir, percent,true);
         if (result)
         {
             bool lastResult = winClose;
@@ -176,7 +176,7 @@ public class BaseTaticsHelper
         return result;
     }
 
-    protected virtual bool OnShouldCloseOrder(int dir, float percent) {
+    protected virtual bool OnShouldCloseOrder(int dir, float percent, bool isTest = false) {
         return false;
     }
 

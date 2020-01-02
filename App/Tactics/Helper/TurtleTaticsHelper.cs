@@ -83,7 +83,7 @@ public class TurtleTaticsHelper : BaseTaticsHelper
     /// <param name="dir"></param>
     /// <param name="percent"></param>
     /// <returns></returns>
-    protected override bool OnShouldCloseOrder(int dir, float percent)
+    protected override bool OnShouldCloseOrder(int dir, float percent, bool isTest = false)
     {
         if (percent <= lossPercent)
         {

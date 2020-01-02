@@ -5,6 +5,7 @@
  * 
  * **/
 
+using NetFrame.Tool;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -80,7 +81,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     /// <param name="dir">大于0多  其余空</param>
     /// <param name="percent">当前盈利百分比值</param>
     /// <returns></returns>
-    protected override bool OnShouldCloseOrder(int dir, float percent)
+    protected override bool OnShouldCloseOrder(int dir, float percent,bool isTest=false)
     {
         int sign = GetSign();
 
@@ -113,6 +114,35 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
                     }
                 }
             }
+
+            DateTime t = DateTime.UtcNow;
+
+            if (isTest) {
+                t = kLineCache[0].V_Timestamp;
+            }
+            if ((t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime")*V_Min) {
+                //持仓时间有点久了，看机会溜吧
+                if (dir > 0)
+                {
+                    if (sign < 0)
+                    {
+                        //有较为强烈的空头排列信号
+                        //Console.WriteLine("result {0}", GetResult());
+                        return true;
+                    }
+                }
+                else
+                {
+                    if (sign > 0)
+                    {
+                        //有较为强烈的多头排列信号
+                        //Console.WriteLine("result {0}", GetResult());
+                        return true;
+                    }
+                }
+            }
+
+
         }
         return false;
     }

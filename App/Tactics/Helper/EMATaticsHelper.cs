@@ -131,7 +131,7 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
     /// <param name="dir">大于0多  其余空</param>
     /// <param name="percent">当前盈利百分比值</param>
     /// <returns></returns>
-    protected override bool OnShouldCloseOrder(int dir, float percent)
+    protected override bool OnShouldCloseOrder(int dir, float percent, bool isTest = false)
     {
         int sign = GetSign();
 

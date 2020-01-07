@@ -216,11 +216,19 @@ public class TaticsTestRunner
         int allWinCount = 0;
         int allCount = 0;
 
-        for (int loss = -10; loss >= -80; loss -= 5)
+        int minLoss = (int)MathF.Floor(helper.V_Leverage * -0.618f);
+        int maxLoss = (int)MathF.Ceiling(helper.V_Leverage * -1.618f);
+        minLoss = minLoss > -25 ? -25 : minLoss;
+        maxLoss = maxLoss > minLoss ? minLoss * 2 : maxLoss;
+
+        int maxWin = (int)Math.Floor(helper.V_Leverage * 3.618f);
+        maxWin = maxWin < 40 ? 40 : maxWin;
+
+        for (int loss = minLoss; loss >= maxLoss; loss -= 5)
         {
             int start = Math.Abs(loss) - 40;
             start = start < 20 ? 20 : start;
-            for (int win = start; win <= 180; win += 5)
+            for (int win = start; win <= maxWin; win += 5)
             {
                 allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();

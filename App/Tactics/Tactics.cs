@@ -32,7 +32,7 @@ public class Tactics
     /// 状态
     /// </summary>
     [ProtoMember(3)]
-    public int V_State;
+    public EM_TacticsState V_State;
 
     protected KLineCache cache;
 
@@ -60,6 +60,8 @@ public class Tactics
 
         m_TaticsHelper = helper;
 
+        V_State = EM_TacticsState.Start;
+
         await m_TaticsHelper.RunHistory();
 
         m_LastRefreshTime = DateTime.Now;
@@ -85,6 +87,8 @@ public class Tactics
 
         cache = new KLineCache();
 
+        V_State = EM_TacticsState.Normal;
+
         Console.WriteLine("start {0}", V_Instrument_id);
         Update();
     }
@@ -95,6 +99,9 @@ public class Tactics
     //}
 
     public virtual async void Update() {
+
+        if (V_State == EM_TacticsState.Stop || V_State == EM_TacticsState.Pause) { return; }
+
         if (DateTime.Now.Minute % 30 == 0 && DateTime.Now.Second < 5)
         {
             debug = true;
@@ -227,5 +234,15 @@ public class Tactics
 
     public AccountInfo F_GetAccountInfo() {
         return V_AccountInfo;
+    }
+
+
+    public void Stop() {
+        V_State = EM_TacticsState.Stop;
+    }
+
+    public void Pause()
+    {
+        V_State = EM_TacticsState.Pause;
     }
 }

@@ -54,7 +54,7 @@ public class TaticsModel
     }
 
     /// <summary>
-    /// 请求下单  （ 1:平空   -1:平多   0:全平   2:对冲）
+    /// 请求操作  （ 1:开始  2 停止  3 暂停 4 开空  5 平空 6 开多  7 平多  8 全平  9 对冲）
     /// </summary>
     /// <param name="coin"></param>
     /// <param name="state"></param>
@@ -66,7 +66,69 @@ public class TaticsModel
     /// 5 全平失败
     /// 6 对冲失败
     /// </returns>
-    public int F_ReqOrder(string coin,int state) {
+    public int F_ReqOperation(string coin,int state) {
+
+        EM_TacticsState em_state = (EM_TacticsState)state;
+
+        bool success = false;
+
+        switch (em_state)
+        {
+            case EM_TacticsState.Start:
+                success = StartTatics(coin);
+                return success ? 1 : -1 ;
+                break;
+            case EM_TacticsState.Stop:
+                break;
+            case EM_TacticsState.Pause:
+                break;
+            case EM_TacticsState.Short:
+                break;
+            case EM_TacticsState.CloseShort:
+                break;
+            case EM_TacticsState.Long:
+                break;
+            case EM_TacticsState.CloseLong:
+                break;
+            case EM_TacticsState.CloseAll:
+                break;
+            case EM_TacticsState.Hedge:
+                break;
+            default:
+                break;
+        }
+
+        return 0;
+    }
+
+    #region 操作
+    /// <summary>
+    /// 开始执行一个合约策略
+    /// </summary>
+    bool StartTatics(string coin) {
+        string instrument_id = "";
+        foreach (var item in m_TacticsDic.Keys)
+        {
+            if (item.Contains(coin))
+            {
+                return false;
+            }
+        }
+
+        if (string.IsNullOrEmpty(instrument_id))
+        {
+            //该币种没有在运行，可以开始
+            RunTactics(coin);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 开始执行一个合约策略
+    /// </summary>
+    bool StopTatics(string coin)
+    {
         string instrument_id = "";
         foreach (var item in m_TacticsDic.Keys)
         {
@@ -77,31 +139,20 @@ public class TaticsModel
             }
         }
 
-        if (string.IsNullOrEmpty(instrument_id)) {
-            return 2;
+        if (string.IsNullOrEmpty(instrument_id))
+        {
+            //该币种没有在运行
+            return false;
         }
 
-        Tactics tactics = m_TacticsDic[instrument_id];
+        m_TacticsDic[instrument_id].Stop();
+        m_TacticsDic.Remove(instrument_id);
 
-        //switch (state)
-        //{
-        //    case 1:
-        //        //平空
-        //        tactics.
-        //        break;
-        //    case -1:
-        //        //平多
-        //        break;
-        //    case 0:
-        //        //全平
-        //        break;
-        //    case 2:
-        //        //对冲
-        //        break;
-        //    default:
-        //        break;
-        //}
-
-        return 0;
+        return true;
     }
+
+
+    #endregion
+
+
 }

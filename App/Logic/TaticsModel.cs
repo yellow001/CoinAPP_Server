@@ -79,8 +79,12 @@ public class TaticsModel
                 return success ? 1 : -1 ;
                 break;
             case EM_TacticsState.Stop:
+                success = StopTatics(coin);
+                return success ? 2 : -2;
                 break;
             case EM_TacticsState.Pause:
+                success = PauseTatics(coin);
+                return success ? 3 : -3;
                 break;
             case EM_TacticsState.Short:
                 break;
@@ -107,29 +111,55 @@ public class TaticsModel
     /// </summary>
     bool StartTatics(string coin) {
         string instrument_id = "";
-        foreach (var item in m_TacticsDic.Keys)
-        {
-            if (item.Contains(coin))
-            {
-                return false;
-            }
-        }
-
-        if (string.IsNullOrEmpty(instrument_id))
+        if (!IsTacticsRunning(coin, out instrument_id))
         {
             //该币种没有在运行，可以开始
             RunTactics(coin);
+            return true;
         }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 停止一个合约策略
+    /// </summary>
+    bool StopTatics(string coin)
+    {
+        string instrument_id = "";
+        if (!IsTacticsRunning(coin, out instrument_id))
+        {
+            return false;
+        }
+
+        m_TacticsDic[instrument_id].SetState(EM_TacticsState.Stop);
+        m_TacticsDic.Remove(instrument_id);
 
         return true;
     }
 
     /// <summary>
-    /// 开始执行一个合约策略
+    /// 暂停一个合约策略
     /// </summary>
-    bool StopTatics(string coin)
+    bool PauseTatics(string coin)
     {
         string instrument_id = "";
+        if (!IsTacticsRunning(coin, out instrument_id)) {
+            return false;
+        }
+
+        m_TacticsDic[instrument_id].SetState(EM_TacticsState.Pause);
+        m_TacticsDic.Remove(instrument_id);
+
+        return true;
+    }
+
+    /// <summary>
+    /// 某币种策略是否在运行
+    /// </summary>
+    /// <returns></returns>
+    bool IsTacticsRunning(string coin,out string instrument_id) {
+        instrument_id = "";
         foreach (var item in m_TacticsDic.Keys)
         {
             if (item.Contains(coin))
@@ -144,14 +174,10 @@ public class TaticsModel
             //该币种没有在运行
             return false;
         }
-
-        m_TacticsDic[instrument_id].Stop();
-        m_TacticsDic.Remove(instrument_id);
-
-        return true;
+        else {
+            return true;
+        }
     }
-
-
     #endregion
 
 

@@ -100,7 +100,7 @@ public class Tactics
 
     public virtual async void Update() {
 
-        if (V_State == EM_TacticsState.Stop || V_State == EM_TacticsState.Pause) { return; }
+        if (V_State == EM_TacticsState.Stop) { return; }
 
         if (DateTime.Now.Minute % 30 == 0 && DateTime.Now.Second < 5)
         {
@@ -124,6 +124,7 @@ public class Tactics
 
             if (V_AccountInfo.GetAvailMoney() < 0.0001f)
             {
+                TimeEventHandler.Ins.AddEvent(new TimeEventModel(600, 1, Update));
                 return;
             }
 
@@ -169,6 +170,8 @@ public class Tactics
 
     public async Task Handle()
     {
+        if (V_State == EM_TacticsState.Pause) { return; }
+
         if (error) {
             error = false;
             Console.WriteLine("{0}  {1}:恢复处理", DateTime.Now, V_Instrument_id);
@@ -232,17 +235,16 @@ public class Tactics
         }
     }
 
+    public void AutoHandle() {
+
+    }
+
+
     public AccountInfo F_GetAccountInfo() {
         return V_AccountInfo;
     }
 
-
-    public void Stop() {
-        V_State = EM_TacticsState.Stop;
-    }
-
-    public void Pause()
-    {
-        V_State = EM_TacticsState.Pause;
+    public void SetState(EM_TacticsState state) {
+        V_State = state;
     }
 }

@@ -109,7 +109,7 @@ public class AccountInfo
     /// <summary>
     /// 对手价平仓
     /// </summary>
-    public async Task ClearPositions() {
+    public async Task ClearPositions(int dir=0) {
         if (V_Positions == null || V_Positions.Count == 0) {
             return;
         }
@@ -125,8 +125,10 @@ public class AccountInfo
         for (int i = 0; i < V_Positions.Count; i++)
         {
             Position p = V_Positions[i];
-            SwapApi api = CommonData.Ins.V_SwapApi;
-            await api.makeOrderAsync(V_Instrument_id, p.V_Dir > 0 ? "3" : "4",(decimal)V_CurPrice, (int)p.V_AvailVol, "",0, "1");
+            if (dir==0||(dir > 0 && p.V_Dir > 0)|| (dir < 0 && p.V_Dir < 0)) {
+                SwapApi api = CommonData.Ins.V_SwapApi;
+                await api.makeOrderAsync(V_Instrument_id, p.V_Dir > 0 ? "3" : "4", (decimal)V_CurPrice, (int)p.V_AvailVol, "", 0, "1");
+            }
         }
 
         JObject obj = await CommonData.Ins.V_SwapApi.getAccountsByInstrumentAsync(V_Instrument_id);

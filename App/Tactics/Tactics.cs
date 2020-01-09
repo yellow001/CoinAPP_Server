@@ -45,6 +45,8 @@ public class Tactics
 
     bool debug = false;
 
+    float tempVol = 0;
+
     public Tactics() { }
 
     public Tactics(string instrument_id, BaseTaticsHelper helper) {
@@ -190,6 +192,40 @@ public class Tactics
 
         m_TaticsHelper.V_Cache = cache;
 
+        switch (V_State)
+        {
+            case EM_TacticsState.Short:
+                await OrderHandle();
+                break;
+            case EM_TacticsState.CloseShort:
+                await CloseHandle();
+                break;
+            case EM_TacticsState.Long:
+                await OrderHandle();
+                break;
+            case EM_TacticsState.CloseLong:
+                await CloseHandle();
+                break;
+            case EM_TacticsState.CloseAll:
+                await CloseHandle();
+                break;
+            case EM_TacticsState.Hedge:
+                await HedgeHandle();
+                break;
+            case EM_TacticsState.Normal:
+                await AutoHandle();
+                break;
+            default:
+                await AutoHandle();
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 自动处理
+    /// </summary>
+    /// <returns></returns>
+    public async Task AutoHandle() {
         if (V_AccountInfo.V_Positions != null && V_AccountInfo.V_Positions.Count > 1)
         {
             //持仓有两个，异常（不管了。。。）
@@ -203,8 +239,9 @@ public class Tactics
                 long leave = m_TaticsHelper.GetCoolDown();
                 if (leave < 0)
                 {
-                    if (debug) {
-                        Console.WriteLine("{0} {1}:冷却中 cd {2}",DateTime.Now,V_Instrument_id,leave);
+                    if (debug)
+                    {
+                        Console.WriteLine("{0} {1}:冷却中 cd {2}", DateTime.Now, V_Instrument_id, leave);
                     }
                     return;
                 }
@@ -227,7 +264,7 @@ public class Tactics
                 //有单就算下是否需要平仓
                 float v = V_AccountInfo.V_Position.GetPercent(V_AccountInfo.V_CurPrice);
 
-                if (m_TaticsHelper.ShouldCloseOrder(V_AccountInfo.V_Position.V_Dir,v))
+                if (m_TaticsHelper.ShouldCloseOrder(V_AccountInfo.V_Position.V_Dir, v))
                 {
                     await V_AccountInfo.ClearPositions();
                 }
@@ -235,8 +272,117 @@ public class Tactics
         }
     }
 
-    public void AutoHandle() {
+    /// <summary>
+    /// 下单处理
+    /// </summary>
+    /// <returns></returns>
+    public async Task OrderHandle() {
+        if (V_State != EM_TacticsState.Short||V_State!=EM_TacticsState.Long) {
+            V_State = EM_TacticsState.Normal;
+            return; 
+        }
 
+        if (V_AccountInfo.V_Positions == null || V_AccountInfo.V_Positions.Count == 0)
+        {
+            //什么单都没有   可以开
+            tempVol = V_AccountInfo.GetAvailMoney() * 0.2f;
+            await V_AccountInfo.MakeOrder(V_State==EM_TacticsState.Short?-1:1, tempVol);
+            return;
+        }
+        else {
+            if (V_AccountInfo.V_Positions.Count == 1) {
+                //只有多单或者空单 检查开的量是否够(因为有可能挂单没吃完，被撤了)
+                if ((V_AccountInfo.V_Position.V_Dir > 0 && V_State == EM_TacticsState.Long) || (V_AccountInfo.V_Position.V_Dir < 0 && V_State == EM_TacticsState.Short)) {
+                    if ((tempVol - V_AccountInfo.V_Position.V_AllVol) >= tempVol * 0.2f) {
+                        await V_AccountInfo.MakeOrder(V_State == EM_TacticsState.Short ? -1 : 1, tempVol - V_AccountInfo.V_Position.V_AllVol);
+                        return;
+                    }
+                }
+            }
+        }
+
+        tempVol = 0;
+        V_State = EM_TacticsState.Normal;
+    }
+
+    /// <summary>
+    /// 平仓处理
+    /// </summary>
+    /// <returns></returns>
+    public async Task CloseHandle()
+    {
+        if (V_State != EM_TacticsState.CloseAll || V_State != EM_TacticsState.CloseLong || V_State != EM_TacticsState.CloseShort) {
+            V_State = EM_TacticsState.Normal;
+            return; 
+        }
+
+        if (V_AccountInfo.V_Positions != null || V_AccountInfo.V_Positions.Count > 0)
+        {
+            if (V_State == EM_TacticsState.CloseAll)
+            {
+                await V_AccountInfo.ClearPositions(0);
+                return;
+            }
+            else if (V_State == EM_TacticsState.CloseLong) {
+                foreach (var item in V_AccountInfo.V_Positions)
+                {
+                    if (item.V_Dir > 0) {
+                        await V_AccountInfo.ClearPositions(1);
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var item in V_AccountInfo.V_Positions)
+                {
+                    if (item.V_Dir < 0)
+                    {
+                        await V_AccountInfo.ClearPositions(-1);
+                        return;
+                    }
+                }
+            }
+        }
+
+        V_State = EM_TacticsState.Normal;
+    }
+
+    /// <summary>
+    /// 对冲处理
+    /// </summary>
+    /// <returns></returns>
+    public async Task HedgeHandle()
+    {
+        if (V_State != EM_TacticsState.Hedge)
+        {
+            V_State = EM_TacticsState.Normal;
+            return;
+        }
+
+        if (V_AccountInfo.V_Positions != null || V_AccountInfo.V_Positions.Count > 0)
+        {
+            //只有一单
+            if (V_AccountInfo.V_Positions.Count == 1)
+            {
+                await V_AccountInfo.MakeOrder(-V_AccountInfo.V_Position.V_Dir, V_AccountInfo.V_Position.V_AllVol);
+                return;
+            }
+            else {
+                //有两单，检查下量能不能对上
+                float vol_1 = V_AccountInfo.V_Positions[0].V_AllVol;
+                float vol_2 = V_AccountInfo.V_Positions[1].V_AllVol;
+                float vol = vol_1 - vol_2;
+                float maxVol = MathF.Max(vol_1, vol_2);
+                if (MathF.Abs(vol) > maxVol * 0.2f) {
+                    //算不上对冲，继续开单
+                    await V_AccountInfo.MakeOrder(vol > 0 ? V_AccountInfo.V_Positions[1].V_Dir : V_AccountInfo.V_Positions[0].V_Dir,MathF.Abs(vol));
+                    return;
+                }
+            }
+        }
+
+        V_State = EM_TacticsState.Normal;
     }
 
 

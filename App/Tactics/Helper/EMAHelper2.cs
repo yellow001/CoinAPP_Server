@@ -184,7 +184,28 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         //}
 
         float result = GetResult();
-        return (MathF.Abs(result) > 0.01f?(result>0?1:-1):0);
+        int final = (MathF.Abs(result) > 0.01f?(result>0?1:-1):0);
+
+        if (final > 0)
+        {
+            //要开多
+            if (GetEMA60_KValue() < 0) {
+                //ema60 还在下降 不开单吧
+                final = 0;
+            }
+
+        }
+        else if (final < 0) {
+            //要开空
+            if (GetEMA60_KValue() > 0)
+            {
+                //ema60 还在上升 不开单吧
+                final = 0;
+            }
+
+        }
+
+        return final;
     }
 
     /// <summary>
@@ -205,6 +226,17 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         }
 
         return EMA.GetEMA(length, V_Cache.V_KLineData.GetRange(index, length));
+    }
+
+    float GetEMA60_KValue() {
+        if (GetEMAValue(60, 0) > GetEMAValue(60, 1) && GetEMAValue(60, 1) > GetEMAValue(60, 2)) {
+            return 1;
+        }
+        else if (GetEMAValue(60, 0) < GetEMAValue(60, 1) && GetEMAValue(60, 1) < GetEMAValue(60, 2)) {
+            return -1;
+        }
+
+        return 0;
     }
 
     /// <summary>

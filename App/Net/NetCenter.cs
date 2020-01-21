@@ -24,6 +24,8 @@ public class NetCenter : AbsHandlerCenter
 
     SingleSender SingleSender = new SingleSender();
 
+    List<BaseToken> tokenList = new List<BaseToken>();
+
     public NetCenter()
     {
         TaticsManager.GetIns();
@@ -38,6 +40,9 @@ public class NetCenter : AbsHandlerCenter
     {
         //throw new NotImplementedException();
         Console.WriteLine("{0}  client connect :{1}",DateTime.Now,token.socket.RemoteEndPoint);
+        if (tokenList.Contains(token)) {
+            tokenList.Remove(token);
+        }
     }
 
     public override void OnClientConnent(BaseToken token)
@@ -49,6 +54,25 @@ public class NetCenter : AbsHandlerCenter
     public override void OnMsgReceive<T>(BaseToken token, T model)
     {
         //throw new NotImplementedException();
+
+        if (!tokenList.Contains(token)) {
+            try
+            {
+                string key = Convert.ToBase64String(Encoding.UTF8.GetBytes("yellowzhong"));
+                if (model.GetMsg<string>().Equals(key)) {
+                    tokenList.Add(token);
+                }
+            }
+            catch (Exception ex)
+            {
+                token.Close();
+                Console.WriteLine("非法连接  "+token.socket.RemoteEndPoint);
+                return;
+            }
+        }
+
+        if (!tokenList.Contains(token)) { return; }
+
         try
         {
             if (m_MsgEventDic.ContainsKey(model.pID) && m_MsgTypeDic.ContainsKey(model.pID))

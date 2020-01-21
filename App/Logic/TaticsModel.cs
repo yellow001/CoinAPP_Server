@@ -105,6 +105,39 @@ public class TaticsModel
         return 0;
     }
 
+    /// <summary>
+    /// 改变开单操作状态
+    /// </summary>
+    /// <param name="coin"></param>
+    /// <param name="state"></param>
+    /// <returns>
+    /// </returns>
+    public int F_ReqChangeOrderState(string coin, int state)
+    {
+        try
+        {
+            EM_OrderOperation em_state = (EM_OrderOperation)state;
+
+            string instrument_id = "";
+
+            if (!IsTacticsRunning(coin, out instrument_id))
+            {
+                return -1;
+            }
+            else
+            {
+                m_TacticsDic[instrument_id].SetOrderState(em_state);
+                return 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            return 0;
+        }
+        
+    }
+
+
     #region 操作
     /// <summary>
     /// 开始执行一个合约策略
@@ -132,7 +165,7 @@ public class TaticsModel
             return false;
         }
 
-        m_TacticsDic[instrument_id].SetState(EM_TacticsState.Stop);
+        m_TacticsDic[instrument_id].SetTacticsState(EM_TacticsState.Stop);
         m_TacticsDic.Remove(instrument_id);
 
         return true;
@@ -148,7 +181,7 @@ public class TaticsModel
             return false;
         }
 
-        m_TacticsDic[instrument_id].SetState(EM_TacticsState.Pause);
+        m_TacticsDic[instrument_id].SetTacticsState(EM_TacticsState.Pause);
         m_TacticsDic.Remove(instrument_id);
 
         return true;

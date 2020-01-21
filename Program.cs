@@ -16,7 +16,7 @@ namespace CoinAPP_Server
         static void Main(string[] args)
         {
 
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            //Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             //StreamWriter sw = new StreamWriter("ConsoleOutput.txt");
             //Console.SetOut(sw);
@@ -44,9 +44,19 @@ namespace CoinAPP_Server
 
             //Console.WriteLine(dr.rows);
 
-            Test t = new Test();
+            //Test t = new Test();
 
             //TaticsManager manager = new TaticsManager();
+
+            int port = AppSetting.Ins.GetInt("Port");
+
+            BaseServer<TransModel, BaseToken> server = new BaseServer<TransModel, BaseToken>(port);
+
+            NetCenter center = new NetCenter();
+
+            server.Init(center);
+
+            server.Start();
 
             while (true)
             {

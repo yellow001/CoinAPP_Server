@@ -1,10 +1,14 @@
 ﻿using Newtonsoft.Json.Linq;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
+[Serializable]
+[ProtoContract]
 public class KLineCache
 {
+    [ProtoMember(1)]
     public List<KLine> V_KLineData;
 
     public KLineCache() { }

@@ -29,12 +29,19 @@ public class Tactics
     public AccountInfo V_AccountInfo;
 
     /// <summary>
-    /// 状态
+    /// 交易状态
     /// </summary>
     [ProtoMember(3)]
-    public EM_TacticsState V_State;
+    public EM_TacticsState V_TacticsState;
 
-    protected KLineCache cache;
+    /// <summary>
+    /// 下单状态
+    /// </summary>
+    [ProtoMember(4)]
+    public EM_OrderOperation V_OrderState;
+
+    [ProtoMember(5)]
+    public KLineCache cache;
 
     BaseTaticsHelper m_TaticsHelper;
 
@@ -62,7 +69,9 @@ public class Tactics
 
         m_TaticsHelper = helper;
 
-        V_State = EM_TacticsState.Start;
+        V_TacticsState = EM_TacticsState.Start;
+
+        V_OrderState = EM_OrderOperation.Normal;
 
         await m_TaticsHelper.RunHistory();
 
@@ -89,7 +98,7 @@ public class Tactics
 
         cache = new KLineCache();
 
-        V_State = EM_TacticsState.Normal;
+        V_TacticsState = EM_TacticsState.Normal;
 
         Console.WriteLine("start {0}", V_Instrument_id);
         Update();
@@ -102,7 +111,7 @@ public class Tactics
 
     public virtual async void Update() {
 
-        if (V_State == EM_TacticsState.Stop) { return; }
+        if (V_TacticsState == EM_TacticsState.Stop) { return; }
 
         if (DateTime.Now.Minute % 30 == 0 && DateTime.Now.Second < 5)
         {
@@ -172,7 +181,7 @@ public class Tactics
 
     public async Task Handle()
     {
-        if (V_State == EM_TacticsState.Pause) { return; }
+        if (V_TacticsState == EM_TacticsState.Pause) { return; }
 
         if (error) {
             error = false;
@@ -192,7 +201,7 @@ public class Tactics
 
         m_TaticsHelper.V_Cache = cache;
 
-        switch (V_State)
+        switch (V_TacticsState)
         {
             case EM_TacticsState.Short:
                 await OrderHandle();
@@ -251,12 +260,17 @@ public class Tactics
                 if (o > 0)
                 {
                     //多单
-                    await V_AccountInfo.MakeOrder(1, V_AccountInfo.GetAvailMoney() * 0.2f);
+                    if (V_OrderState != EM_OrderOperation.ShortOnly && V_OrderState != EM_OrderOperation.ShortNoClose) {
+                        await V_AccountInfo.MakeOrder(1, V_AccountInfo.GetAvailMoney() * 0.2f);
+                    }
                 }
                 else if (o < 0)
                 {
                     //空单
-                    await V_AccountInfo.MakeOrder(-1, V_AccountInfo.GetAvailMoney() * 0.2f);
+                    if (V_OrderState != EM_OrderOperation.LongOnly && V_OrderState != EM_OrderOperation.LongNoClose)
+                    {
+                        await V_AccountInfo.MakeOrder(-1, V_AccountInfo.GetAvailMoney() * 0.2f);
+                    }
                 }
             }
             else
@@ -266,6 +280,12 @@ public class Tactics
 
                 if (m_TaticsHelper.ShouldCloseOrder(V_AccountInfo.V_Position.V_Dir, v))
                 {
+                    if (v > 0)
+                    {
+                        if (V_OrderState == EM_OrderOperation.NoClose || V_OrderState == EM_OrderOperation.LongNoClose || V_OrderState == EM_OrderOperation.ShortNoClose) {
+                            return;
+                        }
+                    }
                     await V_AccountInfo.ClearPositions();
                 }
             }
@@ -277,8 +297,8 @@ public class Tactics
     /// </summary>
     /// <returns></returns>
     public async Task OrderHandle() {
-        if (V_State != EM_TacticsState.Short||V_State!=EM_TacticsState.Long) {
-            V_State = EM_TacticsState.Normal;
+        if (V_TacticsState != EM_TacticsState.Short||V_TacticsState!=EM_TacticsState.Long) {
+            V_TacticsState = EM_TacticsState.Normal;
             return; 
         }
 
@@ -286,15 +306,15 @@ public class Tactics
         {
             //什么单都没有   可以开
             tempVol = V_AccountInfo.GetAvailMoney() * 0.2f;
-            await V_AccountInfo.MakeOrder(V_State==EM_TacticsState.Short?-1:1, tempVol);
+            await V_AccountInfo.MakeOrder(V_TacticsState==EM_TacticsState.Short?-1:1, tempVol);
             return;
         }
         else {
             if (V_AccountInfo.V_Positions.Count == 1) {
                 //只有多单或者空单 检查开的量是否够(因为有可能挂单没吃完，被撤了)
-                if ((V_AccountInfo.V_Position.V_Dir > 0 && V_State == EM_TacticsState.Long) || (V_AccountInfo.V_Position.V_Dir < 0 && V_State == EM_TacticsState.Short)) {
+                if ((V_AccountInfo.V_Position.V_Dir > 0 && V_TacticsState == EM_TacticsState.Long) || (V_AccountInfo.V_Position.V_Dir < 0 && V_TacticsState == EM_TacticsState.Short)) {
                     if ((tempVol - V_AccountInfo.V_Position.V_AllVol) >= tempVol * 0.2f) {
-                        await V_AccountInfo.MakeOrder(V_State == EM_TacticsState.Short ? -1 : 1, tempVol - V_AccountInfo.V_Position.V_AllVol);
+                        await V_AccountInfo.MakeOrder(V_TacticsState == EM_TacticsState.Short ? -1 : 1, tempVol - V_AccountInfo.V_Position.V_AllVol);
                         return;
                     }
                 }
@@ -302,7 +322,7 @@ public class Tactics
         }
 
         tempVol = 0;
-        V_State = EM_TacticsState.Normal;
+        V_TacticsState = EM_TacticsState.Normal;
     }
 
     /// <summary>
@@ -311,19 +331,19 @@ public class Tactics
     /// <returns></returns>
     public async Task CloseHandle()
     {
-        if (V_State != EM_TacticsState.CloseAll || V_State != EM_TacticsState.CloseLong || V_State != EM_TacticsState.CloseShort) {
-            V_State = EM_TacticsState.Normal;
+        if (V_TacticsState != EM_TacticsState.CloseAll || V_TacticsState != EM_TacticsState.CloseLong || V_TacticsState != EM_TacticsState.CloseShort) {
+            V_TacticsState = EM_TacticsState.Normal;
             return; 
         }
 
         if (V_AccountInfo.V_Positions != null || V_AccountInfo.V_Positions.Count > 0)
         {
-            if (V_State == EM_TacticsState.CloseAll)
+            if (V_TacticsState == EM_TacticsState.CloseAll)
             {
                 await V_AccountInfo.ClearPositions(0);
                 return;
             }
-            else if (V_State == EM_TacticsState.CloseLong) {
+            else if (V_TacticsState == EM_TacticsState.CloseLong) {
                 foreach (var item in V_AccountInfo.V_Positions)
                 {
                     if (item.V_Dir > 0) {
@@ -345,7 +365,7 @@ public class Tactics
             }
         }
 
-        V_State = EM_TacticsState.Normal;
+        V_TacticsState = EM_TacticsState.Normal;
     }
 
     /// <summary>
@@ -354,9 +374,9 @@ public class Tactics
     /// <returns></returns>
     public async Task HedgeHandle()
     {
-        if (V_State != EM_TacticsState.Hedge)
+        if (V_TacticsState != EM_TacticsState.Hedge)
         {
-            V_State = EM_TacticsState.Normal;
+            V_TacticsState = EM_TacticsState.Normal;
             return;
         }
 
@@ -382,7 +402,7 @@ public class Tactics
             }
         }
 
-        V_State = EM_TacticsState.Normal;
+        V_TacticsState = EM_TacticsState.Normal;
     }
 
 
@@ -390,7 +410,12 @@ public class Tactics
         return V_AccountInfo;
     }
 
-    public void SetState(EM_TacticsState state) {
-        V_State = state;
+    public void SetTacticsState(EM_TacticsState state) {
+        V_TacticsState = state;
+    }
+
+    public void SetOrderState(EM_OrderOperation state)
+    {
+        V_OrderState = state;
     }
 }

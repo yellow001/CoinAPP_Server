@@ -3,32 +3,41 @@ using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ProtoBuf;
 
+[Serializable]
+[ProtoContract]
 public class KLine
 {
     /// <summary>
     /// 开始时间
     /// </summary>
+    [ProtoMember(1)]
     public DateTime V_Timestamp;
     /// <summary>
     /// 开盘价格
     /// </summary>
+    [ProtoMember(2)]
     public float V_OpenPrice;
     /// <summary>
     /// 最高价
     /// </summary>
+    [ProtoMember(3)]
     public float V_HightPrice;
     /// <summary>
     /// 最低价
     /// </summary>
+    [ProtoMember(4)]
     public float V_LowPrice;
     /// <summary>
     /// 收盘价
     /// </summary>
+    [ProtoMember(5)]
     public float V_ClosePrice;
     /// <summary>
     /// 交易量
     /// </summary>
+    [ProtoMember(6)]
     public float V_Vol;
 
     public KLine() { }

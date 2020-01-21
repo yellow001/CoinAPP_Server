@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+/// <summary>
+/// 请求账户信息
+/// </summary>
 [Serializable]
 [ProtoContract]
 public class ReqTacticsInfoMessage : BaseMessage

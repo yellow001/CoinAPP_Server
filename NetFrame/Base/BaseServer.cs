@@ -44,6 +44,12 @@ namespace NetFrame.Base
 
         AbsHandlerCenter center;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p">端口</param>
+        /// <param name="mConn"></param>
+        /// <param name="wConn"></param>
         public BaseServer(int p,int mConn=1000,int wConn=10) {
             port = p;
             maxConn = mConn;

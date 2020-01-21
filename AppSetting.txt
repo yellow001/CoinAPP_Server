@@ -2,6 +2,8 @@ test:yellow
 connstring:server=120.25.84.142;database=TaskServer;uid=yellow;pwd=qW789456123=
 pos:50_0_30;15_0_-25;15_0_20;40_0_-5;28_0_95;36_0_18;41_0_6;-4_0_-26;-4_0_-26;41_0_-13
 
+api:keyname;Passphrase;apikey;SecretKey
+
 //止损递增K线个数
 LossCoolDown:10
 
@@ -49,6 +51,8 @@ Turtle_ETC:ETC-USD-SWAP;5;20_10;30
 Turtle_XRP:XRP-USD-SWAP;5;20_10;30
 
 Turtle_BSV:BSV-USD-SWAP;5;20_10;20
+
+Port:8888
 
 //启动币种
 Run:BTC;ETH;EOS;BCH;LTC

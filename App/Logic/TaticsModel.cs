@@ -102,6 +102,17 @@ public class TaticsModel
                 break;
         }
 
+        string instrument_id = "";
+        if (!IsTacticsRunning(coin, out instrument_id))
+        {
+            return -1;
+        }
+        else
+        {
+            m_TacticsDic[instrument_id].SetTacticsState(em_state);
+            return 1;
+        }
+
         return 0;
     }
 

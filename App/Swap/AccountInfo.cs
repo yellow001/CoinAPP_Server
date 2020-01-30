@@ -94,7 +94,7 @@ public class AccountInfo
         {
             V_Positions = new List<Position>();
         }
-        V_Positions.Clear();
+        //V_Positions.Clear();
     }
 
     /// <summary>

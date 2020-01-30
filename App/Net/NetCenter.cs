@@ -1,6 +1,7 @@
 ﻿using NetFrame.AbsClass;
 using NetFrame.Base;
 using NetFrame.EnDecode;
+using NetFrame.Tool;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -28,7 +29,6 @@ public class NetCenter : AbsHandlerCenter
 
     public NetCenter()
     {
-        TaticsManager.GetIns();
     }
 
     public void AddMsgEvent<T>(int pid,Action<BaseToken,BaseMessage> cb)where T:BaseMessage{
@@ -39,7 +39,7 @@ public class NetCenter : AbsHandlerCenter
     public override void OnClientClose(BaseToken token, string error)
     {
         //throw new NotImplementedException();
-        Console.WriteLine("{0}  client connect :{1}",DateTime.Now,token.socket.RemoteEndPoint);
+        Console.WriteLine("{0}  client close :{1}",DateTime.Now,token.socket.RemoteEndPoint);
         if (tokenList.Contains(token)) {
             tokenList.Remove(token);
         }
@@ -47,7 +47,7 @@ public class NetCenter : AbsHandlerCenter
 
     public override void OnClientConnent(BaseToken token)
     {
-        Console.WriteLine("{0}  client close :{1}", DateTime.Now, token.socket.RemoteEndPoint);
+        Console.WriteLine("{0}  client connect :{1}", DateTime.Now, token.socket.RemoteEndPoint);
         //throw new NotImplementedException();
     }
 
@@ -58,7 +58,7 @@ public class NetCenter : AbsHandlerCenter
         if (!tokenList.Contains(token)) {
             try
             {
-                string key = Convert.ToBase64String(Encoding.UTF8.GetBytes("yellowzhong"));
+                string key = Convert.ToBase64String(Encoding.UTF8.GetBytes(AppSetting.Ins.GetValue("ConnectKey")));
                 if (model.GetMsg<string>().Equals(key)) {
                     tokenList.Add(token);
                 }

@@ -12,9 +12,9 @@ public class TaticsNetLogic
 
         NetCenter.Ins.AddMsgEvent<ReqOrderTacticsMessage>(ReqOrderTacticsMessage.V_Pid, ReqOrderTacticsMessage_CB);
 
-        NetCenter.Ins.AddMsgEvent<ReqOrderTacticsMessage>(ReqChangeOrderStateMessage.V_Pid, ReqOrderTacticsMessage_CB);
+        NetCenter.Ins.AddMsgEvent<ReqChangeOrderStateMessage>(ReqChangeOrderStateMessage.V_Pid, ReqChangeOrderStateMessage_CB);
 
-        NetCenter.Ins.AddMsgEvent<ReqOrderTacticsMessage>(ReqChangeTacticsStateMessage.V_Pid, ReqOrderTacticsMessage_CB);
+        NetCenter.Ins.AddMsgEvent<ReqChangeTacticsStateMessage>(ReqChangeTacticsStateMessage.V_Pid, ReqChangeTacticsStateMessage_CB);
     }
 
     /// <summary>
@@ -74,6 +74,22 @@ public class TaticsNetLogic
         if (info != null)
         {
             int state = TaticsManager.GetIns().V_Model.F_ReqChangeOrderState(info.coin,info.state);
+            string tip = state == 1 ? "成功" : "失败";
+            NetCenter.Ins.SendTips(token, tip);
+        }
+    }
+
+    /// <summary>
+    /// 客户端请求操作
+    /// </summary>
+    /// <param name="token"></param>
+    /// <param name="msg"></param>
+    public void ReqChangeTacticsStateMessage_CB(BaseToken token, BaseMessage msg)
+    {
+        ReqChangeTacticsStateMessage info = msg as ReqChangeTacticsStateMessage;
+        if (info != null)
+        {
+            int state = TaticsManager.GetIns().V_Model.F_ReqOperation(info.coin, info.type);
             string tip = state == 1 ? "成功" : "失败";
             NetCenter.Ins.SendTips(token, tip);
         }

@@ -52,11 +52,13 @@ namespace CoinAPP_Server
 
             BaseServer<TransModel, BaseToken> server = new BaseServer<TransModel, BaseToken>(port);
 
-            NetCenter center = new NetCenter();
-
-            server.Init(center);
+            server.Init(NetCenter.Ins);
 
             server.Start();
+
+            AbsCoding.Ins = new PbCoding();
+
+            TaticsManager.GetIns();
 
             while (true)
             {

@@ -57,4 +57,4 @@ Port:8888
 ConnectKey:yellowzhong
 
 //∆Ù∂Ø±“÷÷
-Run:ETC
+Run:BTC;LTC;ETH;ETC;XRP;EOS;BCH;BSV

@@ -40,6 +40,7 @@ public class NetCenter : AbsHandlerCenter
     {
         //throw new NotImplementedException();
         Console.WriteLine("{0}  client close :{1}",DateTime.Now,token.socket.RemoteEndPoint);
+        Debugger.Log(string.Format("{0}  client close :{1}", DateTime.Now, token.socket.RemoteEndPoint));
         if (tokenList.Contains(token)) {
             tokenList.Remove(token);
         }
@@ -48,6 +49,7 @@ public class NetCenter : AbsHandlerCenter
     public override void OnClientConnent(BaseToken token)
     {
         Console.WriteLine("{0}  client connect :{1}", DateTime.Now, token.socket.RemoteEndPoint);
+        Debugger.Log(string.Format("{0}  client connect :{1}", DateTime.Now, token.socket.RemoteEndPoint));
         //throw new NotImplementedException();
     }
 
@@ -67,6 +69,7 @@ public class NetCenter : AbsHandlerCenter
             {
                 token.Close();
                 Console.WriteLine("非法连接  "+token.socket.RemoteEndPoint);
+                Debugger.Error("非法连接  " + token.socket.RemoteEndPoint);
                 return;
             }
         }
@@ -88,6 +91,7 @@ public class NetCenter : AbsHandlerCenter
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
+            Debugger.Error(ex.ToString());
         }
         
     }

@@ -39,6 +39,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     public override void Init(string setting)
     {
         Console.WriteLine(setting);
+        Debugger.Warn(setting);
         string[] strs = setting.Split(';');
         if (strs.Length >= 4)
         {
@@ -47,7 +48,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
             V_Length = int.Parse(strs[2]);
             V_Leverage = float.Parse(strs[3]);
         }
-        Console.WriteLine("合约 " + V_Instrument_id);
+        base.Init(setting);
     }
 
     /// <summary>
@@ -58,10 +59,12 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         await base.RunHistory();
 
         Console.WriteLine(V_Instrument_id+":分析结果");
+        Debugger.Warn(V_Instrument_id + ":分析结果");
 
         TaticsTestRunner.TestRun(this);
 
         Console.WriteLine(V_Instrument_id+":分析历史数据完毕");
+        Debugger.Warn(V_Instrument_id + ":分析历史数据完毕");
     }
 
     /// <summary>

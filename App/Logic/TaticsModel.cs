@@ -12,6 +12,7 @@ public class TaticsModel
 
         string[] coins = AppSetting.Ins.GetValue("Run").Split(';');
         Console.WriteLine(AppSetting.Ins.GetValue("Run"));
+        Debugger.Log(AppSetting.Ins.GetValue("Run"));
         for (int i = 0; i < coins.Length; i++)
         {
             string item = coins[i];

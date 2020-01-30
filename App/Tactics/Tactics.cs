@@ -101,6 +101,7 @@ public class Tactics
         V_TacticsState = EM_TacticsState.Normal;
 
         Console.WriteLine("start {0}", V_Instrument_id);
+        Debugger.Warn(string.Format("start {0}", V_Instrument_id));
         Update();
     }
 

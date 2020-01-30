@@ -1,4 +1,4 @@
-﻿//using NLog;
+﻿using NLog;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,22 +7,26 @@ namespace NetFrame.Tool
 {
     public class Debugger
     {
-        //static Logger Log;
+        static Logger Logger;
 
-        static Debugger() {
-            //Log = LogManager.GetCurrentClassLogger();
+        static Debugger()
+        {
+            Logger = LogManager.GetCurrentClassLogger();
         }
 
-        public static void Trace(string msg) {
-            //Log.Trace(msg);
+        public static void Log(string msg)
+        {
+            Logger.Trace(msg);
         }
 
-        public static void Warn(string msg) {
-            //Log.Warn(msg);
+        public static void Warn(string msg)
+        {
+            Logger.Warn(msg);
         }
 
-        public static void Error(string msg) {
-            //Log.Error(msg);
+        public static void Error(string msg)
+        {
+            Logger.Error(msg);
         }
     }
 }

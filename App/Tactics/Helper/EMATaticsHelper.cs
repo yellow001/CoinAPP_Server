@@ -5,6 +5,7 @@
  * 
  * **/
 
+using NetFrame.Tool;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -60,7 +61,8 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
             V_Length = int.Parse(strs[2]);
             V_Leverage = float.Parse(strs[3]);
         }
-        Console.WriteLine("合约 " + V_Instrument_id);
+
+        base.Init(setting);
     }
 
     /// <summary>
@@ -70,7 +72,8 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
     {
         await base.RunHistory();
 
-        Console.WriteLine("分析结果");
+        Console.WriteLine(V_Instrument_id + "  分析结果");
+        Debugger.Warn(V_Instrument_id + "  分析结果");
 
         List<float> resultList_add = new List<float>();
         List<float> resultList_mul = new List<float>();
@@ -111,7 +114,9 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
 
         TaticsTestRunner.TestRun(this);
 
-        Console.WriteLine("分析历史数据完毕 result_add_avg {0}  result_mul_avg {1}  result_avg {2}",result_add_avg,result_mul_avg,result_avg);
+        Console.WriteLine("{0}  分析历史数据完毕 result_add_avg {1}  result_mul_avg {2}  result_avg {3}",V_Instrument_id,result_add_avg,result_mul_avg,result_avg);
+
+        Debugger.Warn(string.Format("{0}  分析历史数据完毕 result_add_avg {1}  result_mul_avg {2}  result_avg {3}", V_Instrument_id, result_add_avg, result_mul_avg, result_avg));
     }
 
     /// <summary>

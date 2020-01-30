@@ -64,6 +64,7 @@
  * **/
 
 
+using NetFrame.Tool;
 using Newtonsoft.Json.Linq;
 using OKExSDK;
 using System;
@@ -122,7 +123,7 @@ public class MATaticsHelper: BaseTaticsHelper,ICycleTatics
             V_Length = int.Parse(strs[2]);
             V_Leverage = float.Parse(strs[3]);
         }
-        Console.WriteLine("合约 " + V_Instrument_id);
+        base.Init(setting);
     }
 
     /// <summary>
@@ -133,6 +134,8 @@ public class MATaticsHelper: BaseTaticsHelper,ICycleTatics
         await base.RunHistory();
 
         Console.WriteLine(V_Instrument_id + ":分析结果");
+
+        Debugger.Warn(V_Instrument_id + ":分析结果");
 
         List<float> resultList_add = new List<float>();
         List<float> resultList_mul = new List<float>();
@@ -193,6 +196,8 @@ public class MATaticsHelper: BaseTaticsHelper,ICycleTatics
         TaticsTestRunner.TestRun(this);
 
         Console.WriteLine(V_Instrument_id + ":分析历史数据完毕");
+
+        Debugger.Warn(V_Instrument_id + ":分析历史数据完毕");
     }
 
     /// <summary>

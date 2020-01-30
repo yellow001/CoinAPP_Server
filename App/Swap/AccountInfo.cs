@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using NetFrame.Tool;
+using Newtonsoft.Json.Linq;
 using OKExSDK;
 using ProtoBuf;
 using System;
@@ -122,6 +123,14 @@ public class AccountInfo
             V_Position.GetPercent(V_CurPrice),
             GetAvailMoney());
 
+        Debugger.Warn(string.Format("{0} {1}:  平仓: price {2}，方向：{3}，盈利率{4},剩余 {5}",
+            DateTime.Now,
+            V_Instrument_id,
+            V_CurPrice,
+            V_Position.V_Dir > 0 ? "平多" : "平空",
+            V_Position.GetPercent(V_CurPrice),
+            GetAvailMoney()));
+
         for (int i = 0; i < V_Positions.Count; i++)
         {
             Position p = V_Positions[i];
@@ -152,6 +161,8 @@ public class AccountInfo
             SwapApi api = CommonData.Ins.V_SwapApi;
             await api.makeOrderAsync(V_Instrument_id, dir > 0 ? "1" : "2", (decimal)V_CurPrice, v, "", 0, "1");
             Console.WriteLine("{0}  {1}:  开仓:{2} 价格:{3} 张数:{4}",DateTime.Now,V_Instrument_id,dir > 0 ? "多" : "空", V_CurPrice,v);
+
+            Debugger.Warn(string.Format("{0}  {1}:  开仓:{2} 价格:{3} 张数:{4}", DateTime.Now, V_Instrument_id, dir > 0 ? "多" : "空", V_CurPrice, v));
             return true;
         }
     }

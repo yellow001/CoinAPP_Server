@@ -66,11 +66,11 @@ namespace NetFrame.Base
         /// <param name="coding"></param>
         public virtual void Init(AbsHandlerCenter c) {
             //Console.WriteLine("绑定消息处理中心");
-            Debugger.Trace("绑定消息处理中心");
+            Debugger.Log("绑定消息处理中心");
             center = c;
 
             //Console.WriteLine("初始化token池");
-            Debugger.Trace("初始化token池");
+            Debugger.Log("初始化token池");
             tokens = new ObjPool<BaseToken>(maxConn);
             for (int i = 0; i < maxConn; i++) {
                 T2 t = Activator.CreateInstance<T2>();
@@ -86,7 +86,7 @@ namespace NetFrame.Base
         public void Start() {
 
             //Console.WriteLine("开启服务");
-            Debugger.Trace("开启服务");
+            Debugger.Log("开启服务");
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(new IPEndPoint(IPAddress.Any, port));
             socket.Listen(100);
@@ -101,7 +101,7 @@ namespace NetFrame.Base
         async void Accept() {//async 与 await 的组合是简写 TAP 模式的语法
 
             //Console.WriteLine("正在监听");
-            Debugger.Trace("开启新监听");
+            Debugger.Log("开启新监听");
 
             //编译器遇到await时，等待异步操作（await语句后面的方法会直到有连接进来才会执行），并把控制流程退回到调用此方法处执行
             Socket s =await socket.AcceptAsync();

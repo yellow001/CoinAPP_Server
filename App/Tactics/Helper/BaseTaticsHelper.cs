@@ -81,7 +81,8 @@ public class BaseTaticsHelper
     /// </summary>
     /// <param name="setting"></param>
     public virtual void Init(string setting) {
-
+        Console.WriteLine("合约 " + V_Instrument_id);
+        Debugger.Warn("合约 " + V_Instrument_id);
     }
 
     public long GetCoolDownTest() {
@@ -186,6 +187,8 @@ public class BaseTaticsHelper
     public virtual async Task RunHistory()
     {
         Console.WriteLine(V_Instrument_id + ":获取历史数据");
+
+        Debugger.Log(V_Instrument_id + ":获取历史数据");
 
         if (V_HistoryCache == null)
         {

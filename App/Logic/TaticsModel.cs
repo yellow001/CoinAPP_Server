@@ -26,6 +26,9 @@ public class TaticsModel
 
         Tactics maTactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_emaHelper);
 
+        //默认开启的是暂停状态
+        maTactics.V_TacticsState = EM_TacticsState.Pause;
+
         m_TacticsDic[m_emaHelper.V_Instrument_id] = maTactics;
     }
 

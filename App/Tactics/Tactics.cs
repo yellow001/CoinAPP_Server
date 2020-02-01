@@ -57,14 +57,7 @@ public class Tactics
     public Tactics() { }
 
     public Tactics(string instrument_id, BaseTaticsHelper helper) {
-        Start(instrument_id, helper);
-    }
 
-    /// <summary>
-    /// 初始化
-    /// </summary>
-    /// <returns></returns>
-    public virtual async void Start(string instrument_id, BaseTaticsHelper helper) {
         V_Instrument_id = instrument_id;
 
         m_TaticsHelper = helper;
@@ -73,6 +66,14 @@ public class Tactics
 
         V_OrderState = EM_OrderOperation.Normal;
 
+        Start();
+    }
+
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    /// <returns></returns>
+    public virtual async void Start() {
         await m_TaticsHelper.RunHistory();
 
         m_LastRefreshTime = DateTime.Now;

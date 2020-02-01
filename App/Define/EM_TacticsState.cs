@@ -5,6 +5,11 @@ using System.Text;
 public enum EM_TacticsState:int
 {
     /// <summary>
+    /// 正常
+    /// </summary>
+    Normal = 0,
+
+    /// <summary>
     /// 开始
     /// </summary>
     Start = 1,
@@ -48,9 +53,4 @@ public enum EM_TacticsState:int
     /// 对冲
     /// </summary>
     Hedge=9,
-
-    /// <summary>
-    /// 正常
-    /// </summary>
-    Normal=10,
 }

@@ -157,7 +157,7 @@ public class AccountInfo
         }
         else {
             //获取张数(BTC 1张=100USD EOS 1张=10USD)
-            int v = (int)((vol * V_CurPrice* V_Leverage) / V_Contract_val);
+            int v = GetOrderVol(vol);
             SwapApi api = CommonData.Ins.V_SwapApi;
             await api.makeOrderAsync(V_Instrument_id, dir > 0 ? "1" : "2", (decimal)V_CurPrice, v, "", 0, "1");
             Console.WriteLine("{0}  {1}:  开仓:{2} 价格:{3} 张数:{4}",DateTime.Now,V_Instrument_id,dir > 0 ? "多" : "空", V_CurPrice,v);
@@ -194,5 +194,22 @@ public class AccountInfo
     public static AccountInfo GetAccount(string json)
     {
         return new AccountInfo(json);
+    }
+
+    /// <summary>
+    /// 获取开单张数
+    /// </summary>
+    /// <param name="v"></param>
+    /// <returns></returns>
+    public int GetOrderVol(float v) {
+        return (int)((v * V_CurPrice * V_Leverage) / V_Contract_val);
+    }
+
+    /// <summary>
+    /// 有足够的钱开单
+    /// </summary>
+    /// <returns></returns>
+    public bool HasEnoughMoney() {
+        return GetOrderVol(GetAvailMoney() * 0.2f) > 0;
     }
 }

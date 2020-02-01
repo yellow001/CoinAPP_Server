@@ -76,6 +76,8 @@ public class Tactics
     public virtual async void Start() {
         await m_TaticsHelper.RunHistory();
 
+        if (V_TacticsState == EM_TacticsState.Stop) { return; }
+
         m_LastRefreshTime = DateTime.Now;
 
         V_AccountInfo = new AccountInfo();
@@ -84,6 +86,9 @@ public class Tactics
 
         //获取一下合约面值
         JContainer con = await CommonData.Ins.V_SwapApi.getInstrumentsAsync();
+
+        if (V_TacticsState == EM_TacticsState.Stop) { return; }
+
         DataTable t = JsonConvert.DeserializeObject<DataTable>(con.ToString());
         foreach (DataRow dr in t.Rows)
         {
@@ -96,6 +101,8 @@ public class Tactics
 
         //设置合约倍数
         await CommonData.Ins.V_SwapApi.setLeverageByInstrumentAsync(V_Instrument_id, (int)m_TaticsHelper.V_Leverage, "3");
+
+        if (V_TacticsState == EM_TacticsState.Stop) { return; }
 
         cache = new KLineCache();
 

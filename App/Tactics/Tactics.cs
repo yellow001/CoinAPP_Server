@@ -144,7 +144,7 @@ public class Tactics
             //更新未完成订单信息，全部撤销掉
             await V_AccountInfo.ClearOrders();
 
-            if (!V_AccountInfo.HasEnoughMoney())
+            if (!V_AccountInfo.HasEnoughMoney()&&V_AccountInfo.V_Position==null)
             {
                 TimeEventHandler.Ins.AddEvent(new TimeEventModel(600, 1, Update));
                 return;

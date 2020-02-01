@@ -74,39 +74,54 @@ public class Tactics
     /// </summary>
     /// <returns></returns>
     public virtual async void Start() {
-        await m_TaticsHelper.RunHistory();
 
-        if (V_TacticsState == EM_TacticsState.Stop) { return; }
-
-        m_LastRefreshTime = DateTime.Now;
-
-        V_AccountInfo = new AccountInfo();
-
-        V_AccountInfo.V_Leverage = m_TaticsHelper.V_Leverage;
-
-        //获取一下合约面值
-        JContainer con = await CommonData.Ins.V_SwapApi.getInstrumentsAsync();
-
-        if (V_TacticsState == EM_TacticsState.Stop) { return; }
-
-        DataTable t = JsonConvert.DeserializeObject<DataTable>(con.ToString());
-        foreach (DataRow dr in t.Rows)
+        try
         {
-            if (dr["instrument_id"].Equals(V_Instrument_id))
-            {
-                V_AccountInfo.V_Contract_val = float.Parse(dr["contract_val"].ToString());
-                break;
-            }
-        }
+            await m_TaticsHelper.RunHistory();
 
-        //设置合约倍数
-        await CommonData.Ins.V_SwapApi.setLeverageByInstrumentAsync(V_Instrument_id, (int)m_TaticsHelper.V_Leverage, "3");
+            if (V_TacticsState == EM_TacticsState.Stop) { return; }
+
+            m_LastRefreshTime = DateTime.Now;
+
+            V_AccountInfo = new AccountInfo();
+
+            V_AccountInfo.V_Leverage = m_TaticsHelper.V_Leverage;
+
+            //获取一下合约面值
+            JContainer con = await CommonData.Ins.V_SwapApi.getInstrumentsAsync();
+
+            if (V_TacticsState == EM_TacticsState.Stop) { return; }
+
+            DataTable t = JsonConvert.DeserializeObject<DataTable>(con.ToString());
+            foreach (DataRow dr in t.Rows)
+            {
+                if (dr["instrument_id"].Equals(V_Instrument_id))
+                {
+                    V_AccountInfo.V_Contract_val = float.Parse(dr["contract_val"].ToString());
+                    break;
+                }
+            }
+
+            //设置合约倍数
+            await CommonData.Ins.V_SwapApi.setLeverageByInstrumentAsync(V_Instrument_id, (int)m_TaticsHelper.V_Leverage, "3");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(V_Instrument_id + "  " + ex.ToString());
+            Debugger.Error(V_Instrument_id + "  " + ex.ToString());
+
+            Console.WriteLine(V_Instrument_id + "  ReStart");
+            Debugger.Error(V_Instrument_id + "  ReStart");
+
+            Start();
+        }
 
         if (V_TacticsState == EM_TacticsState.Stop) { return; }
 
         cache = new KLineCache();
 
-        if (V_TacticsState == EM_TacticsState.Start) {
+        if (V_TacticsState == EM_TacticsState.Start)
+        {
             V_TacticsState = EM_TacticsState.Normal;
         }
 

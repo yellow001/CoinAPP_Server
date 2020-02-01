@@ -20,14 +20,16 @@ public class TaticsModel
         }
     }
 
-    public void RunTactics(string coin) {
+    public void RunTactics(string coin,bool isPause=true) {
         EMATaticsHelper2 m_emaHelper = new EMATaticsHelper2();
         m_emaHelper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", coin)));
 
         Tactics maTactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_emaHelper);
 
-        //默认开启的是暂停状态
-        maTactics.V_TacticsState = EM_TacticsState.Pause;
+        if (isPause) {
+            //默认开启的是暂停状态
+            maTactics.V_TacticsState = EM_TacticsState.Pause;
+        }
 
         m_TacticsDic[m_emaHelper.V_Instrument_id] = maTactics;
     }

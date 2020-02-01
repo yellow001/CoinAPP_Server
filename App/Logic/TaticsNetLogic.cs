@@ -74,7 +74,7 @@ public class TaticsNetLogic
         if (info != null)
         {
             int state = TaticsManager.GetIns().V_Model.F_ReqChangeOrderState(info.coin,info.state);
-            string tip = state == 1 ? "成功" : "失败";
+            string tip = state <=0 ? "失败":"成功";
             NetCenter.Ins.SendTips(token, tip);
         }
     }
@@ -90,7 +90,7 @@ public class TaticsNetLogic
         if (info != null)
         {
             int state = TaticsManager.GetIns().V_Model.F_ReqOperation(info.coin, info.type);
-            string tip = state == 1 ? "成功" : "失败";
+            string tip = state <=0 ?  "失败": "成功";
             NetCenter.Ins.SendTips(token, tip);
         }
     }

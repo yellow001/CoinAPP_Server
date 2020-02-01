@@ -8,9 +8,9 @@ public class TaticsNetLogic
     public void Init() {
         NetCenter.Ins.AddMsgEvent<ReqTacticsInfoMessage>(ReqTacticsInfoMessage.V_Pid, ReqAccountInfoMessage_CB);
 
-        NetCenter.Ins.AddMsgEvent<ReqRunTacticsMessage>(ReqRunTacticsMessage.V_Pid, ReqRunTacticsMessage_CB);
+        //NetCenter.Ins.AddMsgEvent<ReqRunTacticsMessage>(ReqRunTacticsMessage.V_Pid, ReqRunTacticsMessage_CB);
 
-        NetCenter.Ins.AddMsgEvent<ReqOrderTacticsMessage>(ReqOrderTacticsMessage.V_Pid, ReqOrderTacticsMessage_CB);
+        //NetCenter.Ins.AddMsgEvent<ReqOrderTacticsMessage>(ReqOrderTacticsMessage.V_Pid, ReqOrderTacticsMessage_CB);
 
         NetCenter.Ins.AddMsgEvent<ReqChangeOrderStateMessage>(ReqChangeOrderStateMessage.V_Pid, ReqChangeOrderStateMessage_CB);
 
@@ -32,39 +32,39 @@ public class TaticsNetLogic
         }
     }
 
-    /// <summary>
-    /// 客户端请求账户信息
-    /// </summary>
-    /// <param name="token"></param>
-    /// <param name="msg"></param>
-    public void ReqRunTacticsMessage_CB(BaseToken token, BaseMessage msg)
-    {
-        ReqRunTacticsMessage info = msg as ReqRunTacticsMessage;
-        if (info != null) {
-            int state = TaticsManager.GetIns().V_Model.F_ReqRunTactics(info.coin);
-            string tip = state == 1 ? "成功" : "失败";
-            NetCenter.Ins.SendTips(token, tip);
-        }
-    }
+    ///// <summary>
+    ///// 客户端请求账户信息
+    ///// </summary>
+    ///// <param name="token"></param>
+    ///// <param name="msg"></param>
+    //public void ReqRunTacticsMessage_CB(BaseToken token, BaseMessage msg)
+    //{
+    //    ReqRunTacticsMessage info = msg as ReqRunTacticsMessage;
+    //    if (info != null) {
+    //        int state = TaticsManager.GetIns().V_Model.F_ReqRunTactics(info.coin);
+    //        string tip = state == 1 ? "成功" : "失败";
+    //        NetCenter.Ins.SendTips(token, tip);
+    //    }
+    //}
+
+    ///// <summary>
+    ///// 客户端请求操作
+    ///// </summary>
+    ///// <param name="token"></param>
+    ///// <param name="msg"></param>
+    //public void ReqOrderTacticsMessage_CB(BaseToken token, BaseMessage msg)
+    //{
+    //    ReqOrderTacticsMessage info = msg as ReqOrderTacticsMessage;
+    //    if (info != null)
+    //    {
+    //        int state = TaticsManager.GetIns().V_Model.F_ReqRunTactics(info.coin);
+    //        string tip = state == 1 ? "成功" : "失败";
+    //        NetCenter.Ins.SendTips(token, tip);
+    //    }
+    //}
 
     /// <summary>
-    /// 客户端请求操作
-    /// </summary>
-    /// <param name="token"></param>
-    /// <param name="msg"></param>
-    public void ReqOrderTacticsMessage_CB(BaseToken token, BaseMessage msg)
-    {
-        ReqOrderTacticsMessage info = msg as ReqOrderTacticsMessage;
-        if (info != null)
-        {
-            int state = TaticsManager.GetIns().V_Model.F_ReqRunTactics(info.coin);
-            string tip = state == 1 ? "成功" : "失败";
-            NetCenter.Ins.SendTips(token, tip);
-        }
-    }
-
-    /// <summary>
-    /// 客户端请求操作
+    /// 客户端请求改变策略下单状态
     /// </summary>
     /// <param name="token"></param>
     /// <param name="msg"></param>
@@ -80,7 +80,7 @@ public class TaticsNetLogic
     }
 
     /// <summary>
-    /// 客户端请求操作
+    /// 客户端请求改变策略运行状态
     /// </summary>
     /// <param name="token"></param>
     /// <param name="msg"></param>

@@ -39,25 +39,25 @@ public class TaticsModel
     }
 
 
-    /// <summary>
-    /// 客户端请求运行策略
-    /// </summary>
-    /// <param name="coin"></param>
-    /// <returns>
-    /// 1 成功
-    /// 2 已在运行
-    /// </returns>
-    public int F_ReqRunTactics(string coin) {
-        foreach (var item in m_TacticsDic.Keys)
-        {
-            if (item.Contains(coin)) {
-                return 2;
-            }
-        }
-        RunTactics(coin);
+    ///// <summary>
+    ///// 客户端请求运行策略
+    ///// </summary>
+    ///// <param name="coin"></param>
+    ///// <returns>
+    ///// 1 成功
+    ///// 2 已在运行
+    ///// </returns>
+    //public int F_ReqRunTactics(string coin) {
+    //    foreach (var item in m_TacticsDic.Keys)
+    //    {
+    //        if (item.Contains(coin)) {
+    //            return 2;
+    //        }
+    //    }
+    //    RunTactics(coin);
 
-        return 1;
-    }
+    //    return 1;
+    //}
 
     /// <summary>
     /// 请求操作  （ 1:开始  2 停止  3 暂停 4 开空  5 平空 6 开多  7 平多  8 全平  9 对冲）
@@ -164,7 +164,7 @@ public class TaticsModel
         if (!IsTacticsRunning(coin, out instrument_id))
         {
             //该币种没有在运行，可以开始
-            RunTactics(coin);
+            RunTactics(coin,false);
             return true;
         }
 

@@ -192,6 +192,15 @@ public class TaticsTestRunner
 
                 //Console.WriteLine(helper.V_Instrument_id+": 周期 " + cycleList[i]);
             }
+
+            if (string.IsNullOrEmpty(best_Cycle)) {
+                best_Cycle = cycleList[0];
+                loss = -50;
+                win = 50;
+                Console.WriteLine("{0}:无盈利方案，将采用默认值");
+                Debugger.Warn(string.Format("{0}:无盈利方案，将采用默认值"));
+            }
+
             ((ICycleTatics)helper).SetCycle(best_Cycle);
             helper.SetStopPercent(loss, win);
             Console.WriteLine("{0}:最佳周期 {1} 止损 {2}  止盈{3}  剩余{4}  盈利平均值 {5}  开单次数{6}", helper.V_Instrument_id ,best_Cycle, loss, win, maxMoney,avg_win,count);

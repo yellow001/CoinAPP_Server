@@ -144,12 +144,6 @@ public class Tactics
             //更新未完成订单信息，全部撤销掉
             await V_AccountInfo.ClearOrders();
 
-            if (!V_AccountInfo.HasEnoughMoney()&&V_AccountInfo.V_Position==null)
-            {
-                TimeEventHandler.Ins.AddEvent(new TimeEventModel(600, 1, Update));
-                return;
-            }
-
             if (V_AccountInfo.V_Position==null&&(DateTime.Now - m_LastRefreshTime).Ticks > (long)m_TaticsHelper.V_Min *Util.Minute_Ticks*AppSetting.Ins.GetInt("RefreshSettingTime"))//更新设置操作
             {
                 //更新参数
@@ -173,6 +167,12 @@ public class Tactics
                 cache.RefreshData(con);
 
                 V_AccountInfo.V_CurPrice = cache.V_KLineData[0].V_ClosePrice;
+
+                if (!V_AccountInfo.HasEnoughMoney() && V_AccountInfo.V_Position == null)
+                {
+                    TimeEventHandler.Ins.AddEvent(new TimeEventModel(600, 1, Update));
+                    return;
+                }
 
                 await Handle();
             }

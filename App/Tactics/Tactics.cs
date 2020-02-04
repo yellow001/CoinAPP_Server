@@ -323,7 +323,7 @@ public class Tactics
     /// </summary>
     /// <returns></returns>
     public async Task OrderHandle() {
-        if (V_TacticsState != EM_TacticsState.Short||V_TacticsState!=EM_TacticsState.Long) {
+        if (V_TacticsState != EM_TacticsState.Short&&V_TacticsState!=EM_TacticsState.Long) {
             V_TacticsState = EM_TacticsState.Normal;
             return; 
         }
@@ -357,7 +357,7 @@ public class Tactics
     /// <returns></returns>
     public async Task CloseHandle()
     {
-        if (V_TacticsState != EM_TacticsState.CloseAll || V_TacticsState != EM_TacticsState.CloseLong || V_TacticsState != EM_TacticsState.CloseShort) {
+        if (V_TacticsState != EM_TacticsState.CloseAll && V_TacticsState != EM_TacticsState.CloseLong && V_TacticsState != EM_TacticsState.CloseShort) {
             V_TacticsState = EM_TacticsState.Normal;
             return; 
         }

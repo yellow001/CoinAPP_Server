@@ -199,7 +199,6 @@ public class TaticsModel
         }
 
         m_TacticsDic[instrument_id].SetTacticsState(EM_TacticsState.Pause);
-        m_TacticsDic.Remove(instrument_id);
 
         return true;
     }

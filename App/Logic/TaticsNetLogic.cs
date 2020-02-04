@@ -1,4 +1,5 @@
 ﻿using NetFrame.Base;
+using NetFrame.Tool;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -74,6 +75,8 @@ public class TaticsNetLogic
         if (info != null)
         {
             int state = TaticsManager.GetIns().V_Model.F_ReqChangeOrderState(info.coin,info.state);
+            Console.WriteLine("客户端请求改变策略下单状态 " + info.coin + "  " + info.state);
+            Debugger.Warn("客户端请求改变策略下单状态 " + info.coin + "  " + info.state);
             string tip = state <=0 ? "失败":"成功";
             NetCenter.Ins.SendTips(token, tip);
         }
@@ -90,6 +93,10 @@ public class TaticsNetLogic
         if (info != null)
         {
             int state = TaticsManager.GetIns().V_Model.F_ReqOperation(info.coin, info.type);
+
+            Console.WriteLine("客户端请求改变策略运行状态 " + info.coin + "  " + info.type);
+            Debugger.Warn("客户端请求改变策略运行状态 " + info.coin + "  " + info.type);
+
             string tip = state <=0 ?  "失败": "成功";
             NetCenter.Ins.SendTips(token, tip);
         }

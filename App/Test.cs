@@ -155,13 +155,22 @@ namespace CoinAPP_Server.App
 
             string[] coins = AppSetting.Ins.GetValue("Run").Split(';');
             Console.WriteLine(AppSetting.Ins.GetValue("Run"));
+            //for (int i = 0; i < coins.Length; i++)
+            //{
+            //    string item = coins[i];
+            //    EMATaticsHelper2 m_emaHelper = new EMATaticsHelper2();
+            //    m_emaHelper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+
+            //    await m_emaHelper.RunHistory();
+            //}
+
             for (int i = 0; i < coins.Length; i++)
             {
                 string item = coins[i];
-                EMATaticsHelper2 m_emaHelper = new EMATaticsHelper2();
-                m_emaHelper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+                HourMATaticsHelper m_hourMAHelper = new HourMATaticsHelper();
+                m_hourMAHelper.Init(AppSetting.Ins.GetValue(string.Format("MA_{0}", item)));
 
-                await m_emaHelper.RunHistory();
+                await m_hourMAHelper.RunHistory();
             }
 
             //AbsCoding.Ins = new PbCoding();

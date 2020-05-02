@@ -45,8 +45,9 @@ namespace CoinAPP_Server
             //Console.WriteLine(dr.rows);
 
             //Test t = new Test();
+            //Console.ReadLine();
 
-            //TaticsManager manager = new TaticsManager();
+            TaticsManager manager = new TaticsManager();
 
             int port = AppSetting.Ins.GetInt("Port");
 
@@ -56,17 +57,17 @@ namespace CoinAPP_Server
 
             server.Start();
 
-            AbsCoding.Ins = new PbCoding();
+            //AbsCoding.Ins = new PbCoding();
 
-            TaticsManager.GetIns();
+            //TaticsManager.GetIns();
 
-            while (true)
-            {
-                Task.Run(delegate
-                {
-                    Thread.Sleep(36000000);
-                }).Wait();
-            }
+            //while (true)
+            //{
+            //    Task.Run(delegate
+            //    {
+            //        Thread.Sleep(36000000);
+            //    }).Wait();
+            //}
 
             //sw.Flush();
             //sw.Close();

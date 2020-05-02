@@ -42,6 +42,8 @@ public class TaticsTestRunner
 
     int count = 150;
 
+    float orderPercent = 0.1f;
+
     public virtual void SetHistoryData(List<KLine> data)
     {
         Data_All = data;
@@ -116,7 +118,8 @@ public class TaticsTestRunner
         if (Position != null) { return; }
 
         V_OrderCount++;
-        Position = new Position("btc", dir, V_CurMoney * 0.2f, V_CurMoney * 0.2f, kline.V_ClosePrice, helper.V_Leverage, kline.V_Timestamp);
+        Console.WriteLine("{0}  :  开仓:{1} 价格:{2}", kline.V_Timestamp, dir > 0 ? "多" : "空", kline.V_ClosePrice);
+        Position = new Position("btc", dir, V_CurMoney * orderPercent, V_CurMoney * orderPercent, kline.V_ClosePrice, helper.V_Leverage, kline.V_Timestamp);
     }
 
     /// <summary>
@@ -132,6 +135,8 @@ public class TaticsTestRunner
         float temp = 0;
         temp = p * 0.01f * Position.V_AllVol;
         V_CurMoney += temp;
+
+        Console.WriteLine("{0}  :  平仓价格:{1}  盈利：{2}", kline.V_Timestamp, kline.V_ClosePrice,temp);
 
         Position = null;
     }
@@ -227,13 +232,17 @@ public class TaticsTestRunner
         int allWinCount = 0;
         int allCount = 0;
 
-        int minLoss = (int)MathF.Floor(helper.V_Leverage * -0.618f);
-        int maxLoss = (int)MathF.Ceiling(helper.V_Leverage * -1.618f);
-        minLoss = minLoss > -25 ? -25 : minLoss;
-        maxLoss = maxLoss > minLoss ? minLoss * 2 : maxLoss;
+        //int minLoss = (int)MathF.Floor(helper.V_Leverage * -0.618f);
+        //int maxLoss = (int)MathF.Ceiling(helper.V_Leverage * -1.618f);
+        //minLoss = minLoss > -25 ? -25 : minLoss;
+        //maxLoss = maxLoss > minLoss ? minLoss * 2 : maxLoss;
 
-        int maxWin = (int)Math.Floor(helper.V_Leverage * 3.618f);
-        maxWin = maxWin < 40 ? 40 : maxWin;
+        //int maxWin = (int)Math.Floor(helper.V_Leverage * 3.618f);
+        //maxWin = maxWin < 40 ? 40 : maxWin;
+
+        int minLoss = -60;
+        int maxLoss = -80;
+        int maxWin = 100;
 
         for (int loss = minLoss; loss >= maxLoss; loss -= 5)
         {

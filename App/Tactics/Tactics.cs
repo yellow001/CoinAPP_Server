@@ -54,6 +54,7 @@ public class Tactics
 
     float tempVol = 0;
 
+    float orderPercent = 0.1f;
     public Tactics() { }
 
     public Tactics(string instrument_id, BaseTaticsHelper helper) {
@@ -287,7 +288,7 @@ public class Tactics
                 {
                     //多单
                     if (V_OrderState != EM_OrderOperation.ShortOnly && V_OrderState != EM_OrderOperation.ShortNoClose) {
-                        await V_AccountInfo.MakeOrder(1, V_AccountInfo.GetAvailMoney() * 0.2f);
+                        await V_AccountInfo.MakeOrder(1, V_AccountInfo.GetAvailMoney() * orderPercent);
                     }
                 }
                 else if (o < 0)
@@ -295,7 +296,7 @@ public class Tactics
                     //空单
                     if (V_OrderState != EM_OrderOperation.LongOnly && V_OrderState != EM_OrderOperation.LongNoClose)
                     {
-                        await V_AccountInfo.MakeOrder(-1, V_AccountInfo.GetAvailMoney() * 0.2f);
+                        await V_AccountInfo.MakeOrder(-1, V_AccountInfo.GetAvailMoney() * orderPercent);
                     }
                 }
             }

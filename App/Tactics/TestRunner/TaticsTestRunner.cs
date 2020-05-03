@@ -42,7 +42,7 @@ public class TaticsTestRunner
 
     int count = 150;
 
-    float orderPercent = 0.2f;
+    float orderPercent = 0.168f;
 
     public virtual void SetHistoryData(List<KLine> data)
     {

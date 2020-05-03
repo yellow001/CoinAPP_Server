@@ -42,7 +42,7 @@ public class TaticsTestRunner
 
     int count = 150;
 
-    float orderPercent = 0.1f;
+    float orderPercent = 0.2f;
 
     public virtual void SetHistoryData(List<KLine> data)
     {
@@ -118,7 +118,7 @@ public class TaticsTestRunner
         if (Position != null) { return; }
 
         V_OrderCount++;
-        Console.WriteLine("{0}  :  开仓:{1} 价格:{2}", kline.V_Timestamp, dir > 0 ? "多" : "空", kline.V_ClosePrice);
+        //Console.WriteLine("{0}  :  开仓:{1} 价格:{2}", kline.V_Timestamp, dir > 0 ? "多" : "空", kline.V_ClosePrice);
         Position = new Position("btc", dir, V_CurMoney * orderPercent, V_CurMoney * orderPercent, kline.V_ClosePrice, helper.V_Leverage, kline.V_Timestamp);
     }
 
@@ -136,7 +136,7 @@ public class TaticsTestRunner
         temp = p * 0.01f * Position.V_AllVol;
         V_CurMoney += temp;
 
-        Console.WriteLine("{0}  :  平仓价格:{1}  盈利：{2}", kline.V_Timestamp, kline.V_ClosePrice,temp);
+        //Console.WriteLine("{0}  :  平仓价格:{1}  盈利：{2}", kline.V_Timestamp, kline.V_ClosePrice,temp);
 
         Position = null;
     }
@@ -242,12 +242,12 @@ public class TaticsTestRunner
 
         int minLoss = -60;
         int maxLoss = -80;
-        int maxWin = 100;
+        int maxWin = 120;
 
         for (int loss = minLoss; loss >= maxLoss; loss -= 5)
         {
-            int start = Math.Abs(loss) - 40;
-            start = start < 20 ? 20 : start;
+            int start = Math.Abs(loss) - 20;
+            start = start < 60 ? 60 : start;
             for (int win = start; win <= maxWin; win += 5)
             {
                 allCount++;

@@ -119,9 +119,10 @@ public class HourMATaticsHelper: BaseTaticsHelper
             //    }
             //    return true;
             //}
-            int sign = GetValue(true, dir);
+            int sign = GetValue(false, dir);
 
-            if (percent >= winPercent) {
+            if (percent >= winPercent)
+            {
                 return sign > 0;
             }
         }
@@ -218,20 +219,20 @@ public class HourMATaticsHelper: BaseTaticsHelper
         else
         {
             //返回>0就是要平仓
-            if (bigDir > 0)
-            {
+            //if (bigDir > 0)
+            //{
                 if (orderDir < 0 && dir > 0)
                 {
                     return 1;
                 }
-            }
-            else if (bigDir < 0)
-            {
+            //}
+            //else if (bigDir < 0)
+            //{
                 if (orderDir > 0 && dir < 0)
                 {
                     return 1;
                 }
-            }
+            //}
         }
 
 

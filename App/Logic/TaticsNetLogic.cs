@@ -29,6 +29,11 @@ public class TaticsNetLogic
             ResTacticsListMessage res = new ResTacticsListMessage();
             res.V_AccountInfoList = TaticsManager.GetIns().V_Model.GetTacticsInfo();
 
+            if (token != null && token.socket != null)
+            {
+                Debugger.Log(string.Format("{0} 请求账号数据 数据为{1}",token.socket.RemoteEndPoint,res.V_AccountInfoList.Count));
+            }
+
             NetCenter.Ins.Send(token, ResTacticsListMessage.V_Pid, res);
         }
     }

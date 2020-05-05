@@ -360,21 +360,37 @@ public class TaticsTestRunner
                 //Console.WriteLine("止损 {0} 止盈 {1} 开单次数 {2}  模拟剩余 {3}", loss.Key, win.Key, all_CountDic[loss.Key][win.Key], win.Value);
             }
         }
-        if (!(helper is ICycleTatics)) {
-            Console.WriteLine("{0}:盈利情况：{1}/{2}   盈利平均值：{3}", helper.V_Instrument_id, allWinCount, allCount, allWinMoney / allWinCount);
 
-            Debugger.Warn(string.Format("{0}:盈利情况：{1}/{2}   盈利平均值：{3}", helper.V_Instrument_id, allWinCount, allCount, allWinMoney / allWinCount));
+        try
+        {
+            if (!(helper is ICycleTatics))
+            {
+                Console.WriteLine("{0}:盈利情况：{1}/{2}   盈利平均值：{3}", helper.V_Instrument_id, allWinCount, allCount, allWinMoney / allWinCount);
 
-            Console.WriteLine("{0}:最佳止盈止损百分比值: {1} {2} 开单次数 {3} \n模拟剩余资金: {4}", helper.V_Instrument_id, loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
+                Debugger.Warn(string.Format("{0}:盈利情况：{1}/{2}   盈利平均值：{3}", helper.V_Instrument_id, allWinCount, allCount, allWinMoney / allWinCount));
 
-            Debugger.Warn(string.Format("{0}:最佳止盈止损百分比值: {1} {2} 开单次数 {3} \n模拟剩余资金: {4}", helper.V_Instrument_id, loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]));
+                Console.WriteLine("{0}:最佳止盈止损百分比值: {1} {2} 开单次数 {3} \n模拟剩余资金: {4}", helper.V_Instrument_id, loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]);
+
+                Debugger.Warn(string.Format("{0}:最佳止盈止损百分比值: {1} {2} 开单次数 {3} \n模拟剩余资金: {4}", helper.V_Instrument_id, loss_final, win_final, all_CountDic[loss_final][win_final], all_ResultDic[loss_final][win_final]));
+            }
+
+            avg_win = allWinMoney / allWinCount;
+
+            loss_result = loss_final;
+            win_result = win_final;
+            orderCount = orderCount_final;
+        }
+        catch (Exception ex)
+        {
+            avg_win = 5;
+
+            loss_result = -80;
+            win_result = 120;
+            orderCount = 0;
+            Debugger.Error("没有合适的止损止盈，用默认值 -80 120");
         }
 
-        avg_win = allWinMoney / allWinCount;
-
-        loss_result = loss_final;
-        win_result = win_final;
-        orderCount = orderCount_final;
+        
 
         if (loss_final == 0 || win_final == 0) {
             return 0;

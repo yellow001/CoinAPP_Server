@@ -39,6 +39,9 @@ public class NetCenter : AbsHandlerCenter
     public override void OnClientClose(BaseToken token, string error)
     {
         //throw new NotImplementedException();
+
+        if (token == null||token.socket==null) { return; }
+
         Console.WriteLine("{0}  client close :{1}",DateTime.Now,token.socket.RemoteEndPoint);
         Debugger.Log(string.Format("{0}  client close :{1}", DateTime.Now, token.socket.RemoteEndPoint));
         if (tokenList.Contains(token)) {
@@ -48,6 +51,8 @@ public class NetCenter : AbsHandlerCenter
 
     public override void OnClientConnent(BaseToken token)
     {
+        if (token == null || token.socket == null) { return; }
+
         Console.WriteLine("{0}  client connect :{1}", DateTime.Now, token.socket.RemoteEndPoint);
         Debugger.Log(string.Format("{0}  client connect :{1}", DateTime.Now, token.socket.RemoteEndPoint));
         //throw new NotImplementedException();
@@ -56,6 +61,7 @@ public class NetCenter : AbsHandlerCenter
     public override void OnMsgReceive<T>(BaseToken token, T model)
     {
         //throw new NotImplementedException();
+        if (token == null) { return; }
 
         if (!tokenList.Contains(token)) {
             try

@@ -75,7 +75,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     /// </returns>
     public override int MakeOrder()
     {
-        return GetSign(true);
+        return GetValue(true, 0);
     }
 
     /// <summary>
@@ -86,7 +86,6 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     /// <returns></returns>
     protected override bool OnShouldCloseOrder(int dir, float percent,bool isTest=false)
     {
-        int sign = GetSign();
 
         if (percent <= lossPercent)
         {
@@ -95,56 +94,23 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         }
         else
         {
+
+            int sign = GetValue(false, dir);
+
             if (percent >= winPercent)
             {
-                //达到 止盈 或后亏损时，判断继续持有还是平仓
-                if (dir > 0)
-                {
-                    if (sign < 0)
-                    {
-                        //有较为强烈的空头排列信号
-                        //Console.WriteLine("result {0}", GetResult());
-                        return true;
-                    }
-                }
-                else
-                {
-                    if (sign > 0)
-                    {
-                        //有较为强烈的多头排列信号
-                        //Console.WriteLine("result {0}", GetResult());
-                        return true;
-                    }
-                }
+                return sign > 0;
             }
 
-            DateTime t = DateTime.UtcNow;
+            //DateTime t = DateTime.UtcNow;
 
-            if (isTest) {
-                t = V_Cache.V_KLineData[0].V_Timestamp;
-            }
-            if ((t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime")*V_Min) {
-                //持仓时间有点久了，看机会溜吧
-                if (dir > 0)
-                {
-                    if (sign < 0)
-                    {
-                        //有较为强烈的空头排列信号
-                        //Console.WriteLine("result {0}", GetResult());
-                        return true;
-                    }
-                }
-                else
-                {
-                    if (sign > 0)
-                    {
-                        //有较为强烈的多头排列信号
-                        //Console.WriteLine("result {0}", GetResult());
-                        return true;
-                    }
-                }
-            }
-
+            //if (isTest) {
+            //    t = V_Cache.V_KLineData[0].V_Timestamp;
+            //}
+            //if ((t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime")*V_Min) {
+            //    //持仓时间有点久了，看机会溜吧
+            //    return sign > 0;
+            //}
 
         }
         return false;
@@ -153,63 +119,6 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     #endregion
 
     #region 策略方法
-    public float GetResult()
-    {
-        return GetValue(1) - GetValue(-1);
-    }
-
-    /// <summary>
-    /// 获取信号
-    /// </summary>
-    /// <param name="order">下单 or 止损</param>
-    /// <returns></returns>
-    int GetSign(bool order = false)
-    {
-        //if (order)
-        //{
-        //    kLineCache.Clear();
-
-        //    if (V_Cache.V_KLineData.Count < 10)
-        //    {
-        //        return 0;
-        //    }
-
-        //    kLineCache = V_Cache.V_KLineData.GetRange(0, 10);
-
-        //    foreach (var item in kLineCache)
-        //    {
-        //        //其中一条k线波动大于 1.382% ,先不开单
-        //        if (item.GetPercent() > 1.382)
-        //        {
-        //            return 0;
-        //        }
-        //    }
-        //}
-
-        float result = GetResult();
-        int final = (MathF.Abs(result) > 0.01f?(result>0?1:-1):0);
-
-        if (final > 0)
-        {
-            //要开多
-            if (GetEMA60_KValue() < 0) {
-                //ema60 还在下降 不开单吧
-                final = 0;
-            }
-
-        }
-        else if (final < 0) {
-            //要开空
-            if (GetEMA60_KValue() > 0)
-            {
-                //ema60 还在上升 不开单吧
-                final = 0;
-            }
-
-        }
-
-        return final;
-    }
 
     /// <summary>
     /// 获取 EMA 值
@@ -231,11 +140,11 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         return EMA.GetEMA(length, V_Cache.V_KLineData.GetRange(index, length));
     }
 
-    float GetEMA60_KValue() {
-        if (GetEMAValue(60, 0) > GetEMAValue(60, 1) && GetEMAValue(60, 1) > GetEMAValue(60, 2)) {
+    float GetEMA_KValue(int value) {
+        if (GetEMAValue(value, 0) > GetEMAValue(value, 1) && GetEMAValue(value, 1) > GetEMAValue(value, 2)) {
             return 1;
         }
-        else if (GetEMAValue(60, 0) < GetEMAValue(60, 1) && GetEMAValue(60, 1) < GetEMAValue(60, 2)) {
+        else if (GetEMAValue(value, 0) < GetEMAValue(value, 1) && GetEMAValue(value, 1) < GetEMAValue(value, 2)) {
             return -1;
         }
 
@@ -247,14 +156,16 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     /// </summary>
     /// <param name="dir">大于0为多，其他均为空</param>
     /// <returns></returns>
-    float GetValue(int dir = 1)
+    int GetValue(bool isOrder, int orderDir)
     {
         #region 点 计算
         List<float> pList_1 = new List<float>();
         List<float> pList_2 = new List<float>();
         List<float> pList_3 = new List<float>();
 
-        List<float> pList60 = new List<float>();
+        List<float> pListHourEMA = new List<float>();
+
+        int value = (240 / V_Min) * 7;
 
         for (int i = 0; i < V_Length; i++)
         {
@@ -262,46 +173,89 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
             float p2 = GetEMAValue(V_CycleList[1], i);
             float p3 = GetEMAValue(V_CycleList[2], i);
 
-            float p60 = GetEMAValue(60, i);
+            
+            float pHourEMA = GetEMAValue(value, i);
 
             pList_1.Add(p1);
             pList_2.Add(p2);
             pList_3.Add(p3);
 
-            pList60.Add(p60);
+            pListHourEMA.Add(pHourEMA);
         }
         #endregion
 
+        float bigDir = GetHourEMAValue(pListHourEMA);
+        //float bigDir = GetEMA_KValue(value);
+
+        int dir = 0;
         #region 1. 计算 EMA 排列
 
         for (int i = 0; i < V_Length; i++)
         {
-            if (dir > 0)
+            if (pList_1[i] >= pList_2[i] && pList_2[i] >= pList_3[i])
             {
-                if (pList_1[i] >= pList_2[i] && pList_2[i] >= pList_3[i])
-                {
-                    //符合多头排列
-                }
-                else
-                {
-                    return 0;
-                }
+                //符合多头排列
+                dir = 1;
             }
-            else
+            else if (pList_1[i] <= pList_2[i] && pList_2[i] <= pList_3[i])
             {
-                if (pList_1[i] <= pList_2[i] && pList_2[i] <= pList_3[i])
-                {
-                    //符合空头排列
-                }
-                else
-                {
-                    return 0;
-                }
+                //符合空头排列
+                dir = -1;
             }
 
         }
         #endregion
-        return 1;
+
+        if (isOrder)
+        {
+            if (bigDir > 0 && dir > 0)
+            {
+                return 1;
+            }
+            else if (bigDir < 0 && dir < 0)
+            {
+                return -1;
+            }
+            //if ( dir > 0)
+            //{
+            //    return 1;
+            //}
+            //else if (dir < 0)
+            //{
+            //    return -1;
+            //}
+        }
+        else
+        {
+            //返回>0就是要平仓
+            if (bigDir > 0)
+            {
+                if (orderDir < 0 && dir > 0)
+                {
+                    return 1;
+                }
+            }
+            else if (bigDir < 0)
+            {
+                if (orderDir > 0 && dir < 0)
+                {
+                    return 1;
+                }
+            }
+
+            //if (orderDir < 0 && dir > 0)
+            //{
+            //    return 1;
+            //}
+
+            //if (orderDir > 0 && dir < 0)
+            //{
+            //    return 1;
+            //}
+        }
+
+
+        return 0;
     }
 
     float GetKValue(List<float> kList)
@@ -361,6 +315,22 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
             V_CycleList[1] = int.Parse(cycles[1]);
             V_CycleList[2] = int.Parse(cycles[2]);
         }
+    }
+
+    float GetHourEMAValue(List<float> pList)
+    {
+
+        float temp = 0;
+
+        for (int i = 0; i < pList.Count; i++)
+        {
+
+            float m = pList[i];
+            float y = V_Cache.V_KLineData[i].GetAvg();
+
+            temp += m >= y ? -1 : 1;
+        }
+        return temp;
     }
     #endregion
 }

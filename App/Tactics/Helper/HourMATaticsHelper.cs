@@ -19,23 +19,6 @@ public class HourMATaticsHelper: BaseTaticsHelper
     /// </summary>
     public List<int> V_CycleList = new List<int>() { 5, 7, 10 };
 
-    public int V_HourCycle = 7;
-
-    /// <summary>
-    /// 历史正均值
-    /// </summary>
-    float result_add_avg = 0;
-
-    /// <summary>
-    /// 历史负均值
-    /// </summary>
-    float result_mul_avg = 0;
-
-    /// <summary>
-    /// 结果均值
-    /// </summary>
-    float result_avg = 0;
-
     #region 重载
     /// <summary>
     /// 初始化设置 合约;K线时长;采样点;周期(小_中_大);倍数
@@ -219,20 +202,20 @@ public class HourMATaticsHelper: BaseTaticsHelper
         else
         {
             //返回>0就是要平仓
-            //if (bigDir > 0)
-            //{
+            if (bigDir > 0)
+            {
                 if (orderDir < 0 && dir > 0)
                 {
                     return 1;
                 }
-            //}
-            //else if (bigDir < 0)
-            //{
+            }
+            else if (bigDir < 0)
+            {
                 if (orderDir > 0 && dir < 0)
                 {
                     return 1;
                 }
-            //}
+            }
         }
 
 

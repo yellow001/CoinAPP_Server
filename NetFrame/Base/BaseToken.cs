@@ -53,6 +53,11 @@ namespace NetFrame.Base
         }
 
         public async void ReceiveAsync<T>()where T:TransModel {
+
+            if (socket == null) {
+                return;
+            }
+
             try {
                 byte[] buff = new byte[1024];
                 int msg = await socket.ReceiveAsync(new ArraySegment<byte>(buff), SocketFlags.None);

@@ -158,7 +158,7 @@ namespace CoinAPP_Server.App
             for (int i = 0; i < coins.Length; i++)
             {
                 string item = coins[i];
-                EMATaticsHelper2 m_emaHelper = new EMATaticsHelper2();
+                EMATaticsHelper m_emaHelper = new EMATaticsHelper();
                 m_emaHelper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
 
                 await m_emaHelper.RunHistory();

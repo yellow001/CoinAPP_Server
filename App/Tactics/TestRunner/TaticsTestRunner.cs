@@ -42,7 +42,7 @@ public class TaticsTestRunner
 
     int count = 150;
 
-    float orderPercent = 0.2f;
+    float orderPercent = 0.3236f;
 
     public virtual void SetHistoryData(List<KLine> data)
     {
@@ -240,14 +240,14 @@ public class TaticsTestRunner
         //int maxWin = (int)Math.Floor(helper.V_Leverage * 3.618f);
         //maxWin = maxWin < 40 ? 40 : maxWin;
 
-        int minLoss = -60;
+        int minLoss = -40;
         int maxLoss = -80;
         int maxWin = 120;
 
         for (int loss = minLoss; loss >= maxLoss; loss -= 5)
         {
             int start = Math.Abs(loss) - 20;
-            start = start < 60 ? 60 : start;
+            start = start < 40 ? 40 : start;
             for (int win = start; win <= maxWin; win += 5)
             {
                 allCount++;

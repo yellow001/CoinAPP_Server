@@ -54,7 +54,7 @@ public class Tactics
 
     float tempVol = 0;
 
-    float orderPercent = 0.2f;
+    float orderPercent = 0.3236f;
     public Tactics() { }
 
     public Tactics(string instrument_id, BaseTaticsHelper helper) {

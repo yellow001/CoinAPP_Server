@@ -138,6 +138,26 @@ public class HourMATaticsHelper: BaseTaticsHelper
     }
 
     /// <summary>
+    /// 获取 EMA 值
+    /// </summary>
+    /// <param name="index">下标</param>
+    /// <returns></returns>
+    float GetEMAValue(int length, int index = 0)
+    {
+        if (V_Cache == null)
+        {
+            return 0;
+        }
+
+        if (V_Cache.V_KLineData.Count < length + index)
+        {
+            return 0;
+        }
+
+        return EMA.GetEMA(length, V_Cache.V_KLineData.GetRange(index, length));
+    }
+
+    /// <summary>
     /// 获取排列强度
     /// </summary>
     /// <param name="dir">大于0为多，其他均为空</param>
@@ -149,25 +169,32 @@ public class HourMATaticsHelper: BaseTaticsHelper
         List<float> pList_2 = new List<float>();
         List<float> pList_3 = new List<float>();
 
-        List<float> pList84 = new List<float>();
+        List<float> pListHour = new List<float>();
+
+        int value = 60 / V_Min;
+        int ma30Value = value * 30;
 
         for (int i = 0; i < V_Length; i++)
         {
-            float p1 = GetMAValue(V_CycleList[0], i);
-            float p2 = GetMAValue(V_CycleList[1], i);
+            float p1 = GetEMAValue(V_CycleList[0], i);
+            float p2 = GetEMAValue(V_CycleList[1], i);
             float p3 = GetMAValue(V_CycleList[2], i);
-
-            float p84 = GetMAValue(84, i);
 
             pList_1.Add(p1);
             pList_2.Add(p2);
             pList_3.Add(p3);
-
-            pList84.Add(p84);
+            
         }
+
+        for (int i = 0; i < 2; i++)
+        {
+            float pHour = GetMAValue(ma30Value, i* value);
+            pListHour.Add(pHour);
+        }
+
         #endregion
 
-        float bigDir = GetMA84Value(pList84);
+        float bigDir = GetMAHourValue(pListHour,value);
 
         int dir = 0;
 
@@ -224,19 +251,45 @@ public class HourMATaticsHelper: BaseTaticsHelper
 
     }
 
-    float GetMA84Value(List<float> pList84)
+    float GetMAHourValue(List<float> pListHour,int value)
     {
 
         float temp = 0;
 
-        for (int i = 0; i < pList84.Count; i++)
+        if (pListHour.Count > 1)
         {
+            if (pListHour[0] < pListHour[1])
+            {
+                for (int i = 0; i < pListHour.Count; i++)
+                {
+                    float m = pListHour[i];
+                    float y = V_Cache.V_KLineData[i * value].V_ClosePrice;
 
-            float m = pList84[i];
-            float y = V_Cache.V_KLineData[i].V_ClosePrice;
+                    if (y < m) {
+                        temp--;
+                    }
+                }
+            }
+            else {
+                for (int i = 0; i < pListHour.Count; i++)
+                {
+                    float m = pListHour[i];
+                    float y = V_Cache.V_KLineData[i * value].V_ClosePrice;
+
+                    if (y > m)
+                    {
+                        temp++;
+                    }
+                }
+            }
+        }
+        else {
+            float m = pListHour[0];
+            float y = V_Cache.V_KLineData[0 * value].V_ClosePrice;
 
             temp += m >= y ? -1 : 1;
         }
+
         return temp;
     }
 

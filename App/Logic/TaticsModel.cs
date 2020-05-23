@@ -21,7 +21,7 @@ public class TaticsModel
     }
 
     public void RunTactics(string coin,bool isPause=true) {
-        EMATaticsHelper2 m_emaHelper = new EMATaticsHelper2();
+        EMATaticsHelper m_emaHelper = new EMATaticsHelper();
         m_emaHelper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", coin)));
 
         Tactics maTactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_emaHelper);

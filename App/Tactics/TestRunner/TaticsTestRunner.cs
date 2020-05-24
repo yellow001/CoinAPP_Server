@@ -51,6 +51,7 @@ public class TaticsTestRunner
 
     public virtual float Run()
     {
+        orderPercent = float.Parse(AppSetting.Ins.GetValue("OrderValue"));
         if (count + curentIndex < Data_All.Count)
         {
             List<KLine> testData = new List<KLine>();
@@ -240,15 +241,19 @@ public class TaticsTestRunner
         //int maxWin = (int)Math.Floor(helper.V_Leverage * 3.618f);
         //maxWin = maxWin < 40 ? 40 : maxWin;
 
-        int minLoss = -40;
-        int maxLoss = -80;
-        int maxWin = 120;
+        //int minLoss = -(int)helper.V_Leverage*2;
+        //int maxLoss = -(int)helper.V_Leverage * 5;
+        //int minWin = (int)helper.V_Leverage * 2;
+        //int maxWin = (int)helper.V_Leverage * 5 ;
+
+        int minLoss = -10;
+        int maxLoss = -200;
+        int minWin = 40;
+        int maxWin = 200;
 
         for (int loss = minLoss; loss >= maxLoss; loss -= 5)
         {
-            int start = Math.Abs(loss) - 20;
-            start = start < 40 ? 40 : start;
-            for (int win = start; win <= maxWin; win += 5)
+            for (int win = minWin; win <= maxWin; win += 5)
             {
                 allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();

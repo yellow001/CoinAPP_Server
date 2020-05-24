@@ -67,6 +67,7 @@ public class Tactics
 
         V_OrderState = EM_OrderOperation.Normal;
 
+        orderPercent = float.Parse(AppSetting.Ins.GetValue("OrderValue"));
         Start();
     }
 

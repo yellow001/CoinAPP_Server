@@ -103,11 +103,12 @@ namespace NetFrame.Base
             //Console.WriteLine("正在监听");
             Debugger.Log("开启新监听");
 
-            //编译器遇到await时，等待异步操作（await语句后面的方法会直到有连接进来才会执行），并把控制流程退回到调用此方法处执行
-            Socket s =await socket.AcceptAsync();
-
             //取出token 并循坏监听消息
             maxConn_se.WaitOne();
+
+            //编译器遇到await时，等待异步操作（await语句后面的方法会直到有连接进来才会执行），并把控制流程退回到调用此方法处执行
+            Socket s =await socket.AcceptAsync();
+            
             BaseToken t = tokens.Pop();
             t.socket = s;
             center.OnClientConnent(t);
@@ -156,6 +157,10 @@ namespace NetFrame.Base
         /// <param name="token"></param>
         /// <param name="error"></param>
         protected void ClientClose(BaseToken token,string error) {
+            if (token == null) {
+                return;
+            }
+
             try {
                 lock (token) {
                     center.OnClientClose(token, error);
@@ -166,9 +171,8 @@ namespace NetFrame.Base
             }
             catch(Exception ex){
                 Debugger.Error(ex.ToString());
+
             }
-            
-            
         }
     }
 }

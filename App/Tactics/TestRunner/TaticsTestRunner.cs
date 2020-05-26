@@ -19,7 +19,7 @@ public class TaticsTestRunner
     /// <summary>
     /// 当前持仓
     /// </summary>
-    protected Position Position;
+    protected List<Position> V_Positions=new List<Position>();
 
     /// <summary>
     /// 所有模拟数据
@@ -67,6 +67,13 @@ public class TaticsTestRunner
         }
         else
         {
+            List<int> closeList = V_Positions.Select((item) => item.V_Dir).ToList();
+
+            foreach (var item in closeList)
+            {
+                CloseOrder(Data_All[0], item);
+            }
+
             return V_CurMoney;
         }
     }
@@ -78,9 +85,104 @@ public class TaticsTestRunner
         Cur_Cache.RefreshData(data);
         helper.V_Cache = Cur_Cache;
 
-        if (Position == null)
+        bool hasLong = false, hasShort = false;
+        float longPercent = 0, shortPrecent = 0;
+
+        //if (V_Positions.Count==0)
+        //{
+        //    //cd 中 且上次是盈利平仓，不开单
+        //    long leave = helper.GetCoolDownTest();
+        //    if (leave < 0 && helper.winClose)
+        //    {
+        //        return;
+        //    }
+
+        //    int o = helper.MakeOrder();
+
+        //    if (o > 0)
+        //    {
+        //        //多单
+        //        OpenOrder(1, Cur_Cache.V_KLineData[0]);
+        //    }
+        //    else if (o < 0)
+        //    {
+        //        //空单
+        //        OpenOrder(-1, Cur_Cache.V_KLineData[0]);
+        //    }
+        //}
+        //else
+        //{
+        //    //有单就算下是否需要平仓
+        //    float v = V_Positions[0].GetPercentTest(data[0]);
+        //    if (helper.ShouldCloseOrderTest(V_Positions[0].V_Dir, v, Cur_Cache.V_KLineData[0]))
+        //    {
+        //        CloseOrder(data[0], V_Positions[0].V_Dir);
+        //    }
+        //}
+
+
+
+        if (V_Positions != null && V_Positions.Count > 0)
         {
-            //cd 中 且上次是盈利平仓，不开单
+            List<int> closeList = new List<int>();
+            foreach (var item in V_Positions)
+            {
+                if (item.V_Dir > 0)
+                {
+                    hasLong = true;
+                }
+                else
+                {
+                    hasShort = true;
+                }
+
+                //有单就算下是否需要平仓
+                float v = item.GetPercentTest(data[0]);
+
+                if (item.V_Dir > 0)
+                {
+                    longPercent = v;
+                }
+                else
+                {
+                    shortPrecent = v;
+                }
+
+                if (helper.ShouldCloseOrderTest(item.V_Dir, v, Cur_Cache.V_KLineData[0]))
+                {
+                    if (item.V_Dir > 0)
+                    {
+                        hasLong = false;
+                    }
+                    else
+                    {
+                        hasShort = false;
+                    }
+                    closeList.Add(item.V_Dir);
+                }
+            }
+
+            foreach (var item in closeList)
+            {
+                CloseOrder(data[0], item);
+            }
+
+        }
+
+        bool makeOrder = false;
+        bool Double = AppSetting.Ins.GetInt("DoubleDir") > 0;
+        if (Double)
+        {
+            makeOrder = !hasShort || !hasLong;
+        }
+        else
+        {
+            makeOrder = !hasShort && !hasLong;
+        }
+
+
+        if (makeOrder)
+        {
             long leave = helper.GetCoolDownTest();
             if (leave < 0 && helper.winClose)
             {
@@ -89,26 +191,61 @@ public class TaticsTestRunner
 
             int o = helper.MakeOrder();
 
-            if (o > 0)
+            if (o > 0 && !hasLong)
             {
+                if (hasShort && shortPrecent > 0)
+                {
+                    return;
+                }
                 //多单
                 OpenOrder(1, Cur_Cache.V_KLineData[0]);
             }
-            else if (o < 0)
+            else if (o < 0 && !hasShort)
             {
+                if (hasLong && longPercent > 0)
+                {
+                    return;
+                }
                 //空单
                 OpenOrder(-1, Cur_Cache.V_KLineData[0]);
             }
         }
-        else
-        {
-            //有单就算下是否需要平仓
-            float v = Position.GetPercentTest(data[0]);
-            if (helper.ShouldCloseOrderTest(Position.V_Dir, v,Cur_Cache.V_KLineData[0]))
-            {
-                CloseOrder(data[0]);
-            }
-        }
+
+        #region 旧逻辑
+        //if (Position == null)
+        //{
+        //    //cd 中 且上次是盈利平仓，不开单
+        //    long leave = helper.GetCoolDownTest();
+        //    if (leave < 0 && helper.winClose)
+        //    {
+        //        return;
+        //    }
+
+        //    int o = helper.MakeOrder();
+
+        //    if (o > 0)
+        //    {
+        //        //多单
+        //        OpenOrder(1, Cur_Cache.V_KLineData[0]);
+        //    }
+        //    else if (o < 0)
+        //    {
+        //        //空单
+        //        OpenOrder(-1, Cur_Cache.V_KLineData[0]);
+        //    }
+        //}
+        //else
+        //{
+        //    //有单就算下是否需要平仓
+        //    float v = Position.GetPercentTest(data[0]);
+        //    if (helper.ShouldCloseOrderTest(Position.V_Dir, v, Cur_Cache.V_KLineData[0]))
+        //    {
+        //        CloseOrder(data[0]);
+        //    }
+        //}
+        #endregion
+
+
     }
 
     /// <summary>
@@ -116,30 +253,46 @@ public class TaticsTestRunner
     /// </summary>
     public virtual void OpenOrder(int dir, KLine kline)
     {
-        if (Position != null) { return; }
-
         V_OrderCount++;
         //Console.WriteLine("{0}  :  开仓:{1} 价格:{2}", kline.V_Timestamp, dir > 0 ? "多" : "空", kline.V_ClosePrice);
-        Position = new Position("btc", dir, V_CurMoney * orderPercent, V_CurMoney * orderPercent, kline.V_ClosePrice, helper.V_Leverage, kline.V_Timestamp);
+        Position position = new Position("btc", dir, V_CurMoney * orderPercent, V_CurMoney * orderPercent, kline.V_ClosePrice, helper.V_Leverage, kline.V_Timestamp);
+        V_Positions.Add(position);
     }
 
     /// <summary>
     /// 平仓
     /// </summary>
-    public virtual void CloseOrder(KLine kline)
+    public virtual void CloseOrder(KLine kline,int dir)
     {
-        if (Position == null) { return; }
 
-        float p = Position.GetPercentTest(kline);
+        if (V_Positions == null || V_Positions.Count <= 0) {
+            return;
+        }
+
+        Position removeItem = null;
+
+        foreach (var item in V_Positions)
+        {
+            if (item.V_Dir == dir) {
+                removeItem = item;
+                break;
+            }
+        }
+
+        if (removeItem == null) {
+            return;
+        }
+
+        float p = removeItem.GetPercentTest(kline);
         p = p < helper.V_LossPercent ? helper.V_LossPercent : p;
 
         float temp = 0;
-        temp = p * 0.01f * Position.V_AllVol;
+        temp = p * 0.01f * removeItem.V_AllVol;
         V_CurMoney += temp;
 
         //Console.WriteLine("{0}  :  平仓价格:{1}  盈利：{2}", kline.V_Timestamp, kline.V_ClosePrice,temp);
 
-        Position = null;
+        V_Positions.Remove(removeItem);
     }
 
     public virtual void Clear() {

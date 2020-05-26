@@ -263,61 +263,168 @@ public class Tactics
     /// </summary>
     /// <returns></returns>
     public async Task AutoHandle() {
-        if (V_AccountInfo.V_Positions != null && V_AccountInfo.V_Positions.Count > 1)
+
+        bool hasLong = false, hasShort = false;
+        float longPercent = 0, shortPrecent = 0;
+        if (V_AccountInfo.V_Positions != null && V_AccountInfo.V_Positions.Count > 0)
         {
-            //持仓有两个，异常（不管了。。。）
-            //await accountInfo.ClearPositions();
-        }
-        else
-        {
-            if (V_AccountInfo.V_Positions == null || V_AccountInfo.V_Positions.Count == 0)
+            foreach (var item in V_AccountInfo.V_Positions)
             {
-                //cd 中 ，不开单
-                long leave = m_TaticsHelper.GetCoolDown();
-                if (leave < 0)
+                if (item.V_Dir > 0)
                 {
-                    if (debug)
-                    {
-                        Console.WriteLine("{0} {1}:冷却中 cd {2}", DateTime.Now, V_Instrument_id, leave);
-                    }
-                    return;
+                    hasLong = true;
+                }
+                else {
+                    hasShort = true;
                 }
 
-                int o = m_TaticsHelper.MakeOrder();
-
-                if (o > 0)
-                {
-                    //多单
-                    if (V_OrderState != EM_OrderOperation.ShortOnly && V_OrderState != EM_OrderOperation.ShortNoClose) {
-                        await V_AccountInfo.MakeOrder(1, V_AccountInfo.GetAvailMoney() * orderPercent);
-                    }
-                }
-                else if (o < 0)
-                {
-                    //空单
-                    if (V_OrderState != EM_OrderOperation.LongOnly && V_OrderState != EM_OrderOperation.LongNoClose)
-                    {
-                        await V_AccountInfo.MakeOrder(-1, V_AccountInfo.GetAvailMoney() * orderPercent);
-                    }
-                }
-            }
-            else
-            {
                 //有单就算下是否需要平仓
-                float v = V_AccountInfo.V_Position.GetPercent(V_AccountInfo.V_CurPrice);
+                float v = item.GetPercent(V_AccountInfo.V_CurPrice);
 
-                if (m_TaticsHelper.ShouldCloseOrder(V_AccountInfo.V_Position.V_Dir, v))
+                if (item.V_Dir > 0)
+                {
+                    longPercent = v;
+                }
+                else {
+                    shortPrecent = v;
+                }
+
+                if (m_TaticsHelper.ShouldCloseOrder(item.V_Dir, v))
                 {
                     if (v > 0)
                     {
-                        if (V_OrderState == EM_OrderOperation.NoClose || V_OrderState == EM_OrderOperation.LongNoClose || V_OrderState == EM_OrderOperation.ShortNoClose) {
+                        if (V_OrderState == EM_OrderOperation.NoClose || V_OrderState == EM_OrderOperation.LongNoClose || V_OrderState == EM_OrderOperation.ShortNoClose)
+                        {
                             return;
                         }
                     }
-                    await V_AccountInfo.ClearPositions();
+
+                    if (item.V_Dir > 0)
+                    {
+                        hasLong = false;
+                    }
+                    else {
+                        hasShort = false;
+                    }
+
+                    await V_AccountInfo.ClearPositions(item.V_Dir);
                 }
             }
         }
+
+        bool makeOrder = false;
+        bool Double = AppSetting.Ins.GetInt("DoubleDir") > 0;
+        if (Double)
+        {
+            makeOrder = !hasShort || !hasLong;
+        }
+        else {
+            makeOrder = !hasShort && !hasLong;
+        }
+
+
+        if (makeOrder) {
+            long leave = m_TaticsHelper.GetCoolDown();
+            if (leave < 0 && m_TaticsHelper.winClose)
+            {
+                if (debug)
+                {
+                    Console.WriteLine("{0} {1}:冷却中 cd {2}", DateTime.Now, V_Instrument_id, leave);
+                }
+                return;
+            }
+
+            int o = m_TaticsHelper.MakeOrder();
+
+            if (o > 0 && !hasLong)
+            {
+                if (hasShort && shortPrecent > 0) {
+                    return;
+                }
+
+                //多单
+                if (V_OrderState != EM_OrderOperation.ShortOnly && V_OrderState != EM_OrderOperation.ShortNoClose)
+                {
+                    await V_AccountInfo.MakeOrder(1, V_AccountInfo.GetAvailMoney() * orderPercent);
+                }
+            }
+            else if (o < 0 && !hasShort)
+            {
+                if (hasLong && longPercent > 0) {
+                    return;
+                }
+
+                //空单
+                if (V_OrderState != EM_OrderOperation.LongOnly && V_OrderState != EM_OrderOperation.LongNoClose)
+                {
+                    await V_AccountInfo.MakeOrder(-1, V_AccountInfo.GetAvailMoney() * orderPercent);
+                }
+            }
+        }
+
+        #region 旧逻辑
+
+        //if (V_AccountInfo.V_Positions != null && V_AccountInfo.V_Positions.Count > 1)
+        //{
+        //    //持仓有两个，异常（不管了。。。）
+        //    //await accountInfo.ClearPositions();
+        //}
+        //else
+        //{
+        //    if (V_AccountInfo.V_Positions == null || V_AccountInfo.V_Positions.Count == 0)
+        //    {
+        //        //cd 中 ，不开单
+        //        long leave = m_TaticsHelper.GetCoolDown();
+        //        if (leave < 0)
+        //        {
+        //            if (debug)
+        //            {
+        //                Console.WriteLine("{0} {1}:冷却中 cd {2}", DateTime.Now, V_Instrument_id, leave);
+        //            }
+        //            return;
+        //        }
+
+        //        int o = m_TaticsHelper.MakeOrder();
+
+        //        if (o > 0)
+        //        {
+        //            //多单
+        //            if (V_OrderState != EM_OrderOperation.ShortOnly && V_OrderState != EM_OrderOperation.ShortNoClose)
+        //            {
+        //                await V_AccountInfo.MakeOrder(1, V_AccountInfo.GetAvailMoney() * orderPercent);
+        //            }
+        //        }
+        //        else if (o < 0)
+        //        {
+        //            //空单
+        //            if (V_OrderState != EM_OrderOperation.LongOnly && V_OrderState != EM_OrderOperation.LongNoClose)
+        //            {
+        //                await V_AccountInfo.MakeOrder(-1, V_AccountInfo.GetAvailMoney() * orderPercent);
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        //有单就算下是否需要平仓
+        //        float v = V_AccountInfo.V_Position.GetPercent(V_AccountInfo.V_CurPrice);
+
+        //        if (m_TaticsHelper.ShouldCloseOrder(V_AccountInfo.V_Position.V_Dir, v))
+        //        {
+        //            if (v > 0)
+        //            {
+        //                if (V_OrderState == EM_OrderOperation.NoClose || V_OrderState == EM_OrderOperation.LongNoClose || V_OrderState == EM_OrderOperation.ShortNoClose)
+        //                {
+        //                    return;
+        //                }
+        //            }
+        //            await V_AccountInfo.ClearPositions();
+        //        }
+        //    }
+        //}
+
+        #endregion
+
+
     }
 
     /// <summary>
@@ -430,7 +537,7 @@ public class Tactics
             }
         }
 
-        V_TacticsState = EM_TacticsState.Normal;
+        V_TacticsState = EM_TacticsState.Pause;
     }
 
 

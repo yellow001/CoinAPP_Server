@@ -170,7 +170,8 @@ public class TaticsTestRunner
         }
 
         bool makeOrder = false;
-        bool Double = AppSetting.Ins.GetInt("DoubleDir") > 0;
+        //bool Double = AppSetting.Ins.GetInt("DoubleDir") > 0;
+        bool Double = false;
         if (Double)
         {
             makeOrder = !hasShort || !hasLong;
@@ -316,15 +317,15 @@ public class TaticsTestRunner
                 int temp_loss = 0, temp_win = 0, temp_count=0;
                 float temp = OnTestRun(helper,ref temp_loss,ref temp_win,ref avg_win_max, ref temp_count);
 
-                //if (maxMoney < temp)
-                //{
-                //    maxMoney = temp;
-                //    best_Cycle = cycleList[i];
-                //    loss = temp_loss;
-                //    win = temp_win;
-                //    avg_win = avg_win_max;
-                //    count = temp_count;
-                //}
+                if (maxMoney < temp)
+                {
+                    maxMoney = temp;
+                    best_Cycle = cycleList[i];
+                    loss = temp_loss;
+                    win = temp_win;
+                    avg_win = avg_win_max;
+                    count = temp_count;
+                }
 
                 //if (avg_win < avg_win_max)
                 //{
@@ -336,17 +337,17 @@ public class TaticsTestRunner
                 //    count = temp_count;
                 //}
 
-                if (temp > TaticsTestRunner.Init_Money) {
-                    if (count > temp_count)
-                    {
-                        maxMoney = temp;
-                        best_Cycle = cycleList[i];
-                        loss = temp_loss;
-                        win = temp_win;
-                        avg_win = avg_win_max;
-                        count = temp_count;
-                    }
-                }
+                //if (temp > TaticsTestRunner.Init_Money) {
+                //    if (count > temp_count)
+                //    {
+                //        maxMoney = temp;
+                //        best_Cycle = cycleList[i];
+                //        loss = temp_loss;
+                //        win = temp_win;
+                //        avg_win = avg_win_max;
+                //        count = temp_count;
+                //    }
+                //}
                 
 
                 //Console.WriteLine(helper.V_Instrument_id+": 周期 " + cycleList[i]);

@@ -313,7 +313,8 @@ public class Tactics
         }
 
         bool makeOrder = false;
-        bool Double = AppSetting.Ins.GetInt("DoubleDir") > 0;
+        //bool Double = AppSetting.Ins.GetInt("DoubleDir") > 0;
+        bool Double = false;
         if (Double)
         {
             makeOrder = !hasShort || !hasLong;

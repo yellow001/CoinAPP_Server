@@ -44,20 +44,20 @@ namespace CoinAPP_Server
 
             //Console.WriteLine(dr.rows);
 
-            Test t = new Test();
-            Console.ReadLine();
+            //Test t = new Test();
+            //Console.ReadLine();
 
-            //int port = AppSetting.Ins.GetInt("Port");
+            int port = AppSetting.Ins.GetInt("Port");
 
-            //BaseServer<TransModel, BaseToken> server = new BaseServer<TransModel, BaseToken>(port);
+            BaseServer<TransModel, BaseToken> server = new BaseServer<TransModel, BaseToken>(port);
 
-            //server.Init(NetCenter.Ins);
+            server.Init(NetCenter.Ins);
 
-            //server.Start();
+            server.Start();
 
-            //AbsCoding.Ins = new PbCoding();
+            AbsCoding.Ins = new PbCoding();
 
-            //TaticsManager.GetIns();
+            TaticsManager.GetIns();
 
             while (true)
             {

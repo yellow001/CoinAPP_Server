@@ -108,7 +108,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
             {
                 t = V_Cache.V_KLineData[0].V_Timestamp;
             }
-            if ((t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
+            if (percent < 0 && (t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
             {
                 //持仓时间有点久了，看机会溜吧
                 return sign > 0;

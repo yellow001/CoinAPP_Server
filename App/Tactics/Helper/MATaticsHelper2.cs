@@ -227,6 +227,19 @@ public class MATaticsHelper2 : BaseTaticsHelper, ICycleTatics
                 }
                 return true;
             }
+
+            DateTime t = DateTime.UtcNow;
+
+            if (isTest)
+            {
+                t = V_Cache.V_KLineData[0].V_Timestamp;
+            }
+            if (percent < 0 && (t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
+            {
+                //持仓时间有点久了，看机会溜吧
+                return sign > 0;
+            }
+
             //else {
             //    V_MaxPercent = V_MaxPercent < percent ? percent : V_MaxPercent;
             //    if ((percent - V_MaxPercent) < lossPercent*1.618f) {

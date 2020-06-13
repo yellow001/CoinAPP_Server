@@ -152,16 +152,40 @@ namespace CoinAPP_Server.App
             //Dictionary<int, int> winDic = new Dictionary<int, int>();
 
             //Dictionary<int, Dictionary<int, float>> all_ResultDic = new Dictionary<int, Dictionary<int, float>>();
-
+            int runHelper = AppSetting.Ins.GetInt("RunHelper");
             string[] coins = AppSetting.Ins.GetValue("Run").Split(';');
             Console.WriteLine(AppSetting.Ins.GetValue("Run"));
             for (int i = 0; i < coins.Length; i++)
             {
                 string item = coins[i];
-                EMATaticsHelper m_emaHelper = new EMATaticsHelper();
-                m_emaHelper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+                if (runHelper == 1)
+                {
+                    MATaticsHelper m_helper = new MATaticsHelper();
+                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("MA_{0}", item)));
 
-                await m_emaHelper.RunHistory();
+                    await m_helper.RunHistory();
+                }
+                else if (runHelper == 2)
+                {
+                    MATaticsHelper2 m_helper = new MATaticsHelper2();
+                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("MA_{0}", item)));
+
+                    await m_helper.RunHistory();
+                }
+                else if (runHelper == 3)
+                {
+                    EMATaticsHelper m_helper = new EMATaticsHelper();
+                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+
+                    await m_helper.RunHistory();
+                }
+                else {
+                    EMATaticsHelper2 m_helper = new EMATaticsHelper2();
+                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+
+                    await m_helper.RunHistory();
+                }
+                
             }
 
             //for (int i = 0; i < coins.Length; i++)

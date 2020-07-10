@@ -72,6 +72,8 @@ public class BaseTaticsHelper
 
     public bool winClose = false;
 
+    public bool maxAlready = false;
+
     public BaseTaticsHelper() {
         //cooldown *= (long)V_Min*60 * Util.Second_Ticks;
     }
@@ -156,6 +158,7 @@ public class BaseTaticsHelper
                 if (!lastResult) { lossCooldown += AppSetting.Ins.GetInt("LossCoolDown"); }
             }
             V_LastOpTime = line.V_Timestamp;
+            maxAlready = false;
         }
         return result;
     }
@@ -229,5 +232,6 @@ public class BaseTaticsHelper
     public virtual void ClearTempData() {
         V_LastOpTime = DateTime.UtcNow;
         lossCooldown = 0;
+        maxAlready = false;
     }
 }

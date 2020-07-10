@@ -101,6 +101,10 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
                 return sign > 0;
             }
 
+            if (percent < 0 && sign > 0) {
+                return true;
+            }
+
             DateTime t = DateTime.UtcNow;
 
             if (isTest)
@@ -177,11 +181,11 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
         else
         {
             //返回>0就是要平仓
-            if (orderDir < 0 && dir >= 0)
+            if (orderDir < 0 && dir > 0)
             {
                 return 1;
             }
-            if (orderDir > 0 && dir <= 0)
+            if (orderDir > 0 && dir < 0)
             {
                 return 1;
             }

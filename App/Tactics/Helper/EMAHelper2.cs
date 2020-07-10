@@ -99,7 +99,18 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
 
             if (percent >= winPercent)
             {
+                maxAlready = true;
                 return sign > 0;
+            }
+
+            if (percent < 0 && sign > 0)
+            {
+                return true;
+            }
+
+            if (maxAlready && sign > 0) {
+                //如果曾经到达过最高而指标反向，止盈一下吧
+                return true;
             }
 
             DateTime t = DateTime.UtcNow;

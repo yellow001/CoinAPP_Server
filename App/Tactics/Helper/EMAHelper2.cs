@@ -103,7 +103,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
                 return sign > 0;
             }
 
-            if (percent < 0 && sign > 0)
+            if (percent < lossPercent*0.25f && sign > 0)
             {
                 return true;
             }

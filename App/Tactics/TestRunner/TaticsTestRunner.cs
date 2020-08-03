@@ -400,7 +400,7 @@ public class TaticsTestRunner
         //int minWin = (int)helper.V_Leverage * 2;
         //int maxWin = (int)helper.V_Leverage * 5 ;
 
-        int minLoss = -10;
+        int minLoss = -25;
         int maxLoss = -200;
         int minWin = 40;
         int maxWin = 200;

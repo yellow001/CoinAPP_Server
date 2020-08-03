@@ -402,7 +402,7 @@ public class TaticsTestRunner
 
         int minLoss = -25;
         int maxLoss = -100;
-        int minWin = 25;
+        int minWin = 40;
         int maxWin = 200;
 
         for (int loss = minLoss; loss >= maxLoss; loss -= 5)

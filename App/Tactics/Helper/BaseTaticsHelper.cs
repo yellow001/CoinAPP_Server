@@ -222,6 +222,11 @@ public class BaseTaticsHelper
 
             t_start = t_start.AddMinutes(length * 200);
         }
+
+        Console.WriteLine(V_Instrument_id + ":历史数据 "+ history_data.Count+ "条");
+
+        Debugger.Log(V_Instrument_id + ":历史数据 " + history_data.Count + "条");
+
         V_HistoryCache.RefreshData(history_data);
         V_LastOpTime = history_data[history_data.Count - 1].V_Timestamp;
     }

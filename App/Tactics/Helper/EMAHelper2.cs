@@ -103,8 +103,9 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
                 return sign > 0;
             }
 
-            if (percent < lossPercent*0.25f && sign > 0)
+            if (percent < lossPercent * 0.5f && sign > 0)
             {
+                //指标反向+亏损，溜吧
                 return true;
             }
 
@@ -112,6 +113,18 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
                 //如果曾经到达过最高而指标反向，止盈一下吧
                 return true;
             }
+
+            //if (maxAlready && percent <= winPercent*0.5f)
+            //{
+            //    //如果曾经到达过最高而利润只剩一半，止盈一下吧
+            //    return true;
+            //}
+
+            //if (maxAlready && percent <= 0)
+            //{
+            //    //如果曾经到达过最高而利润只现在是亏得，溜吧
+            //    return true;
+            //}
 
             DateTime t = DateTime.UtcNow;
 

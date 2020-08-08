@@ -157,22 +157,25 @@ namespace NetFrame.Base
         /// <param name="token"></param>
         /// <param name="error"></param>
         protected void ClientClose(BaseToken token,string error) {
-            if (token == null) {
-                return;
-            }
+            if (token != null) {
+                try
+                {
+                    lock (token)
+                    {
+                        center.OnClientClose(token, error);
+                        token.Close();
+                        tokens.Push(token);
+                        maxConn_se.Release();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debugger.Error(ex.ToString());
 
-            try {
-                lock (token) {
-                    center.OnClientClose(token, error);
-                    token.Close();
-                    tokens.Push(token);
-                    maxConn_se.Release();
                 }
             }
-            catch(Exception ex){
-                Debugger.Error(ex.ToString());
-
-            }
+            
+            maxConn_se.Release();
         }
     }
 }

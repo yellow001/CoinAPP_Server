@@ -171,11 +171,9 @@ namespace NetFrame.Base
                 catch (Exception ex)
                 {
                     Debugger.Error(ex.ToString());
-
+                    maxConn_se.Release();
                 }
             }
-            
-            maxConn_se.Release();
         }
     }
 }

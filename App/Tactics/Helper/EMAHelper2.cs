@@ -220,13 +220,17 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         {
             if (pList_1[i] >= pList_2[i] && pList_2[i] >= pList_3[i])
             {
-                //符合多头排列
-                dir = 1;
+                if (V_Cache.V_KLineData[0].V_ClosePrice > pList_2[i]) {
+                    //符合多头排列
+                    dir = 1;
+                }
             }
             else if (pList_1[i] <= pList_2[i] && pList_2[i] <= pList_3[i])
             {
-                //符合空头排列
-                dir = -1;
+                if (V_Cache.V_KLineData[0].V_ClosePrice < pList_2[i]) {
+                    //符合空头排列
+                    dir = -1;
+                }
             }
 
         }

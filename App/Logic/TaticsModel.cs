@@ -23,69 +23,63 @@ public class TaticsModel
     public void RunTactics(string coin,bool isPause=true) {
 
         int runHelper = AppSetting.Ins.GetInt("RunHelper");
-        string[] coins = AppSetting.Ins.GetValue("Run").Split(';');
-        Console.WriteLine(AppSetting.Ins.GetValue("Run"));
-        for (int i = 0; i < coins.Length; i++)
+        string item = coin;
+        if (runHelper == 1)
         {
-            string item = coins[i];
-            if (runHelper == 1)
+            MATaticsHelper m_helper = new MATaticsHelper();
+            m_helper.Init(AppSetting.Ins.GetValue(string.Format("MA_{0}", item)));
+
+            Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);
+
+            if (isPause)
             {
-                MATaticsHelper m_helper = new MATaticsHelper();
-                m_helper.Init(AppSetting.Ins.GetValue(string.Format("MA_{0}", item)));
-
-                Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);
-
-                if (isPause)
-                {
-                    //默认开启的是暂停状态
-                    tactics.V_TacticsState = EM_TacticsState.Pause;
-                }
-                m_TacticsDic[tactics.V_Instrument_id] = tactics;
+                //默认开启的是暂停状态
+                tactics.V_TacticsState = EM_TacticsState.Pause;
             }
-            else if (runHelper == 2)
-            {
-                MATaticsHelper2 m_helper = new MATaticsHelper2();
-                m_helper.Init(AppSetting.Ins.GetValue(string.Format("MA_{0}", item)));
-
-                Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);
-
-                if (isPause)
-                {
-                    //默认开启的是暂停状态
-                    tactics.V_TacticsState = EM_TacticsState.Pause;
-                }
-                m_TacticsDic[tactics.V_Instrument_id] = tactics;
-            }
-            else if (runHelper == 3)
-            {
-                EMATaticsHelper m_helper = new EMATaticsHelper();
-                m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
-
-                Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);
-
-                if (isPause)
-                {
-                    //默认开启的是暂停状态
-                    tactics.V_TacticsState = EM_TacticsState.Pause;
-                }
-                m_TacticsDic[tactics.V_Instrument_id] = tactics;
-            }
-            else
-            {
-                EMATaticsHelper2 m_helper = new EMATaticsHelper2();
-                m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
-
-                Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);
-
-                if (isPause)
-                {
-                    //默认开启的是暂停状态
-                    tactics.V_TacticsState = EM_TacticsState.Pause;
-                }
-                m_TacticsDic[tactics.V_Instrument_id] = tactics;
-            }
+            m_TacticsDic[tactics.V_Instrument_id] = tactics;
         }
-        
+        else if (runHelper == 2)
+        {
+            MATaticsHelper2 m_helper = new MATaticsHelper2();
+            m_helper.Init(AppSetting.Ins.GetValue(string.Format("MA_{0}", item)));
+
+            Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);
+
+            if (isPause)
+            {
+                //默认开启的是暂停状态
+                tactics.V_TacticsState = EM_TacticsState.Pause;
+            }
+            m_TacticsDic[tactics.V_Instrument_id] = tactics;
+        }
+        else if (runHelper == 3)
+        {
+            EMATaticsHelper m_helper = new EMATaticsHelper();
+            m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+
+            Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);
+
+            if (isPause)
+            {
+                //默认开启的是暂停状态
+                tactics.V_TacticsState = EM_TacticsState.Pause;
+            }
+            m_TacticsDic[tactics.V_Instrument_id] = tactics;
+        }
+        else
+        {
+            EMATaticsHelper2 m_helper = new EMATaticsHelper2();
+            m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+
+            Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);
+
+            if (isPause)
+            {
+                //默认开启的是暂停状态
+                tactics.V_TacticsState = EM_TacticsState.Pause;
+            }
+            m_TacticsDic[tactics.V_Instrument_id] = tactics;
+        }
     }
 
     public List<Tactics> GetTacticsInfo() {

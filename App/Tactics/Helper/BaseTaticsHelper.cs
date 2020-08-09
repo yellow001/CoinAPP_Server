@@ -174,8 +174,18 @@ public class BaseTaticsHelper
         bool result = OnShouldCloseOrder(dir, percent);
         if (result)
         {
+            bool lastResult = winClose;
             winClose = percent > 0;
+            if (winClose)
+            {
+                lossCooldown = 0;
+            }
+            else
+            {
+                if (!lastResult) { lossCooldown += AppSetting.Ins.GetInt("LossCoolDown"); }
+            }
             V_LastOpTime = DateTime.UtcNow;
+            maxAlready = false;
         }
         return result;
     }

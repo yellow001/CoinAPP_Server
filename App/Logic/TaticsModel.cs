@@ -66,9 +66,23 @@ public class TaticsModel
             }
             m_TacticsDic[tactics.V_Instrument_id] = tactics;
         }
-        else
+        else if(runHelper == 4)
         {
             EMATaticsHelper2 m_helper = new EMATaticsHelper2();
+            m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+
+            Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);
+
+            if (isPause)
+            {
+                //默认开启的是暂停状态
+                tactics.V_TacticsState = EM_TacticsState.Pause;
+            }
+            m_TacticsDic[tactics.V_Instrument_id] = tactics;
+        }
+        else
+        {
+            EMAHelper3 m_helper = new EMAHelper3();
             m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
 
             Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);

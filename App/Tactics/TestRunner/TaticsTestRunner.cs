@@ -40,7 +40,7 @@ public class TaticsTestRunner
 
     int curentIndex = 0;
 
-    int count = 150;
+    int count = 300;
 
     float orderPercent = 0.3236f;
 

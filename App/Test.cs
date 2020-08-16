@@ -179,13 +179,21 @@ namespace CoinAPP_Server.App
 
                     await m_helper.RunHistory();
                 }
-                else {
+                else if(runHelper == 4)
+                {
                     EMATaticsHelper2 m_helper = new EMATaticsHelper2();
                     m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
 
                     await m_helper.RunHistory();
                 }
-                
+                else if (runHelper == 5)
+                {
+                    EMAHelper3 m_helper = new EMAHelper3();
+                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+
+                    await m_helper.RunHistory();
+                }
+
             }
 
             //for (int i = 0; i < coins.Length; i++)

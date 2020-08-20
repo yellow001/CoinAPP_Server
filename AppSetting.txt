@@ -63,5 +63,5 @@ ConnectKey:yellowzhong
 RunHelper:5
 
 //启动币种
-Run:BTC;LTC;ETH;EOS;BCH;BSV;ETC;XRP
+Run:BTC;LTC;ETH
 //Run:LTC

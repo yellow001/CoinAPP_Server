@@ -197,8 +197,8 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         for (int i = 0; i < V_CycleList.Count; i++)
         {
             float p1 = GetEMAValue(V_CycleList[i], i);
-            float p2 = GetEMAValue(V_CycleList[i],(i+1)*2, i);
-            float p3 = GetEMAValue(V_CycleList[i], (i + 2) * 4, i);
+            float p2 = GetEMAValue(V_CycleList[i],3, i);
+            float p3 = GetEMAValue(V_CycleList[i],12, i);
 
             pDic1[V_CycleList[i]] = p1;
             pDic2[V_CycleList[i]] = p2;

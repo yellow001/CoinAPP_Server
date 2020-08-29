@@ -137,7 +137,7 @@ public class TaticsTestRunner
                 }
 
                 //有单就算下是否需要平仓
-                float v = item.GetPercentTest(data[0]);
+                float v = item.GetPercentTest(data[0],helper.V_LossPercent);
 
                 if (item.V_Dir > 0)
                 {
@@ -284,7 +284,7 @@ public class TaticsTestRunner
             return;
         }
 
-        float p = removeItem.GetPercentTest(kline);
+        float p = removeItem.GetPercentTest(kline, helper.V_LossPercent);
         p = p < helper.V_LossPercent ? helper.V_LossPercent : p;
 
         float temp = 0;
@@ -298,6 +298,7 @@ public class TaticsTestRunner
 
     public virtual void Clear() {
         V_OrderCount = 0;
+        helper.ClearRunData();
     }
 
     public static void TestRun(BaseTaticsHelper helper)
@@ -405,9 +406,9 @@ public class TaticsTestRunner
         int minWin = 40;
         int maxWin = 200;
 
-        for (int loss = minLoss; loss >= maxLoss; loss -= 5)
+        for (int loss = minLoss; loss >= maxLoss; loss -= 10)
         {
-            for (int win = minWin; win <= maxWin; win += 5)
+            for (int win = minWin; win <= maxWin; win += 10)
             {
                 allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();

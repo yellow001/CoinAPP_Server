@@ -249,4 +249,8 @@ public class BaseTaticsHelper
         lossCooldown = 0;
         maxAlready = false;
     }
+
+    public virtual void ClearRunData() { 
+        
+    }
 }

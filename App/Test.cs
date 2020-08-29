@@ -193,6 +193,13 @@ namespace CoinAPP_Server.App
 
                     await m_helper.RunHistory();
                 }
+                else if (runHelper == 6)
+                {
+                    FourPriceHelper m_helper = new FourPriceHelper();
+                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("FOUR_{0}", item)));
+
+                    await m_helper.RunHistory();
+                }
 
             }
 

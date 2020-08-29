@@ -85,19 +85,27 @@ public class Position
         }
     }
 
-    public float GetPercentTest(KLine line)
+    public float GetPercentTest(KLine line,float maxLoss)
     {
         if (V_Dir > 0)
         {
-            if (V_Avg_Price > line.V_LowPrice) { 
-                return ((line.V_LowPrice - V_Avg_Price) / line.V_LowPrice) * V_Leverage * 100;
+            if (V_Avg_Price > line.V_LowPrice) {
+
+                float p= ((line.V_LowPrice - V_Avg_Price) / line.V_LowPrice) * V_Leverage * 100;
+                if (p >= maxLoss) {
+                    return p;
+                }
             }
             return ((line.V_ClosePrice - V_Avg_Price) / line.V_ClosePrice) * V_Leverage * 100;
         }
         else
         {
             if(V_Avg_Price < line.V_HightPrice){
-                return ((V_Avg_Price - line.V_HightPrice) / line.V_HightPrice) * V_Leverage * 100;
+                float p = ((line.V_LowPrice - V_Avg_Price) / line.V_LowPrice) * V_Leverage * 100;
+                if (p >= maxLoss)
+                {
+                    return p;
+                }
             }
             return ((V_Avg_Price - line.V_ClosePrice) / line.V_ClosePrice) * V_Leverage * 100;
         }

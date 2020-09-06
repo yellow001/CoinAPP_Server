@@ -185,7 +185,7 @@ public class TaticsTestRunner
         if (makeOrder)
         {
             long leave = helper.GetCoolDownTest();
-            if (leave < 0 && helper.winClose)
+            if (leave < 0)
             {
                 return;
             }

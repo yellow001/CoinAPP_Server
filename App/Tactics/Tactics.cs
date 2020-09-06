@@ -55,6 +55,9 @@ public class Tactics
     float tempVol = 0;
 
     float orderPercent = 0.3236f;
+
+    int debugCount = 0;
+
     public Tactics() { }
 
     public Tactics(string instrument_id, BaseTaticsHelper helper) {
@@ -326,11 +329,20 @@ public class Tactics
 
         if (makeOrder) {
             long leave = m_TaticsHelper.GetCoolDown();
-            if (leave < 0 && m_TaticsHelper.winClose)
+            if (leave < 0 )
             {
                 if (debug)
                 {
                     Console.WriteLine("{0} {1}:冷却中 cd {2}", DateTime.Now, V_Instrument_id, leave);
+                    Debugger.Log(string.Format("{0} {1}:冷却中 cd {2}", DateTime.Now, V_Instrument_id, leave));
+                    debug = false;
+                }
+                else {
+                    debugCount++;
+                    if (debugCount >= 100) {
+                        debugCount = 0;
+                        debug = true;
+                    }
                 }
                 return;
             }

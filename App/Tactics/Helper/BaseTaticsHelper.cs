@@ -76,6 +76,7 @@ public class BaseTaticsHelper
 
     public BaseTaticsHelper() {
         //cooldown *= (long)V_Min*60 * Util.Second_Ticks;
+        cooldown = AppSetting.Ins.GetInt("CoolDown");
     }
 
     /// <summary>

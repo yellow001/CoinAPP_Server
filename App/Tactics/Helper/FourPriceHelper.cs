@@ -12,6 +12,7 @@ public class FourPriceHelper : BaseTaticsHelper
     KLine m_LastKLine;
     KLine m_CurKLine;
 
+    int MergeHour = 4;
 
     #region 重载
 
@@ -22,11 +23,12 @@ public class FourPriceHelper : BaseTaticsHelper
     public override void Init(string setting)
     {
         string[] strs = setting.Split(';');
-        if (strs.Length >= 3)
+        if (strs.Length >= 4)
         {
             V_Instrument_id = strs[0];
-            V_Min = int.Parse(strs[1]);
-            V_Leverage = float.Parse(strs[2]);
+            MergeHour = int.Parse(strs[1]);
+            V_Min = int.Parse(strs[2]);
+            V_Leverage = float.Parse(strs[3]);
         }
         //Console.WriteLine(V_Instrument_id + ":合约 " + V_Instrument_id);
         base.Init(setting);
@@ -61,7 +63,7 @@ public class FourPriceHelper : BaseTaticsHelper
     public override int MakeOrder()
     {
         //Task.Run(async () => { await F_GetDayKLine(); }).Wait();
-        GetDayKLine(V_Cache.V_KLineData[0].V_Timestamp, ref m_CurKLine, ref m_LastKLine);
+        GetMergeKLine(V_Cache.V_KLineData[0].V_Timestamp, ref m_CurKLine, ref m_LastKLine);
 
         if (m_CurKLine == null || m_LastKLine == null)
         {
@@ -81,7 +83,7 @@ public class FourPriceHelper : BaseTaticsHelper
     {
         //Task.Run(async () => { await F_GetDayKLine(); }).Wait();
 
-        GetDayKLine(V_Cache.V_KLineData[0].V_Timestamp, ref m_CurKLine, ref m_LastKLine);
+        GetMergeKLine(V_Cache.V_KLineData[0].V_Timestamp, ref m_CurKLine, ref m_LastKLine);
 
 
         if (m_CurKLine == null || m_LastKLine == null) {
@@ -132,48 +134,16 @@ public class FourPriceHelper : BaseTaticsHelper
         return false;
     }
 
-    async Task F_GetDayKLine() {
-
-        bool refresh = false;
-
-        DateTime time = V_Cache.V_KLineData[0].V_Timestamp;
-        DateTime time2 = new DateTime(time.Year, time.Month, time.Day, 16, 0, 0);
-
-
-        if (m_LastKLine == null || m_CurKLine == null)
-        {
-            refresh = true;
-        }
-        else {
-            if (m_CurKLine.V_Timestamp.Ticks < time2.Ticks) {
-                refresh = true;
-            }
-        }
-
-        if (refresh) {
-
-            time = new DateTime(time.Year, time.Month, time.Day);
-
-            SwapApi api = CommonData.Ins.V_SwapApi;
-
-
-            JContainer con = await api.getCandlesDataAsync(V_Instrument_id, time2.AddDays(-1), time2.AddDays(1), 24 * 60 * 60);
-
-            List<KLine> d = KLine.GetListFormJContainer(con);
-
-            if (d.Count >= 2)
-            {
-                m_CurKLine = d[0];
-                m_LastKLine = d[1];
-            }
-        }
+    float F_GetMA(int length)
+    {
+        return MA.GetMA(length, V_Cache.V_KLineData);
     }
 
-    void GetDayKLine(DateTime curDataTime,ref KLine curLine,ref KLine lastLine) {
+    void GetMergeKLine(DateTime curDataTime,ref KLine curLine,ref KLine lastLine) {
 
         bool refresh = false;
 
-        DateTime time = new DateTime(curDataTime.Year, curDataTime.Month, curDataTime.Day);
+        DateTime time = new DateTime(curDataTime.Year, curDataTime.Month, curDataTime.Day, curDataTime.Hour, 0, 0);
 
         if (m_LastKLine == null || m_CurKLine == null)
         {
@@ -191,8 +161,8 @@ public class FourPriceHelper : BaseTaticsHelper
             curLine = new KLine();
             lastLine = new KLine();
 
-            DateTime lastDataTime = time.AddDays(-1);
-            DateTime nextDataTime = time.AddDays(1);
+            DateTime lastDataTime = time.AddHours(-MergeHour);
+            DateTime nextDataTime = time.AddHours(MergeHour);
 
             curLine.V_Timestamp = time;
             lastLine.V_Timestamp = lastDataTime;
@@ -255,13 +225,19 @@ public class FourPriceHelper : BaseTaticsHelper
     {
         if (isOrder)
         {
+            float MA60 = F_GetMA(60);
             if (V_Cache.V_KLineData[0].V_ClosePrice >= m_LastKLine.V_HightPrice)
             {
-                return 1;
+                if (V_Cache.V_KLineData[0].V_ClosePrice >= MA60) {
+                    return 1;
+                }
             }
             else if (V_Cache.V_KLineData[0].V_ClosePrice <= m_LastKLine.V_LowPrice)
             {
-                return -1;
+                if (V_Cache.V_KLineData[0].V_ClosePrice <= MA60)
+                {
+                    return -1;
+                }
             }
         }
         else {

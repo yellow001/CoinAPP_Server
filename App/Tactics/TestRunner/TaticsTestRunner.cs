@@ -298,6 +298,7 @@ public class TaticsTestRunner
 
     public virtual void Clear() {
         V_OrderCount = 0;
+        V_CurMoney = Init_Money;
         helper.ClearRunData();
     }
 

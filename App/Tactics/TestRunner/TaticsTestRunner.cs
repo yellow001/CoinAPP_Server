@@ -255,7 +255,7 @@ public class TaticsTestRunner
     public virtual void OpenOrder(int dir, KLine kline)
     {
         V_OrderCount++;
-        //Console.WriteLine("{0}  :  开仓:{1} 价格:{2}", kline.V_Timestamp, dir > 0 ? "多" : "空", kline.V_ClosePrice);
+        //Console.WriteLine("{0}  :  开仓:{1} 价格:{2} 资金：{3}", kline.V_Timestamp, dir > 0 ? "多" : "空", kline.V_ClosePrice, V_CurMoney);
         Position position = new Position("btc", dir, V_CurMoney * orderPercent, V_CurMoney * orderPercent, kline.V_ClosePrice, helper.V_Leverage, kline.V_Timestamp);
         V_Positions.Add(position);
     }
@@ -291,7 +291,7 @@ public class TaticsTestRunner
         temp = p * 0.01f * removeItem.V_AllVol;
         V_CurMoney += temp;
 
-        //Console.WriteLine("{0}  :  平仓价格:{1}  盈利：{2}", kline.V_Timestamp, kline.V_ClosePrice,temp);
+        //Console.WriteLine("{0}  :  平仓价格:{1}  盈利：{2}  资金：{3}", kline.V_Timestamp, kline.V_ClosePrice,temp,V_CurMoney);
 
         V_Positions.Remove(removeItem);
     }
@@ -329,27 +329,28 @@ public class TaticsTestRunner
                 //    count = temp_count;
                 //}
 
-                if (avg_win < avg_win_max)
-                {
-                    maxMoney = temp;
-                    best_Cycle = cycleList[i];
-                    loss = temp_loss;
-                    win = temp_win;
-                    avg_win = avg_win_max;
-                    count = temp_count;
-                }
-
-                //if (temp > TaticsTestRunner.Init_Money) {
-                //    if (count > temp_count)
-                //    {
-                //        maxMoney = temp;
-                //        best_Cycle = cycleList[i];
-                //        loss = temp_loss;
-                //        win = temp_win;
-                //        avg_win = avg_win_max;
-                //        count = temp_count;
-                //    }
+                //if (avg_win < avg_win_max)
+                //{
+                //    maxMoney = temp;
+                //    best_Cycle = cycleList[i];
+                //    loss = temp_loss;
+                //    win = temp_win;
+                //    avg_win = avg_win_max;
+                //    count = temp_count;
                 //}
+
+                if (temp > TaticsTestRunner.Init_Money)
+                {
+                    if (count > temp_count)
+                    {
+                        maxMoney = temp;
+                        best_Cycle = cycleList[i];
+                        loss = temp_loss;
+                        win = temp_win;
+                        avg_win = avg_win_max;
+                        count = temp_count;
+                    }
+                }
 
 
                 //Console.WriteLine(helper.V_Instrument_id+": 周期 " + cycleList[i]);
@@ -407,9 +408,9 @@ public class TaticsTestRunner
         int minWin = 40;
         int maxWin = 200;
 
-        for (int loss = minLoss; loss >= maxLoss; loss -= 10)
+        for (int loss = minLoss; loss >= maxLoss; loss -= 5)
         {
-            for (int win = minWin; win <= maxWin; win += 10)
+            for (int win = minWin; win <= maxWin; win += 5)
             {
                 allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();

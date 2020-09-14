@@ -329,28 +329,28 @@ public class TaticsTestRunner
                 //    count = temp_count;
                 //}
 
-                //if (avg_win < avg_win_max)
-                //{
-                //    maxMoney = temp;
-                //    best_Cycle = cycleList[i];
-                //    loss = temp_loss;
-                //    win = temp_win;
-                //    avg_win = avg_win_max;
-                //    count = temp_count;
-                //}
-
-                if (temp > TaticsTestRunner.Init_Money)
+                if (avg_win < avg_win_max)
                 {
-                    if (count > temp_count)
-                    {
-                        maxMoney = temp;
-                        best_Cycle = cycleList[i];
-                        loss = temp_loss;
-                        win = temp_win;
-                        avg_win = avg_win_max;
-                        count = temp_count;
-                    }
+                    maxMoney = temp;
+                    best_Cycle = cycleList[i];
+                    loss = temp_loss;
+                    win = temp_win;
+                    avg_win = avg_win_max;
+                    count = temp_count;
                 }
+
+                //if (temp > TaticsTestRunner.Init_Money)
+                //{
+                //    if (count > temp_count)
+                //    {
+                //        maxMoney = temp;
+                //        best_Cycle = cycleList[i];
+                //        loss = temp_loss;
+                //        win = temp_win;
+                //        avg_win = avg_win_max;
+                //        count = temp_count;
+                //    }
+                //}
 
 
                 //Console.WriteLine(helper.V_Instrument_id+": 周期 " + cycleList[i]);

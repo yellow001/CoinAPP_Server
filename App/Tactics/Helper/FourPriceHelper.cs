@@ -262,17 +262,42 @@ public class FourPriceHelper : BaseTaticsHelper
             }
         }
         else {
-            if (orderDir > 0) {
-                //跌破开盘 止损
-                if (V_Cache.V_KLineData[0].V_ClosePrice <= m_CurKLine.V_OpenPrice) {
-                    return 1;
+
+            if (isTest)
+            {
+                if (orderDir > 0)
+                {
+                    //跌破开盘 止损
+                    if (V_Cache.V_KLineData[0].V_LowPrice <= m_CurKLine.V_OpenPrice)
+                    {
+                        return 1;
+                    }
+                }
+                else if (orderDir < 0)
+                {
+                    //涨破开盘 止损
+                    if (V_Cache.V_KLineData[0].V_HightPrice >= m_CurKLine.V_OpenPrice)
+                    {
+                        return 1;
+                    }
                 }
             }
-            else if (orderDir < 0) {
-                //涨破开盘 止损
-                if (V_Cache.V_KLineData[0].V_ClosePrice >= m_CurKLine.V_OpenPrice)
+            else {
+                if (orderDir > 0)
                 {
-                    return 1;
+                    //跌破开盘 止损
+                    if (V_Cache.V_KLineData[0].V_ClosePrice <= m_CurKLine.V_OpenPrice)
+                    {
+                        return 1;
+                    }
+                }
+                else if (orderDir < 0)
+                {
+                    //涨破开盘 止损
+                    if (V_Cache.V_KLineData[0].V_ClosePrice >= m_CurKLine.V_OpenPrice)
+                    {
+                        return 1;
+                    }
                 }
             }
         }

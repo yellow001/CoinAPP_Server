@@ -225,39 +225,39 @@ public class FourPriceHelper : BaseTaticsHelper
     {
         if (isOrder)
         {
-            float MA60 = F_GetMA(60);
+            //float MA60 = F_GetMA(60);
 
             if (isTest)
             {
                 if (V_Cache.V_KLineData[0].V_HightPrice >= m_LastKLine.V_HightPrice)
                 {
-                    if (V_Cache.V_KLineData[0].V_HightPrice >= MA60)
-                    {
+                    //if (V_Cache.V_KLineData[0].V_HightPrice >= MA60)
+                    //{
                         return 1;
-                    }
+                    //}
                 }
                 else if (V_Cache.V_KLineData[0].V_LowPrice <= m_LastKLine.V_LowPrice)
                 {
-                    if (V_Cache.V_KLineData[0].V_LowPrice <= MA60)
-                    {
+                    //if (V_Cache.V_KLineData[0].V_LowPrice <= MA60)
+                    //{
                         return -1;
-                    }
+                    //}
                 }
             }
             else {
                 if (V_Cache.V_KLineData[0].V_ClosePrice >= m_LastKLine.V_HightPrice)
                 {
-                    if (V_Cache.V_KLineData[0].V_ClosePrice >= MA60)
-                    {
+                    //if (V_Cache.V_KLineData[0].V_ClosePrice >= MA60)
+                    //{
                         return 1;
-                    }
+                    //}
                 }
                 else if (V_Cache.V_KLineData[0].V_ClosePrice <= m_LastKLine.V_LowPrice)
                 {
-                    if (V_Cache.V_KLineData[0].V_ClosePrice <= MA60)
-                    {
+                    //if (V_Cache.V_KLineData[0].V_ClosePrice <= MA60)
+                    //{
                         return -1;
-                    }
+                    //}
                 }
             }
         }

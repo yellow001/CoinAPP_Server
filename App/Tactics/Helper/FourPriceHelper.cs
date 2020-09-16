@@ -12,7 +12,7 @@ public class FourPriceHelper : BaseTaticsHelper
     KLine m_LastKLine;
     KLine m_CurKLine;
 
-    int MergeHour = 4;
+    float MergeHour = 4;
 
     #region 重载
 
@@ -26,7 +26,7 @@ public class FourPriceHelper : BaseTaticsHelper
         if (strs.Length >= 4)
         {
             V_Instrument_id = strs[0];
-            MergeHour = int.Parse(strs[1]);
+            MergeHour = float.Parse(strs[1]);
             V_Min = int.Parse(strs[2]);
             V_Leverage = float.Parse(strs[3]);
         }

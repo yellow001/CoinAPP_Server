@@ -60,7 +60,7 @@ public class FourPriceHelper : BaseTaticsHelper
     /// <returns>
     /// 1 多单 -1 空单 0 不开单
     /// </returns>
-    public override int MakeOrder()
+    public override int MakeOrder(bool isTest=false)
     {
         //Task.Run(async () => { await F_GetDayKLine(); }).Wait();
         GetMergeKLine(V_Cache.V_KLineData[0].V_Timestamp, ref m_CurKLine, ref m_LastKLine);
@@ -70,7 +70,7 @@ public class FourPriceHelper : BaseTaticsHelper
             return 0;
         }
 
-        return GetValue(true, 0);
+        return GetValue(true, 0,isTest);
     }
 
     /// <summary>
@@ -221,22 +221,43 @@ public class FourPriceHelper : BaseTaticsHelper
     #region 策略方法
 
 
-    int GetValue(bool isOrder, int orderDir)
+    int GetValue(bool isOrder, int orderDir,bool isTest=false)
     {
         if (isOrder)
         {
             float MA60 = F_GetMA(60);
-            if (V_Cache.V_KLineData[0].V_ClosePrice >= m_LastKLine.V_HightPrice)
+
+            if (isTest)
             {
-                if (V_Cache.V_KLineData[0].V_ClosePrice >= MA60) {
-                    return 1;
+                if (V_Cache.V_KLineData[0].V_HightPrice >= m_LastKLine.V_HightPrice)
+                {
+                    if (V_Cache.V_KLineData[0].V_HightPrice >= MA60)
+                    {
+                        return 1;
+                    }
+                }
+                else if (V_Cache.V_KLineData[0].V_LowPrice <= m_LastKLine.V_LowPrice)
+                {
+                    if (V_Cache.V_KLineData[0].V_LowPrice <= MA60)
+                    {
+                        return -1;
+                    }
                 }
             }
-            else if (V_Cache.V_KLineData[0].V_ClosePrice <= m_LastKLine.V_LowPrice)
-            {
-                if (V_Cache.V_KLineData[0].V_ClosePrice <= MA60)
+            else {
+                if (V_Cache.V_KLineData[0].V_ClosePrice >= m_LastKLine.V_HightPrice)
                 {
-                    return -1;
+                    if (V_Cache.V_KLineData[0].V_ClosePrice >= MA60)
+                    {
+                        return 1;
+                    }
+                }
+                else if (V_Cache.V_KLineData[0].V_ClosePrice <= m_LastKLine.V_LowPrice)
+                {
+                    if (V_Cache.V_KLineData[0].V_ClosePrice <= MA60)
+                    {
+                        return -1;
+                    }
                 }
             }
         }

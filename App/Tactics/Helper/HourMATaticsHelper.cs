@@ -60,7 +60,7 @@ public class HourMATaticsHelper: BaseTaticsHelper
     /// <returns>
     /// 1 多单 -1 空单 0 不开单
     /// </returns>
-    public override int MakeOrder()
+    public override int MakeOrder(bool isTest = false)
     {
         return GetValue(true,0);
     }

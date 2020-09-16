@@ -135,7 +135,7 @@ public class BaseTaticsHelper
     /// <returns>
     /// 1 多单 -1 空单 0 不开单
     /// </returns>
-    public virtual int MakeOrder() {
+    public virtual int MakeOrder(bool isTest=false) {
         return 0;
     }
 

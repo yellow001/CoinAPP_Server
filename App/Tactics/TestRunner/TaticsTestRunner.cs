@@ -190,7 +190,7 @@ public class TaticsTestRunner
                 return;
             }
 
-            int o = helper.MakeOrder();
+            int o = helper.MakeOrder(true);
 
             if (o > 0 && !hasLong)
             {
@@ -256,7 +256,16 @@ public class TaticsTestRunner
     {
         V_OrderCount++;
         //Console.WriteLine("{0}  :  开仓:{1} 价格:{2} 资金：{3}", kline.V_Timestamp, dir > 0 ? "多" : "空", kline.V_ClosePrice, V_CurMoney);
-        Position position = new Position("btc", dir, V_CurMoney * orderPercent, V_CurMoney * orderPercent, kline.V_ClosePrice, helper.V_Leverage, kline.V_Timestamp);
+
+        float price = kline.V_ClosePrice;
+        if (dir > 0)
+        {
+            price = kline.V_HightPrice;
+        }
+        else {
+            price = kline.V_LowPrice;
+        }
+        Position position = new Position("btc", dir, V_CurMoney * orderPercent, V_CurMoney * orderPercent, price, helper.V_Leverage, kline.V_Timestamp);
         V_Positions.Add(position);
     }
 

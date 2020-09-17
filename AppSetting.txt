@@ -55,6 +55,10 @@ FOUR_XRP:XRP-USD-SWAP;1;15;18
 
 FOUR_BSV:BSV-USD-SWAP;1;15;18
 
+//FOUR_BTC:BTC-USD-SWAP;1;15;20
+//FOUR_ETH:ETH-USD-SWAP;0.75;15;20
+//FOUR_LTC:LTC-USD-SWAP;1;15;20
+
 //海龟	合约;K线时长;最高价采样点_最低价采样点;倍数
 Turtle_BTC:BTC-USD-SWAP;5;50
 Turtle_ETH:ETH-USD-SWAP;5;50
@@ -70,6 +74,7 @@ Turtle_BSV:BSV-USD-SWAP;5;20
 Port:8888
 
 OrderValue:0.18
+//OrderValue:0.32
 
 ConnectKey:yellowzhong
 

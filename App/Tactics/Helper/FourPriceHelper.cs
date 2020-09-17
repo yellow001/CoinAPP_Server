@@ -245,6 +245,12 @@ public class FourPriceHelper : BaseTaticsHelper
                 }
             }
             else {
+
+                DateTime t = DateTime.UtcNow;
+                if ((V_Min - t.Minute % V_Min) != 1) {
+                    return 0;
+                }
+
                 if (V_Cache.V_KLineData[0].V_ClosePrice >= m_LastKLine.V_HightPrice)
                 {
                     //if (V_Cache.V_KLineData[0].V_ClosePrice >= MA60)

@@ -78,7 +78,7 @@ public class TurtleTaticsHelper : BaseTaticsHelper
     /// </returns>
     public override int MakeOrder(bool isTest = false)
     {
-        return GetResult();
+        return GetValue(true,0,isTest);
     }
 
     /// <summary>
@@ -95,21 +95,23 @@ public class TurtleTaticsHelper : BaseTaticsHelper
             return true;
         }
 
-        int result = GetResult();
-        if (percent > winPercent) {
-            if (dir > 0)
-            {
-                //多单盈利
-                if (result < 0) {
-                    return true;
-                }
-            }
-            else {
-                //空单盈利
-                if (result > 0) {
-                    return true;
-                }
-            }
+        int sign = GetValue(false,dir,isTest);
+        if (percent >= winPercent)
+        {
+            maxAlready = true;
+            return sign > 0;
+        }
+
+        DateTime t = DateTime.UtcNow;
+
+        if (isTest)
+        {
+            t = V_Cache.V_KLineData[0].V_Timestamp;
+        }
+        if (percent < 0 && (t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
+        {
+            //持仓时间有点久了，看机会溜吧
+            return sign > 0;
         }
 
         return false;
@@ -120,33 +122,69 @@ public class TurtleTaticsHelper : BaseTaticsHelper
     #region 策略方法
 
 
-    int GetResult() {
+    int GetValue(bool isOrder, int orderDir, bool isTest = false) {
 
-        //买入？
-        if (V_Cache != null && V_Cache.V_KLineData != null && V_Cache.V_KLineData.Count > V_BuyLength + 1)
+        if (isOrder)
         {
-            //最新的一条k线要剔除
-            List<KLine> data = V_Cache.V_KLineData.GetRange(1, V_BuyLength);
-            List<float> list = data.Select(q => q.V_HightPrice).ToList();
-            float avg = Util.GetAvg(list);
-            if (V_Cache.V_KLineData[0].V_ClosePrice > avg)
+            //买入？
+            if (V_Cache != null && V_Cache.V_KLineData != null && V_Cache.V_KLineData.Count > V_BuyLength + 1)
             {
-                return 1;
+                //最新的一条k线要剔除
+                List<KLine> data = V_Cache.V_KLineData.GetRange(1, V_BuyLength);
+                List<float> list = data.Select(q => q.V_HightPrice).ToList();
+                float avg = Util.GetAvg(list);
+                if (V_Cache.V_KLineData[0].V_ClosePrice > avg)
+                {
+                    return 1;
+                }
+            }
+
+            //卖出？
+            if (V_Cache != null && V_Cache.V_KLineData != null && V_Cache.V_KLineData.Count > V_SellLength + 1)
+            {
+                //最新的一条k线要剔除
+                List<KLine> data = V_Cache.V_KLineData.GetRange(1, V_SellLength);
+                List<float> list = data.Select(q => q.V_LowPrice).ToList();
+                float avg = Util.GetAvg(list);
+                if (V_Cache.V_KLineData[0].V_ClosePrice < avg)
+                {
+                    return -1;
+                }
             }
         }
-
-        //卖出？
-        if (V_Cache != null && V_Cache.V_KLineData != null && V_Cache.V_KLineData.Count > V_SellLength + 1)
-        {
-            //最新的一条k线要剔除
-            List<KLine> data = V_Cache.V_KLineData.GetRange(1, V_SellLength);
-            List<float> list = data.Select(q => q.V_LowPrice).ToList();
-            float avg = Util.GetAvg(list);
-            if (V_Cache.V_KLineData[0].V_ClosePrice < avg)
+        else {
+            if (orderDir > 0)
             {
-                return -1;
+                //卖出？
+                if (V_Cache != null && V_Cache.V_KLineData != null && V_Cache.V_KLineData.Count > V_SellLength + 1)
+                {
+                    //最新的一条k线要剔除
+                    List<KLine> data = V_Cache.V_KLineData.GetRange(1, V_SellLength);
+                    List<float> list = data.Select(q => q.V_LowPrice).ToList();
+                    float avg = Util.GetAvg(list);
+                    if (V_Cache.V_KLineData[0].V_ClosePrice < avg)
+                    {
+                        return 1;
+                    }
+                }
+            }
+            else if (orderDir < 0)
+            {
+                //买入？
+                if (V_Cache != null && V_Cache.V_KLineData != null && V_Cache.V_KLineData.Count > V_BuyLength + 1)
+                {
+                    //最新的一条k线要剔除
+                    List<KLine> data = V_Cache.V_KLineData.GetRange(1, V_BuyLength);
+                    List<float> list = data.Select(q => q.V_HightPrice).ToList();
+                    float avg = Util.GetAvg(list);
+                    if (V_Cache.V_KLineData[0].V_ClosePrice > avg)
+                    {
+                        return 1;
+                    }
+                }
             }
         }
+        
 
         return 0;
     }

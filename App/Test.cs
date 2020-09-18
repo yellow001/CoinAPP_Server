@@ -200,6 +200,13 @@ namespace CoinAPP_Server.App
 
                     await m_helper.RunHistory();
                 }
+                else if (runHelper == 7)
+                {
+                    TurtleTaticsHelper m_helper = new TurtleTaticsHelper();
+                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("Turtle_{0}", item)));
+
+                    await m_helper.RunHistory();
+                }
 
             }
 

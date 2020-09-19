@@ -398,13 +398,13 @@ public class TaticsTestRunner
         int allCount = 0;
 
         int minLoss = -25;
-        int maxLoss = -100;
+        int maxLoss = -60;
         int minWin = 40;
-        int maxWin = 200;
+        int maxWin = 100;
 
-        for (int loss = minLoss; loss >= maxLoss; loss -= 10)
+        for (int loss = minLoss; loss >= maxLoss; loss -= 5)
         {
-            for (int win = minWin; win <= maxWin; win += 10)
+            for (int win = minWin; win <= maxWin; win += 5)
             {
                 allCount++;
                 TaticsTestRunner run = new TaticsTestRunner();

@@ -97,6 +97,18 @@ public class FourPriceHelper : BaseTaticsHelper
         }
         else
         {
+            int result = GetMAPriceResult(dir);
+
+            if (percent >= winPercent*0.5f && result > 0)
+            {
+                return true;
+            }
+
+            //if (percent <= lossPercent * 0.5f && result > 0)
+            //{
+            //    return true;
+            //}
+
 
             int sign = GetValue(false, dir);
 
@@ -225,7 +237,6 @@ public class FourPriceHelper : BaseTaticsHelper
     {
         if (isOrder)
         {
-            //float MA60 = F_GetMA(60);
 
             if (isTest)
             {
@@ -304,6 +315,51 @@ public class FourPriceHelper : BaseTaticsHelper
                     {
                         return 1;
                     }
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    public int GetMAPriceResult(int orderDir, bool isTest = false) {
+        float MAPrice = F_GetMA(20);
+
+        if (isTest)
+        {
+            if (orderDir > 0)
+            {
+                //跌破均线 考虑走人
+                if (V_Cache.V_KLineData[0].V_LowPrice <= MAPrice)
+                {
+                    return 1;
+                }
+            }
+            else if (orderDir < 0)
+            {
+                //涨破均线 考虑走人
+                if (V_Cache.V_KLineData[0].V_HightPrice >= MAPrice)
+                {
+                    return 1;
+                }
+            }
+        }
+        else
+        {
+            if (orderDir > 0)
+            {
+                //跌破均线 考虑走人
+                if (V_Cache.V_KLineData[0].V_ClosePrice <= MAPrice)
+                {
+                    return 1;
+                }
+            }
+            else if (orderDir < 0)
+            {
+                //涨破均线 考虑走人
+                if (V_Cache.V_KLineData[0].V_ClosePrice <= MAPrice)
+                {
+                    return 1;
                 }
             }
         }

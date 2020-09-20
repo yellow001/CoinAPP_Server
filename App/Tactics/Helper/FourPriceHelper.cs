@@ -357,7 +357,7 @@ public class FourPriceHelper : BaseTaticsHelper
             else if (orderDir < 0)
             {
                 //涨破均线 考虑走人
-                if (V_Cache.V_KLineData[0].V_ClosePrice <= MAPrice)
+                if (V_Cache.V_KLineData[0].V_ClosePrice >= MAPrice)
                 {
                     return 1;
                 }

@@ -397,7 +397,7 @@ public class TaticsTestRunner
         int allWinCount = 0;
         int allCount = 0;
 
-        int minLoss = -25;
+        int minLoss = -40;
         int maxLoss = -60;
         int minWin = 40;
         int maxWin = 100;

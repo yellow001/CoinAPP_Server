@@ -44,8 +44,11 @@ namespace CoinAPP_Server
 
             //Console.WriteLine(dr.rows);
 
-            //Test t = new Test();
-            //Console.ReadLine();
+#if DEBUG
+
+            Test t = new Test();
+            Console.ReadLine();
+#else
 
             int port = AppSetting.Ins.GetInt("Port");
 
@@ -66,6 +69,7 @@ namespace CoinAPP_Server
                     Thread.Sleep(36000000);
                 }).Wait();
             }
+#endif
 
             //sw.Flush();
             //sw.Close();

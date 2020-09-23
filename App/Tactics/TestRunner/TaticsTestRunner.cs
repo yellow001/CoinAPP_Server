@@ -401,6 +401,13 @@ public class TaticsTestRunner
         int maxLoss = -60;
         int minWin = 30;
         int maxWin = 100;
+        string[] stopValue = AppSetting.Ins.GetValue("StopValue").Split('_');
+        if (stopValue.Length >= 4) {
+            minLoss = int.Parse(stopValue[0]);
+            maxLoss = int.Parse(stopValue[1]);
+            minWin = int.Parse(stopValue[2]);
+            maxWin = int.Parse(stopValue[3]);
+        }
 
         for (int loss = minLoss; loss >= maxLoss; loss -= 5)
         {

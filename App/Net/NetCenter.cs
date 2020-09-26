@@ -67,8 +67,14 @@ public class NetCenter : AbsHandlerCenter
             try
             {
                 string key = Convert.ToBase64String(Encoding.UTF8.GetBytes(AppSetting.Ins.GetValue("ConnectKey")));
-                if (model.GetMsg<string>().Equals(key)) {
+                if (model.GetMsg<string>().Equals(key))
+                {
                     tokenList.Add(token);
+                }
+                else {
+                    token.Close();
+                    Console.WriteLine("密钥错误  " + token.socket.RemoteEndPoint);
+                    Debugger.Error("密钥错误  " + token.socket.RemoteEndPoint);
                 }
             }
             catch (Exception ex)

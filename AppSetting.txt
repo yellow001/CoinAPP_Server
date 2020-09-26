@@ -57,7 +57,7 @@ FOUR_XRP:XRP-USD-SWAP;1;15;18
 FOUR_BSV:BSV-USD-SWAP;1;15;18
 
 //FOUR_BTC:BTC-USD-SWAP;1;15;33
-//FOUR_ETH:ETH-USD-SWAP;0.75;15;20
+//FOUR_ETH:ETH-USD-SWAP;1;15;20
 //FOUR_LTC:LTC-USD-SWAP;1;15;20
 
 //海龟	合约;K线时长;最高价采样点_最低价采样点;倍数
@@ -82,7 +82,7 @@ ConnectKey:yellowzhong
 1-MA 2-MA2 3-EMA 4-EMA2 5-EMA3 6-FourPrice 7-Turtle
 RunHelper:6
 
-StopValue:-20_-50_30_100
+StopValue:-15_-50_30_100
 //StopValue:-30_-60_40_100
 
 //启动币种

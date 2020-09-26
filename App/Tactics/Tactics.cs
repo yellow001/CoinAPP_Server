@@ -188,7 +188,7 @@ public class Tactics
 
                 V_AccountInfo.V_CurPrice = cache.V_KLineData[0].V_ClosePrice;
 
-                if (!V_AccountInfo.HasEnoughMoney() && V_AccountInfo.V_Position == null)
+                if (!V_AccountInfo.HasEnoughMoney(orderPercent) && V_AccountInfo.V_Position == null)
                 {
                     Console.WriteLine("{0} 钱不够。。。。",V_Instrument_id);
                     Debugger.Error(string.Format("{0} 钱不够。。。。", V_Instrument_id));

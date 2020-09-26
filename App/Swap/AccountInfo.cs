@@ -209,7 +209,7 @@ public class AccountInfo
     /// 有足够的钱开单
     /// </summary>
     /// <returns></returns>
-    public bool HasEnoughMoney() {
-        return GetOrderVol(GetAvailMoney() * 0.2f) > 0;
+    public bool HasEnoughMoney(float orderPercent) {
+        return GetOrderVol(GetAvailMoney() * orderPercent) > 0;
     }
 }

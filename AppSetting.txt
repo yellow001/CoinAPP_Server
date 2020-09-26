@@ -72,15 +72,27 @@ Turtle_XRP:XRP-USD-SWAP;15;20_20;30
 
 Turtle_BSV:BSV-USD-SWAP;15;20_20;20
 
+//简单的MA线策略  合约名;时长;MA参考线;倍数
+SMA_BTC:BTC-USD-SWAP;15;20;35
+SMA_ETH:ETH-USD-SWAP;15;20;20
+SMA_EOS:EOS-USD-SWAP;15;20;20
+SMA_BCH:BCH-USD-SWAP;15;20;20
+SMA_LTC:LTC-USD-SWAP;15;20;20
+
+SMA_ETC:ETC-USD-SWAP;15;20;20
+SMA_XRP:XRP-USD-SWAP;15;20;20
+
+SMA_BSV:BSV-USD-SWAP;15;20;20
+
 Port:8888
 
-OrderValue:0.48
-//OrderValue:0.32
+//OrderValue:0.48
+OrderValue:0.32
 
 ConnectKey:yellowzhong
 
-1-MA 2-MA2 3-EMA 4-EMA2 5-EMA3 6-FourPrice 7-Turtle
-RunHelper:6
+1-MA 2-MA2 3-EMA 4-EMA2 5-EMA3 6-FourPrice 7-Turtle 8-SimpleMA
+RunHelper:8
 
 StopValue:-15_-50_30_100
 //StopValue:-30_-60_40_100

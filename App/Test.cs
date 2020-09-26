@@ -207,7 +207,13 @@ namespace CoinAPP_Server.App
 
                     await m_helper.RunHistory();
                 }
+                else if (runHelper == 8)
+                {
+                    SimpleMAHelper m_helper = new SimpleMAHelper();
+                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("SMA_{0}", item)));
 
+                    await m_helper.RunHistory();
+                }
             }
 
             //for (int i = 0; i < coins.Length; i++)

@@ -112,16 +112,18 @@ public class SimpleMAHelper: BaseTaticsHelper
     {
         float MAResult = F_GetMA(MAValue);
 
+        float KValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[MAValue - 1].V_ClosePrice;
+
         if (isOrder)
         {
 
             if (isTest)
             {
-                if (V_Cache.V_KLineData[0].V_HightPrice >= MAResult)
+                if (V_Cache.V_KLineData[0].V_HightPrice >= MAResult && KValue >= 0)
                 {
                     return 1;
                 }
-                else if (V_Cache.V_KLineData[0].V_LowPrice <= MAResult)
+                else if (V_Cache.V_KLineData[0].V_LowPrice <= MAResult && KValue <= 0)
                 {
                     return -1;
                 }
@@ -135,11 +137,11 @@ public class SimpleMAHelper: BaseTaticsHelper
                     return 0;
                 }
 
-                if (V_Cache.V_KLineData[0].V_ClosePrice >= MAResult)
+                if (V_Cache.V_KLineData[0].V_ClosePrice >= MAResult && KValue >= 0)
                 {
                     return 1;
                 }
-                else if (V_Cache.V_KLineData[0].V_ClosePrice <= MAResult)
+                else if (V_Cache.V_KLineData[0].V_ClosePrice <= MAResult && KValue <= 0)
                 {
                     return -1;
                 }

@@ -35,7 +35,7 @@ public class BaseTaticsHelper
     public KLineCache V_HistoryCache;
 
     /// <summary>
-    /// 上次平仓时间
+    /// 上次操作时间
     /// </summary>
     public DateTime V_LastOpTime;
 

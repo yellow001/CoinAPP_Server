@@ -99,9 +99,17 @@ public class FourPriceHelper : BaseTaticsHelper
         {
             int result = GetMAPriceResult(dir);
 
-            if (percent >= winPercent*0.5f && result > 0)
+            if (percent <= lossPercent * 0.1f && result > 0)
             {
-                return true;
+                long time = DateTime.UtcNow.Ticks - V_LastOpTime.Ticks;
+                if (isTest)
+                {
+                    time = V_Cache.V_KLineData[0].V_Timestamp.Ticks - V_LastOpTime.Ticks;
+                }
+
+                bool shouldReset = time - V_Min * Util.Minute_Ticks <= 0;
+
+                return shouldReset;
             }
 
             //if (percent <= lossPercent * 0.5f && result > 0)

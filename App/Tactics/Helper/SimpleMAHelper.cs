@@ -73,13 +73,31 @@ public class SimpleMAHelper: BaseTaticsHelper
         }
         else
         {
-            int sign = GetValue(false, dir);
+            int result = GetValue(false, dir);
+
+            //if (percent <= lossPercent * 0.5f && result > 0)
+            //{
+            //    long time = DateTime.UtcNow.Ticks - V_LastOpTime.Ticks;
+            //    if (isTest)
+            //    {
+            //        time = V_Cache.V_KLineData[0].V_Timestamp.Ticks - V_LastOpTime.Ticks;
+            //    }
+
+            //    bool shouldReset = time - V_Min * Util.Minute_Ticks <= 0;
+
+            //    return shouldReset;
+            //}
+
 
             if (percent >= winPercent)
             {
                 maxAlready = true;
-                return sign > 0;
+                return result > 0;
             }
+
+            //if (maxAlready && result > 0) {
+            //    return true;
+            //}
 
             DateTime t = DateTime.UtcNow;
 
@@ -90,7 +108,7 @@ public class SimpleMAHelper: BaseTaticsHelper
             if (percent < 0 && (t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
             {
                 //持仓时间有点久了，看机会溜吧
-                return sign > 0;
+                return result > 0;
             }
 
         }

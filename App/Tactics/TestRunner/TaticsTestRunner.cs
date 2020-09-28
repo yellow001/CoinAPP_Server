@@ -199,6 +199,7 @@ public class TaticsTestRunner
                     return;
                 }
                 //多单
+                helper.V_LastOpTime = helper.V_Cache.V_KLineData[0].V_Timestamp;
                 OpenOrder(1, Cur_Cache.V_KLineData[0]);
             }
             else if (o < 0 && !hasShort)
@@ -208,6 +209,7 @@ public class TaticsTestRunner
                     return;
                 }
                 //空单
+                helper.V_LastOpTime = helper.V_Cache.V_KLineData[0].V_Timestamp;
                 OpenOrder(-1, Cur_Cache.V_KLineData[0]);
             }
         }

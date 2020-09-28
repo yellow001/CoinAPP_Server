@@ -360,6 +360,8 @@ public class Tactics
                 //多单
                 if (V_OrderState != EM_OrderOperation.ShortOnly && V_OrderState != EM_OrderOperation.ShortNoClose)
                 {
+                    m_TaticsHelper.V_LastOpTime = DateTime.UtcNow;
+
                     await V_AccountInfo.MakeOrder(1, V_AccountInfo.GetAvailMoney() * orderPercent);
                 }
             }
@@ -372,6 +374,7 @@ public class Tactics
                 //空单
                 if (V_OrderState != EM_OrderOperation.LongOnly && V_OrderState != EM_OrderOperation.LongNoClose)
                 {
+                    m_TaticsHelper.V_LastOpTime = DateTime.UtcNow;
                     await V_AccountInfo.MakeOrder(-1, V_AccountInfo.GetAvailMoney() * orderPercent);
                 }
             }

@@ -95,9 +95,10 @@ public class SimpleMAHelper: BaseTaticsHelper
                 return result > 0;
             }
 
-            //if (maxAlready && result > 0) {
-            //    return true;
-            //}
+            if (maxAlready && result > 1 && percent >= winPercent * 0.5f)
+            {
+                return true;
+            }
 
             DateTime t = DateTime.UtcNow;
 
@@ -174,6 +175,9 @@ public class SimpleMAHelper: BaseTaticsHelper
                 {
                     if (V_Cache.V_KLineData[0].V_LowPrice <= MAResult)
                     {
+                        if (KValue < 0) {
+                            return 2;
+                        }
                         return 1;
                     }
                 }
@@ -181,6 +185,10 @@ public class SimpleMAHelper: BaseTaticsHelper
                 {
                     if (V_Cache.V_KLineData[0].V_HightPrice >= MAResult)
                     {
+                        if (KValue > 0)
+                        {
+                            return 2;
+                        }
                         return 1;
                     }
                 }
@@ -191,6 +199,10 @@ public class SimpleMAHelper: BaseTaticsHelper
                 {
                     if (V_Cache.V_KLineData[0].V_ClosePrice <= MAResult)
                     {
+                        if (KValue < 0)
+                        {
+                            return 2;
+                        }
                         return 1;
                     }
                 }
@@ -198,6 +210,10 @@ public class SimpleMAHelper: BaseTaticsHelper
                 {
                     if (V_Cache.V_KLineData[0].V_ClosePrice >= MAResult)
                     {
+                        if (KValue > 0)
+                        {
+                            return 2;
+                        }
                         return 1;
                     }
                 }

@@ -53,6 +53,17 @@ namespace NetFrame.Tool
             return result;
         }
 
+        public float GetFloat(string name)
+        {
+            float result = 0;
+            if (Ins.Settings.ContainsKey(name))
+            {
+                float.TryParse(Ins.Settings[name], out result);
+            }
+
+            return result;
+        }
+
         void InitSetting() {
             try {
                 using (StreamReader sr = new StreamReader(settingPath)) {

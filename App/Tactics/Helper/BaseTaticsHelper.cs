@@ -68,7 +68,7 @@ public class BaseTaticsHelper
     /// <summary>
     /// 止损后冷却（止损次数越多，冷却越长，止盈后重置）
     /// </summary>
-    protected long lossCooldown = 0;
+    protected float lossCooldown = 0;
 
     public bool winClose = false;
 
@@ -93,7 +93,7 @@ public class BaseTaticsHelper
         long cd = (long)V_Min * cooldown * Util.Minute_Ticks; ;
         if (!winClose)
         {
-            cd = (long)V_Min * lossCooldown * Util.Minute_Ticks;
+            cd = (long)(V_Min * lossCooldown * Util.Minute_Ticks);
         }
         long leave = (V_Cache.V_KLineData[0].V_Timestamp - V_LastOpTime).Ticks - cd;
         return leave;
@@ -103,7 +103,7 @@ public class BaseTaticsHelper
     {
         long cd = (long)V_Min * cooldown * Util.Minute_Ticks; ;
         if (!winClose) {
-            cd = (long)V_Min * lossCooldown * Util.Minute_Ticks;
+            cd = (long)(V_Min * lossCooldown * Util.Minute_Ticks);
         }
         long leave = (DateTime.UtcNow - V_LastOpTime).Ticks - cd;
         return leave;
@@ -156,7 +156,7 @@ public class BaseTaticsHelper
                 lossCooldown = 0;
             }
             else {
-                if (!lastResult) { lossCooldown += AppSetting.Ins.GetInt("LossCoolDown"); }
+                if (!lastResult) { lossCooldown += AppSetting.Ins.GetFloat("LossCoolDown"); }
             }
             V_LastOpTime = line.V_Timestamp;
             maxAlready = false;
@@ -183,7 +183,7 @@ public class BaseTaticsHelper
             }
             else
             {
-                if (!lastResult) { lossCooldown += AppSetting.Ins.GetInt("LossCoolDown"); }
+                if (!lastResult) { lossCooldown += AppSetting.Ins.GetFloat("LossCoolDown"); }
             }
             V_LastOpTime = DateTime.UtcNow;
             maxAlready = false;

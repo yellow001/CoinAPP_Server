@@ -138,11 +138,11 @@ public class SimpleMAHelper: BaseTaticsHelper
 
             if (isTest)
             {
-                if (V_Cache.V_KLineData[0].V_HightPrice >= MAResult && KValue >= 0)
+                if (V_Cache.V_KLineData[0].V_HightPrice >= MAResult && V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice && KValue >= 0)
                 {
                     return 1;
                 }
-                else if (V_Cache.V_KLineData[0].V_LowPrice <= MAResult && KValue <= 0)
+                else if (V_Cache.V_KLineData[0].V_LowPrice <= MAResult && V_Cache.V_KLineData[0].V_ClosePrice < V_Cache.V_KLineData[0].V_OpenPrice && KValue <= 0)
                 {
                     return -1;
                 }
@@ -156,11 +156,11 @@ public class SimpleMAHelper: BaseTaticsHelper
                     return 0;
                 }
 
-                if (V_Cache.V_KLineData[0].V_ClosePrice >= MAResult && KValue >= 0)
+                if (V_Cache.V_KLineData[0].V_ClosePrice >= MAResult && V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice && KValue >= 0)
                 {
                     return 1;
                 }
-                else if (V_Cache.V_KLineData[0].V_ClosePrice <= MAResult && KValue <= 0)
+                else if (V_Cache.V_KLineData[0].V_ClosePrice <= MAResult && V_Cache.V_KLineData[0].V_ClosePrice < V_Cache.V_KLineData[0].V_OpenPrice && KValue <= 0)
                 {
                     return -1;
                 }

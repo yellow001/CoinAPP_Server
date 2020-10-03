@@ -106,6 +106,14 @@ public class SimpleMAHelper: BaseTaticsHelper
             {
                 t = V_Cache.V_KLineData[0].V_Timestamp;
             }
+
+            ////5个K线内，指标严重反向，溜
+            //if ((t - V_LastOpTime).TotalMinutes < V_Min * 2 && result > 1)
+            //{
+            //    return true;
+            //}
+
+
             if (percent < 0 && (t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
             {
                 //持仓时间有点久了，看机会溜吧

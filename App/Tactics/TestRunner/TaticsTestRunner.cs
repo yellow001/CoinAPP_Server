@@ -57,8 +57,9 @@ public class TaticsTestRunner
             List<KLine> testData = new List<KLine>();
             testData.AddRange(Data_All.GetRange(Data_All.Count - 1 - count - curentIndex, count));
 
-            if (curentIndex == 0) {
-                helper.V_LastOpTime = testData[0].V_Timestamp;
+            if (curentIndex == 0)
+            {
+                helper.V_LastOpTime = Data_All[Data_All.Count - 1].V_Timestamp;
             }
 
             Handle(testData);

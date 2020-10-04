@@ -241,7 +241,21 @@ public class BaseTaticsHelper
         V_HistoryCache.RefreshData(history_data);
         V_LastOpTime = history_data[history_data.Count - 1].V_Timestamp;
     }
-    
+
+    /// <summary>
+    /// 是否是周末
+    /// </summary>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    public bool F_IsWeekend(DateTime time) {
+
+        if (time.DayOfWeek == DayOfWeek.Saturday || time.DayOfWeek == DayOfWeek.Sunday) {
+            return true;
+        }
+
+        return false;
+    }
+
     /// <summary>
     /// 清除临时数据
     /// </summary>

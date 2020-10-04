@@ -73,7 +73,7 @@ public class SimpleMAHelper: BaseTaticsHelper
         }
         else
         {
-            int result = GetValue(false, dir);
+            int result = GetValue(false, dir, isTest);
 
             //if (percent <= lossPercent * 0.5f && result > 0)
             //{
@@ -95,7 +95,7 @@ public class SimpleMAHelper: BaseTaticsHelper
                 return result > 0;
             }
 
-            if (maxAlready && result > 1 && percent >= winPercent * 0.5f)
+            if (maxAlready && result > 1 && percent >= winPercent * 0.38f)
             {
                 return true;
             }
@@ -107,10 +107,10 @@ public class SimpleMAHelper: BaseTaticsHelper
                 t = V_Cache.V_KLineData[0].V_Timestamp;
             }
 
-            ////5个K线内，指标严重反向，溜
-            //if ((t - V_LastOpTime).TotalMinutes < V_Min * 2 && result > 1)
+            //if (F_IsWeekend(t))
             //{
-            //    return true;
+            //    //周末当他是震荡行情
+            //    return result > 0;
             //}
 
 
@@ -137,93 +137,57 @@ public class SimpleMAHelper: BaseTaticsHelper
 
     int GetValue(bool isOrder, int orderDir, bool isTest = false)
     {
+        if (!isTest)
+        {
+            DateTime t = DateTime.UtcNow;
+            if ((V_Min - t.Minute % V_Min) != 1)
+            {
+                return 0;
+            }
+        }
+
         float MAResult = F_GetMA(MAValue);
 
         float KValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[MAValue - 1].V_ClosePrice;
 
+        //float longValue = isTest ? V_Cache.V_KLineData[0].V_HightPrice : V_Cache.V_KLineData[0].V_ClosePrice;
+        //float shortValue = isTest? V_Cache.V_KLineData[0].V_LowPrice : V_Cache.V_KLineData[0].V_ClosePrice;
+
+        float value =  V_Cache.V_KLineData[0].V_ClosePrice;
+
         if (isOrder)
         {
-
-            if (isTest)
+            if (value >= MAResult && V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice && KValue >= 0)
             {
-                if (V_Cache.V_KLineData[0].V_HightPrice >= MAResult && V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice && KValue >= 0)
-                {
-                    return 1;
-                }
-                else if (V_Cache.V_KLineData[0].V_LowPrice <= MAResult && V_Cache.V_KLineData[0].V_ClosePrice < V_Cache.V_KLineData[0].V_OpenPrice && KValue <= 0)
-                {
-                    return -1;
-                }
+                return 1;
             }
-            else
+            else if (value <= MAResult && V_Cache.V_KLineData[0].V_ClosePrice < V_Cache.V_KLineData[0].V_OpenPrice && KValue <= 0)
             {
-
-                DateTime t = DateTime.UtcNow;
-                if ((V_Min - t.Minute % V_Min) != 1)
-                {
-                    return 0;
-                }
-
-                if (V_Cache.V_KLineData[0].V_ClosePrice >= MAResult && V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice && KValue >= 0)
-                {
-                    return 1;
-                }
-                else if (V_Cache.V_KLineData[0].V_ClosePrice <= MAResult && V_Cache.V_KLineData[0].V_ClosePrice < V_Cache.V_KLineData[0].V_OpenPrice && KValue <= 0)
-                {
-                    return -1;
-                }
+                return -1;
             }
         }
         else
         {
-
-            if (isTest)
+            if (orderDir > 0)
             {
-                if (orderDir > 0)
+                if (value <= MAResult)
                 {
-                    if (V_Cache.V_KLineData[0].V_LowPrice <= MAResult)
+                    if (KValue < 0)
                     {
-                        if (KValue < 0) {
-                            return 2;
-                        }
-                        return 1;
+                        return 2;
                     }
-                }
-                else if (orderDir < 0)
-                {
-                    if (V_Cache.V_KLineData[0].V_HightPrice >= MAResult)
-                    {
-                        if (KValue > 0)
-                        {
-                            return 2;
-                        }
-                        return 1;
-                    }
+                    return 1;
                 }
             }
-            else
+            else if (orderDir < 0)
             {
-                if (orderDir > 0)
+                if (value >= MAResult)
                 {
-                    if (V_Cache.V_KLineData[0].V_ClosePrice <= MAResult)
+                    if (KValue > 0)
                     {
-                        if (KValue < 0)
-                        {
-                            return 2;
-                        }
-                        return 1;
+                        return 2;
                     }
-                }
-                else if (orderDir < 0)
-                {
-                    if (V_Cache.V_KLineData[0].V_ClosePrice >= MAResult)
-                    {
-                        if (KValue > 0)
-                        {
-                            return 2;
-                        }
-                        return 1;
-                    }
+                    return 1;
                 }
             }
         }

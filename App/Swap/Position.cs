@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using NetFrame.Tool;
+using Newtonsoft.Json;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -87,26 +88,30 @@ public class Position
 
     public float GetPercentTest(KLine line,float maxLoss)
     {
+        float lossMul = AppSetting.Ins.GetFloat("LossMul");
         if (V_Dir > 0)
         {
-            //if (V_Avg_Price > line.V_LowPrice) {
+            if (V_Avg_Price > line.V_LowPrice)
+            {
 
-            //    float p = ((line.V_LowPrice - V_Avg_Price) / line.V_LowPrice) * V_Leverage * 100;
-            //    if (p >= maxLoss) {
-            //        return p;
-            //    }
-            //}
+                float p = ((line.V_LowPrice - V_Avg_Price) / line.V_LowPrice) * V_Leverage * 100;
+                if (p <= maxLoss * lossMul)
+                {
+                    return maxLoss * lossMul;
+                }
+            }
             return ((line.V_ClosePrice - V_Avg_Price) / line.V_ClosePrice) * V_Leverage * 100;
         }
         else
         {
-            //if(V_Avg_Price < line.V_HightPrice){
-            //    float p = ((V_Avg_Price - line.V_HightPrice) / line.V_HightPrice) * V_Leverage * 100;
-            //    if (p >= maxLoss)
-            //    {
-            //        return p;
-            //    }
-            //}
+            if (V_Avg_Price < line.V_HightPrice)
+            {
+                float p = ((V_Avg_Price - line.V_HightPrice) / line.V_HightPrice) * V_Leverage * 100;
+                if (p <= maxLoss * lossMul)
+                {
+                    return maxLoss * lossMul;
+                }
+            }
             return ((V_Avg_Price - line.V_ClosePrice) / line.V_ClosePrice) * V_Leverage * 100;
         }
     }

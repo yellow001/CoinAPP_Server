@@ -81,14 +81,14 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
     /// <returns></returns>
     protected override bool OnShouldCloseOrder(int dir, float percent, bool isTest = false)
     {
-        if (percent <= lossPercent)
+        float lossMul = AppSetting.Ins.GetFloat("LossMul");
+        if (percent <= lossPercent * lossMul)
         {
             //无条件止损
             return true;
         }
         else
         {
-
             int result = GetValue(false, dir, isTest);
 
             if (percent >= winPercent)
@@ -147,7 +147,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
             int v = (int)((V_Min / 60f) * 100f);
 
-            if ((v - hourValue % v) > 2 || (V_LastOpTime.Day == t.Day && V_LastOpTime.Hour == t.Hour && V_LastOpTime.Minute == t.Minute))
+            if ((v - hourValue % v) > 4 || (V_LastOpTime.Day == t.Day && V_LastOpTime.Hour == t.Hour))
             {
                 return 0;
             }

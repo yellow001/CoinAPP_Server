@@ -160,7 +160,7 @@ public class SimpleMAHelper : BaseTaticsHelper
 
             int v = (int)((V_Min / 60f) * 100f);
 
-            if ((v - hourValue % v) > 2 || (V_LastOpTime.Day == t.Day && V_LastOpTime.Hour == t.Hour && V_LastOpTime.Minute == t.Minute))
+            if ((v - hourValue % v) > 4 || (V_LastOpTime.Day == t.Day && V_LastOpTime.Hour == t.Hour))
             {
                 return 0;
             }

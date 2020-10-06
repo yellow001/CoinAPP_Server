@@ -7,10 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-public class SimpleMAHelper: BaseTaticsHelper
+public class SimpleMAHelper : BaseTaticsHelper
 {
-    int MAValue = 120;
+    int MaLength = 5;
+    int EmaLength = 10;
 
+    int LongMaLength = 20;
     #region 重载
 
     /// <summary>
@@ -20,12 +22,14 @@ public class SimpleMAHelper: BaseTaticsHelper
     public override void Init(string setting)
     {
         string[] strs = setting.Split(';');
-        if (strs.Length >= 4)
+        if (strs.Length >= 6)
         {
             V_Instrument_id = strs[0];
             V_Min = int.Parse(strs[1]);
-            MAValue = int.Parse(strs[2]);
-            V_Leverage = float.Parse(strs[3]);
+            MaLength = int.Parse(strs[2]);
+            EmaLength = int.Parse(strs[3]);
+            LongMaLength = int.Parse(strs[4]);
+            V_Leverage = float.Parse(strs[5]);
         }
         //Console.WriteLine(V_Instrument_id + ":合约 " + V_Instrument_id);
         base.Init(setting);
@@ -95,10 +99,10 @@ public class SimpleMAHelper: BaseTaticsHelper
                 return result > 0;
             }
 
-            if (maxAlready && result > 1)
-            {
-                return true;
-            }
+            //if (maxAlready && result > 1)
+            //{
+            //    return true;
+            //}
 
             DateTime t = DateTime.UtcNow;
 
@@ -107,11 +111,11 @@ public class SimpleMAHelper: BaseTaticsHelper
                 t = V_Cache.V_KLineData[0].V_Timestamp;
             }
 
-            //2个K线内，指标反向，溜
-            if ((t - V_LastOpTime).TotalMinutes < V_Min * 2 && result > 0)
-            {
-                return true;
-            }
+            ////5个K线内，指标反向，溜
+            //if ((t - V_LastOpTime).TotalMinutes < V_Min * 5 && result > 0)
+            //{
+            //    return true;
+            //}
 
             //if (F_IsWeekend(t))
             //{
@@ -135,6 +139,11 @@ public class SimpleMAHelper: BaseTaticsHelper
         return MA.GetMA(length, V_Cache.V_KLineData);
     }
 
+    float F_GetEMA(int length)
+    {
+        return EMA.GetEMA(length, V_Cache.V_KLineData);
+    }
+
     #endregion
 
 
@@ -146,53 +155,123 @@ public class SimpleMAHelper: BaseTaticsHelper
         if (!isTest)
         {
             DateTime t = DateTime.UtcNow;
-            if ((V_Min - t.Minute % V_Min) != 1)
+
+            int hourValue = (int)Math.Ceiling((t.Hour + (t.Minute / 60f)) * 100f);
+
+            int v = (int)((V_Min / 60f) * 100f);
+
+            if ((v - hourValue % v) > 2 || (V_LastOpTime.Day == t.Day && V_LastOpTime.Hour == t.Hour && V_LastOpTime.Minute == t.Minute))
             {
                 return 0;
             }
         }
 
-        float MAResult = F_GetMA(MAValue);
+        float MaValue = F_GetMA(MaLength);
+        float EmaValue = F_GetEMA(EmaLength);
+        float LongMaValue = F_GetMA(LongMaLength);
 
-        float KValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[MAValue - 1].V_ClosePrice;
+        float MaKValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[MaLength - 1].V_ClosePrice;
+        float EmaKValue = EmaValue - EMA.GetEMA(EmaLength, V_Cache.V_KLineData.GetRange(1, EmaLength));
+        float LongMaKValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[LongMaLength - 1].V_ClosePrice;
+
+        bool isLongKline = V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice;
 
         //float longValue = isTest ? V_Cache.V_KLineData[0].V_HightPrice : V_Cache.V_KLineData[0].V_ClosePrice;
         //float shortValue = isTest? V_Cache.V_KLineData[0].V_LowPrice : V_Cache.V_KLineData[0].V_ClosePrice;
 
-        float value =  V_Cache.V_KLineData[0].V_ClosePrice;
+        float curValue = V_Cache.V_KLineData[0].V_ClosePrice;
+        float highValue = V_Cache.V_KLineData[0].V_HightPrice;
+        float lowValue = V_Cache.V_KLineData[0].V_LowPrice;
 
         if (isOrder)
         {
-            if (value >= MAResult && V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice && KValue >= 0)
+            //if (curValue >= MaValue && V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice && MaKValue >= 0)
+            //{
+            //    return 1;
+            //}
+            //else if (curValue <= MaValue && V_Cache.V_KLineData[0].V_ClosePrice < V_Cache.V_KLineData[0].V_OpenPrice && MaKValue <= 0)
+            //{
+            //    return -1;
+            //}
+            if ((MaKValue > 0 && EmaKValue > 0) && (curValue > LongMaValue || LongMaKValue > 0))
             {
                 return 1;
             }
-            else if (value <= MAResult && V_Cache.V_KLineData[0].V_ClosePrice < V_Cache.V_KLineData[0].V_OpenPrice && KValue <= 0)
+            else if ((MaKValue < 0 && EmaKValue < 0) && (curValue < LongMaValue || LongMaKValue < 0))
             {
                 return -1;
             }
         }
         else
         {
+            //if (orderDir > 0)
+            //{
+            //    if (curValue <= MaValue)
+            //    {
+            //        if (MaKValue < 0 && V_Cache.V_KLineData[0].V_ClosePrice < V_Cache.V_KLineData[0].V_OpenPrice)
+            //        {
+            //            return 2;
+            //        }
+            //        return 1;
+            //    }
+            //}
+            //else if (orderDir < 0)
+            //{
+            //    if (curValue >= MaValue)
+            //    {
+            //        if (MaKValue > 0 && V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice)
+            //        {
+            //            return 2;
+            //        }
+            //        return 1;
+            //    }
+            //}
+
             if (orderDir > 0)
             {
-                if (value <= MAResult)
+                //1.0
+                //if (curValue < MaValue && curValue < EmaValue)
+                //{
+                //    if (MaKValue < 0 && EmaKValue < 0)
+                //    {
+                //        return 2;
+                //    }
+                //    return 1;
+                //}
+
+                //2.0
+                //if ((MaKValue < 0 && EmaKValue < 0) && (!isLongKline))
+                //{
+                //    return 1;
+                //}
+
+                //3.0
+                if ((curValue < MaValue || curValue < EmaValue))
                 {
-                    if (KValue < 0)
-                    {
-                        return 2;
-                    }
                     return 1;
                 }
             }
             else if (orderDir < 0)
             {
-                if (value >= MAResult)
+                //1.0
+                //if (curValue > MaValue && curValue > EmaValue)
+                //{
+                //    if (MaKValue > 0 && EmaKValue > 0)
+                //    {
+                //        return 2;
+                //    }
+                //    return 1;
+                //}
+
+                //2.0
+                //if ((MaKValue > 0 && EmaKValue > 0) && (isLongKline))
+                //{
+                //    return 1;
+                //}
+
+                //3.0
+                if ((curValue > MaValue || curValue > EmaValue))
                 {
-                    if (KValue > 0)
-                    {
-                        return 2;
-                    }
                     return 1;
                 }
             }

@@ -45,7 +45,6 @@ namespace CoinAPP_Server
             //Console.WriteLine(dr.rows);
 
 #if DEBUG
-
             Test t = new Test();
             Console.ReadLine();
 #else

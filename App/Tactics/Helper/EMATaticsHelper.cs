@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// EMA 多空头排列
 /// </summary>
-public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
+public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 {
     /// <summary>
     /// 采样点
@@ -25,11 +25,6 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
     /// 周期
     /// </summary>
     public List<int> V_CycleList = new List<int>() { 5, 10, 20 };
-
-    /// <summary>
-    /// 最近K线缓存
-    /// </summary>
-    public List<KLine> kLineCache = new List<KLine>();
 
     #region 重载
     /// <summary>
@@ -75,7 +70,7 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
     /// </returns>
     public override int MakeOrder(bool isTest = false)
     {
-        return GetValue(true, 0);
+        return GetValue(true, 0, isTest);
     }
 
     /// <summary>
@@ -94,27 +89,40 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
         else
         {
 
-            int sign = GetValue(false, dir);
+            int result = GetValue(false, dir, isTest);
 
             if (percent >= winPercent)
             {
-                return sign > 0;
-            }
-
-            if (percent < 0 && sign > 0) {
-                return true;
+                return result > 0;
             }
 
             DateTime t = DateTime.UtcNow;
-
             if (isTest)
             {
                 t = V_Cache.V_KLineData[0].V_Timestamp;
             }
+
+            //指标反向，溜
+            if (result > 0 && percent >= winPercent * 0.25f)
+            {
+                return true;
+            }
+
+            //if (F_IsWeekend(t) && result > 0 && percent >= winPercent * 0.2f)
+            //{
+            //    //周末当他是震荡行情
+            //    return true;
+            //}
+
+            //if (percent < 0 && result > 0) {
+            //    return true;
+            //}
+
+
             if (percent < 0 && (t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
             {
                 //持仓时间有点久了，看机会溜吧
-                return sign > 0;
+                return result > 0;
             }
 
         }
@@ -129,51 +137,106 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
     /// </summary>
     /// <param name="dir">大于0为多，其他均为空</param>
     /// <returns></returns>
-    int GetValue(bool isOrder, int orderDir)
+    int GetValue(bool isOrder, int orderDir, bool isTest = false)
     {
-        #region 点 计算
-        List<float> pList_1 = new List<float>();
-        List<float> pList_2 = new List<float>();
-        List<float> pList_3 = new List<float>();
-
-        for (int i = 0; i < V_Length; i++)
+        if (!isTest)
         {
-            float p1 = GetEMAValue(V_CycleList[0], i);
-            float p2 = GetEMAValue(V_CycleList[1], i);
-            float p3 = GetEMAValue(V_CycleList[2], i);
+            DateTime t = DateTime.UtcNow;
 
-            pList_1.Add(p1);
-            pList_2.Add(p2);
-            pList_3.Add(p3);
+            int hourValue = (int)Math.Ceiling((t.Hour + (t.Minute / 60f)) * 100f);
+
+            int v = (int)((V_Min / 60f) * 100f);
+
+            if ((v - hourValue % v) > 2 || (V_LastOpTime.Day == t.Day && V_LastOpTime.Hour == t.Hour && V_LastOpTime.Minute == t.Minute))
+            {
+                return 0;
+            }
         }
+        
+
+        #region 点 计算
+
+        float p1 = GetEMAValue(V_CycleList[0], 0);
+        float p2 = GetEMAValue(V_CycleList[1], 0);
+        float p3 = GetEMAValue(V_CycleList[2], 0);
+
+        float k1 = p1 - GetEMAValue(V_CycleList[0], 1);
+        float k2 = p2 - GetEMAValue(V_CycleList[1], 1);
+        float k3 = p3 - GetEMAValue(V_CycleList[2], 1);
+
+
         #endregion
 
-        int dir = 0;
+        float curValue = V_Cache.V_KLineData[0].V_ClosePrice;
+        float openValue = V_Cache.V_KLineData[0].V_OpenPrice;
+        float highValue = V_Cache.V_KLineData[0].V_HightPrice;
+        float lowValue = V_Cache.V_KLineData[0].V_LowPrice;
+
+        bool isGreenKline = curValue > openValue;
+
+        bool isPLong = false;
+        bool isPShort = false;
+
+        bool isKLong = false;
+        bool isKShort = false;
+
         #region 1. 计算 EMA 排列
+
+        if (p1 > p2)
+        {
+            //符合多头排列
+            isPLong = true;
+        }
+        else
+        {
+            isPLong = false;
+        }
+
+        if (p1 < p2)
+        {
+            //符合空头排列
+            isPShort = true;
+        }
+        else
+        {
+            isPShort = false;
+        }
+
 
         for (int i = 0; i < V_Length; i++)
         {
-            if (pList_1[i] >= pList_2[i] && pList_2[i] >= pList_3[i])
+            if (k1 > 0 && k2 > 0)
             {
                 //符合多头排列
-                dir = 1;
+                isKLong = true;
             }
-            else if (pList_1[i] <= pList_2[i] && pList_2[i] <= pList_3[i])
+            else
             {
-                //符合空头排列
-                dir = -1;
+                isKLong = false;
             }
 
+            if (k1 < 0 && k2 < 0)
+            {
+                //符合空头排列
+                isKShort = true;
+            }
+            else
+            {
+                isKShort = false;
+            }
         }
+
+        bool isLong = isPLong || isKLong;
+        bool isShort = isPShort || isKShort;
         #endregion
 
         if (isOrder)
         {
-            if (dir > 0)
+            if (isLong)
             {
                 return 1;
             }
-            else if (dir < 0)
+            else if (isShort)
             {
                 return -1;
             }
@@ -181,16 +244,21 @@ public class EMATaticsHelper:BaseTaticsHelper, ICycleTatics
         else
         {
             //返回>0就是要平仓
-            if (orderDir < 0 && dir > 0)
+            if (orderDir < 0)
             {
-                return 1;
+                if (!isShort || isLong || k3 > 0 || (highValue > p1 && isGreenKline) || (curValue < p3 && !isGreenKline))
+                {
+                    return 1;
+                }
             }
-            if (orderDir > 0 && dir < 0)
+            if (orderDir > 0)
             {
-                return 1;
+                if (!isLong || isShort|| k3 < 0 || (lowValue < p1 && !isGreenKline) || (curValue > p3 && isGreenKline))
+                {
+                    return 1;
+                }
             }
         }
-
 
         return 0;
     }

@@ -95,7 +95,7 @@ public class SimpleMAHelper: BaseTaticsHelper
                 return result > 0;
             }
 
-            if (maxAlready && result > 1 && percent >= winPercent * 0.38f)
+            if (maxAlready && result > 1)
             {
                 return true;
             }
@@ -105,6 +105,12 @@ public class SimpleMAHelper: BaseTaticsHelper
             if (isTest)
             {
                 t = V_Cache.V_KLineData[0].V_Timestamp;
+            }
+
+            //2个K线内，指标反向，溜
+            if ((t - V_LastOpTime).TotalMinutes < V_Min * 2 && result > 0)
+            {
+                return true;
             }
 
             //if (F_IsWeekend(t))

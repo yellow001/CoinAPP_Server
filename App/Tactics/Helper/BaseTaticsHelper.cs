@@ -146,6 +146,8 @@ public class BaseTaticsHelper
     /// <param name="percent">当前盈利百分比值</param>
     /// <returns></returns>
     public bool ShouldCloseOrderTest(int dir, float percent,KLine line) {
+        //float lossMul = AppSetting.Ins.GetFloat("LossMul");
+        //percent *= lossMul;
         bool result = OnShouldCloseOrder(dir, percent,true);
         if (result)
         {

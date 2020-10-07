@@ -81,8 +81,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
     /// <returns></returns>
     protected override bool OnShouldCloseOrder(int dir, float percent, bool isTest = false)
     {
-        float lossMul = AppSetting.Ins.GetFloat("LossMul");
-        if (percent <= lossPercent * lossMul)
+        if (percent <= lossPercent)
         {
             //无条件止损
             return true;
@@ -102,11 +101,21 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
                 t = V_Cache.V_KLineData[0].V_Timestamp;
             }
 
+            if (percent >= winPercent)
+            {
+                return true;
+            }
+
             //指标反向，溜
             if (result > 0 && percent >= winPercent * 0.25f)
             {
                 return true;
             }
+
+            //if (result > 1 && percent < 0)
+            //{
+            //    return true;
+            //}
 
             //if (F_IsWeekend(t) && result > 0 && percent >= winPercent * 0.2f)
             //{
@@ -152,7 +161,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
                 return 0;
             }
         }
-        
+
 
         #region 点 计算
 
@@ -167,12 +176,12 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
         #endregion
 
-        float curValue = V_Cache.V_KLineData[0].V_ClosePrice;
+        float closeValue = V_Cache.V_KLineData[0].V_ClosePrice;
         float openValue = V_Cache.V_KLineData[0].V_OpenPrice;
         float highValue = V_Cache.V_KLineData[0].V_HightPrice;
         float lowValue = V_Cache.V_KLineData[0].V_LowPrice;
 
-        bool isGreenKline = curValue > openValue;
+        bool isGreenKline = closeValue > openValue;
 
         bool isPLong = false;
         bool isPShort = false;
@@ -182,7 +191,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
         #region 1. 计算 EMA 排列
 
-        if (p1 > p2)
+        if (p1 >= p2 && p2 >= p3)
         {
             //符合多头排列
             isPLong = true;
@@ -192,7 +201,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             isPLong = false;
         }
 
-        if (p1 < p2)
+        if (p1 <= p2 && p2 <= p3)
         {
             //符合空头排列
             isPShort = true;
@@ -205,7 +214,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
         for (int i = 0; i < V_Length; i++)
         {
-            if (k1 > 0 && k2 > 0)
+            if (k1 >= 0 && k2 >= 0 && k3 >= 0)
             {
                 //符合多头排列
                 isKLong = true;
@@ -215,7 +224,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
                 isKLong = false;
             }
 
-            if (k1 < 0 && k2 < 0)
+            if (k1 <= 0 && k2 <= 0 && k3 <= 0)
             {
                 //符合空头排列
                 isKShort = true;
@@ -226,17 +235,34 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             }
         }
 
-        bool isLong = isPLong || isKLong;
-        bool isShort = isPShort || isKShort;
+        int longValue = 0;
+        int shortValue = 0;
+
+        if (isPLong) {
+            longValue++;
+        }
+        if (isKLong) {
+            longValue++;
+        }
+
+        if (isPShort)
+        {
+            shortValue++;
+        }
+        if (isKShort)
+        {
+            shortValue++;
+        }
+
         #endregion
 
         if (isOrder)
         {
-            if (isLong)
+            if (k1 > 0 && k2 > 0)
             {
                 return 1;
             }
-            else if (isShort)
+            else if (k1 < 0 && k2 < 0)
             {
                 return -1;
             }
@@ -246,18 +272,18 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             //返回>0就是要平仓
             if (orderDir < 0)
             {
-                if (!isShort || isLong || k3 > 0 || (highValue > p1 && isGreenKline) || (curValue < p3 && !isGreenKline))
-                {
+                if (k1 > 0 || k2 > 0) {
                     return 1;
                 }
             }
             if (orderDir > 0)
             {
-                if (!isLong || isShort|| k3 < 0 || (lowValue < p1 && !isGreenKline) || (curValue > p3 && isGreenKline))
+                if (k1 < 0 || k2 < 0)
                 {
                     return 1;
                 }
             }
+            //return 1;
         }
 
         return 0;

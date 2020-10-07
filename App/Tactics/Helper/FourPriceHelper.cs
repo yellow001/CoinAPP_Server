@@ -97,20 +97,20 @@ public class FourPriceHelper : BaseTaticsHelper
         }
         else
         {
-            int result = GetMAPriceResult(dir);
+            //int result = GetMAPriceResult(dir);
 
-            if (percent <= lossPercent * 0.1f && result > 0)
-            {
-                long time = DateTime.UtcNow.Ticks - V_LastOpTime.Ticks;
-                if (isTest)
-                {
-                    time = V_Cache.V_KLineData[0].V_Timestamp.Ticks - V_LastOpTime.Ticks;
-                }
+            //if (percent <= lossPercent * 0.1f && result > 0)
+            //{
+            //    long time = DateTime.UtcNow.Ticks - V_LastOpTime.Ticks;
+            //    if (isTest)
+            //    {
+            //        time = V_Cache.V_KLineData[0].V_Timestamp.Ticks - V_LastOpTime.Ticks;
+            //    }
 
-                bool shouldReset = time - V_Min * Util.Minute_Ticks <= 0;
+            //    bool shouldReset = time - V_Min * Util.Minute_Ticks <= 0;
 
-                return shouldReset;
-            }
+            //    return shouldReset;
+            //}
 
             //if (percent <= lossPercent * 0.5f && result > 0)
             //{
@@ -118,7 +118,7 @@ public class FourPriceHelper : BaseTaticsHelper
             //}
 
 
-            int sign = GetValue(false, dir);
+            int sign = GetValue(false, dir, isTest);
 
             if (percent >= winPercent)
             {
@@ -126,11 +126,11 @@ public class FourPriceHelper : BaseTaticsHelper
                 return sign > 0;
             }
 
-            //if (percent < lossPercent * 0.5f && sign > 0)
-            //{
-            //    //指标反向+亏损，溜吧
-            //    return true;
-            //}
+            if (sign > 0 && percent >= winPercent * 0.25f)
+            {
+                //指标反向，溜
+                return true;
+            }
 
             //if (maxAlready && sign > 0)
             //{
@@ -243,86 +243,81 @@ public class FourPriceHelper : BaseTaticsHelper
 
     int GetValue(bool isOrder, int orderDir,bool isTest=false)
     {
+        if (!isTest)
+        {
+            DateTime t = DateTime.UtcNow;
+
+            int hourValue = (int)Math.Ceiling((t.Hour + (t.Minute / 60f)) * 100f);
+
+            int v = (int)((V_Min / 60f) * 100f);
+
+            if ((v - hourValue % v) > 4 || (V_LastOpTime.Day == t.Day && V_LastOpTime.Hour == t.Hour))
+            {
+                return 0;
+            }
+        }
+
+        float curValue = V_Cache.V_KLineData[0].V_ClosePrice;
+        float openValue = V_Cache.V_KLineData[0].V_OpenPrice;
+        float highValue = V_Cache.V_KLineData[0].V_HightPrice;
+        float lowValue = V_Cache.V_KLineData[0].V_LowPrice;
+
+        bool isGreenKline = curValue > openValue;
+
         if (isOrder)
         {
-
-            if (isTest)
-            {
-                if (V_Cache.V_KLineData[0].V_HightPrice >= m_LastKLine.V_HightPrice)
-                {
-                    //if (V_Cache.V_KLineData[0].V_HightPrice >= MA60)
-                    //{
-                        return 1;
-                    //}
-                }
-                else if (V_Cache.V_KLineData[0].V_LowPrice <= m_LastKLine.V_LowPrice)
-                {
-                    //if (V_Cache.V_KLineData[0].V_LowPrice <= MA60)
-                    //{
-                        return -1;
-                    //}
-                }
+            //if (curValue >= m_LastKLine.V_HightPrice)
+            //{
+            //    //if (V_Cache.V_KLineData[0].V_HightPrice >= MA60)
+            //    //{
+            //    return 1;
+            //    //}
+            //}
+            //else if (curValue <= m_LastKLine.V_LowPrice)
+            //{
+            //    //if (V_Cache.V_KLineData[0].V_LowPrice <= MA60)
+            //    //{
+            //    return -1;
+            //    //}
+            //}
+            if (curValue < m_CurKLine.V_OpenPrice) {
+                return -1;
             }
-            else {
 
-                DateTime t = DateTime.UtcNow;
-                if ((V_Min - t.Minute % V_Min) != 1) {
-                    return 0;
-                }
-
-                if (V_Cache.V_KLineData[0].V_ClosePrice >= m_LastKLine.V_HightPrice)
-                {
-                    //if (V_Cache.V_KLineData[0].V_ClosePrice >= MA60)
-                    //{
-                        return 1;
-                    //}
-                }
-                else if (V_Cache.V_KLineData[0].V_ClosePrice <= m_LastKLine.V_LowPrice)
-                {
-                    //if (V_Cache.V_KLineData[0].V_ClosePrice <= MA60)
-                    //{
-                        return -1;
-                    //}
-                }
+            if (curValue > m_CurKLine.V_OpenPrice) {
+                return 1;
             }
         }
         else {
+            //if (orderDir > 0)
+            //{
+            //    //跌破开盘 止损
+            //    if (curValue <= m_CurKLine.V_OpenPrice)
+            //    {
+            //        return 1;
+            //    }
+            //}
+            //else if (orderDir < 0)
+            //{
+            //    //涨破开盘 止损
+            //    if (curValue >= m_CurKLine.V_OpenPrice)
+            //    {
+            //        return 1;
+            //    }
+            //}
 
-            if (isTest)
+            if (orderDir > 0)
             {
-                if (orderDir > 0)
+                if (curValue < m_CurKLine.V_OpenPrice)
                 {
-                    //跌破开盘 止损
-                    if (V_Cache.V_KLineData[0].V_LowPrice <= m_CurKLine.V_OpenPrice)
-                    {
-                        return 1;
-                    }
-                }
-                else if (orderDir < 0)
-                {
-                    //涨破开盘 止损
-                    if (V_Cache.V_KLineData[0].V_HightPrice >= m_CurKLine.V_OpenPrice)
-                    {
-                        return 1;
-                    }
+                    return 1;
                 }
             }
-            else {
-                if (orderDir > 0)
+            else if (orderDir < 0)
+            {
+                if (curValue > m_CurKLine.V_OpenPrice)
                 {
-                    //跌破开盘 止损
-                    if (V_Cache.V_KLineData[0].V_ClosePrice <= m_CurKLine.V_OpenPrice)
-                    {
-                        return 1;
-                    }
-                }
-                else if (orderDir < 0)
-                {
-                    //涨破开盘 止损
-                    if (V_Cache.V_KLineData[0].V_ClosePrice >= m_CurKLine.V_OpenPrice)
-                    {
-                        return 1;
-                    }
+                    return 1;
                 }
             }
         }

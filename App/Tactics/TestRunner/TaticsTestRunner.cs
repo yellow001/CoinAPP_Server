@@ -299,13 +299,12 @@ public class TaticsTestRunner
         }
 
         float p = removeItem.GetPercentTest(kline, helper.V_LossPercent);
-        p = p < helper.V_LossPercent ? helper.V_LossPercent : p;
 
         float temp = 0;
         temp = p * 0.01f * removeItem.V_AllVol;
         V_CurMoney += temp;
 
-        //Console.WriteLine("{0}  :  平仓价格:{1}  盈利：{2}  资金：{3}", kline.V_Timestamp, kline.V_ClosePrice,temp,V_CurMoney);
+        //Console.WriteLine("{0}  :  平仓价格:{1}  盈利：{2}  资金：{3}  百分比：{4}", kline.V_Timestamp, kline.V_ClosePrice, temp, V_CurMoney, p);
 
         V_Positions.Remove(removeItem);
     }
@@ -343,7 +342,7 @@ public class TaticsTestRunner
                 //    count = temp_count;
                 //}
 
-                if (avg_win < avg_win_max)
+                if (avg_win < avg_win_max && temp > Init_Money)
                 {
                     maxMoney = temp;
                     best_Cycle = cycleList[i];

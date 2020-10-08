@@ -122,7 +122,7 @@ public class FourPriceHelper : BaseTaticsHelper
 
             if (percent >= winPercent)
             {
-                maxAlready = true;
+                V_MaxAlready = true;
                 return sign > 0;
             }
 

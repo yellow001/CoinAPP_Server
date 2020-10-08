@@ -70,9 +70,19 @@ public class BaseTaticsHelper
     /// </summary>
     protected float lossCooldown = 0;
 
-    public bool winClose = false;
+    public bool V_WinClose = false;
 
-    public bool maxAlready = false;
+    public bool V_MaxAlready = false;
+
+    /// <summary>
+    /// 能否双向开单
+    /// </summary>
+    public bool V_IsDoubleSide = false;
+
+    /// <summary>
+    /// 是否自处理订单
+    /// </summary>
+    public bool V_HandleOrderSelf = false;
 
     public BaseTaticsHelper() {
         //cooldown *= (long)V_Min*60 * Util.Second_Ticks;
@@ -91,7 +101,7 @@ public class BaseTaticsHelper
     public long GetCoolDownTest() {
 
         long cd = (long)V_Min * cooldown * Util.Minute_Ticks; ;
-        if (!winClose)
+        if (!V_WinClose)
         {
             cd = (long)(V_Min * lossCooldown * Util.Minute_Ticks);
         }
@@ -102,7 +112,7 @@ public class BaseTaticsHelper
     public long GetCoolDown()
     {
         long cd = (long)V_Min * cooldown * Util.Minute_Ticks; ;
-        if (!winClose) {
+        if (!V_WinClose) {
             cd = (long)(V_Min * lossCooldown * Util.Minute_Ticks);
         }
         long leave = (DateTime.UtcNow - V_LastOpTime).Ticks - cd;
@@ -151,9 +161,9 @@ public class BaseTaticsHelper
         bool result = OnShouldCloseOrder(dir, percent,true);
         if (result)
         {
-            bool lastResult = winClose;
-            winClose = percent > 0;
-            if (winClose)
+            bool lastResult = V_WinClose;
+            V_WinClose = percent > 0;
+            if (V_WinClose)
             {
                 lossCooldown = 0;
             }
@@ -161,7 +171,7 @@ public class BaseTaticsHelper
                 if (!lastResult) { lossCooldown += AppSetting.Ins.GetFloat("LossCoolDown"); }
             }
             V_LastOpTime = line.V_Timestamp;
-            maxAlready = false;
+            V_MaxAlready = false;
         }
         return result;
     }
@@ -177,9 +187,9 @@ public class BaseTaticsHelper
         bool result = OnShouldCloseOrder(dir, percent);
         if (result)
         {
-            bool lastResult = winClose;
-            winClose = percent > 0;
-            if (winClose)
+            bool lastResult = V_WinClose;
+            V_WinClose = percent > 0;
+            if (V_WinClose)
             {
                 lossCooldown = 0;
             }
@@ -188,13 +198,20 @@ public class BaseTaticsHelper
                 if (!lastResult) { lossCooldown += AppSetting.Ins.GetFloat("LossCoolDown"); }
             }
             V_LastOpTime = DateTime.UtcNow;
-            maxAlready = false;
+            V_MaxAlready = false;
         }
         return result;
     }
 
     protected virtual bool OnShouldCloseOrder(int dir, float percent, bool isTest = false) {
         return false;
+    }
+
+    public virtual async Task F_HandleOrder(AccountInfo info) {
+    }
+
+    public virtual void  F_HandleOrderTest(TaticsTestRunner testRunner)
+    {
     }
 
     /// <summary>
@@ -264,7 +281,7 @@ public class BaseTaticsHelper
     public virtual void ClearTempData() {
         V_LastOpTime = DateTime.UtcNow;
         lossCooldown = 0;
-        maxAlready = false;
+        V_MaxAlready = false;
     }
 
     public virtual void ClearRunData() { 

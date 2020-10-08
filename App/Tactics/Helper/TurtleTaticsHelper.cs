@@ -98,7 +98,7 @@ public class TurtleTaticsHelper : BaseTaticsHelper
         int sign = GetValue(false,dir,isTest);
         if (percent >= winPercent)
         {
-            maxAlready = true;
+            V_MaxAlready = true;
             return sign > 0;
         }
 

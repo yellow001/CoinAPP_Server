@@ -89,7 +89,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
             if (percent >= winPercent)
             {
-                maxAlready = true;
+                V_MaxAlready = true;
                 return sign > 0;
             }
 
@@ -99,7 +99,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
                 return true;
             }
 
-            if (maxAlready && sign > 0)
+            if (V_MaxAlready && sign > 0)
             {
                 //如果曾经到达过最高而指标反向，止盈一下吧
                 return true;

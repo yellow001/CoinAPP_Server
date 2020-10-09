@@ -19,7 +19,7 @@ public class TaticsTestRunner
     /// <summary>
     /// 当前持仓
     /// </summary>
-    protected List<Position> V_Positions=new List<Position>();
+    public List<Position> V_Positions=new List<Position>();
 
     /// <summary>
     /// 所有模拟数据
@@ -172,7 +172,7 @@ public class TaticsTestRunner
                     }
                     //多单
                     helper.V_LastOpTime = helper.V_Cache.V_KLineData[0].V_Timestamp;
-                    OpenOrder(1, Cur_Cache.V_KLineData[0]);
+                    OpenOrder(1, Cur_Cache.V_KLineData[0],orderPercent);
                 }
                 else if (o < 0 && !hasShort)
                 {
@@ -182,7 +182,7 @@ public class TaticsTestRunner
                     }
                     //空单
                     helper.V_LastOpTime = helper.V_Cache.V_KLineData[0].V_Timestamp;
-                    OpenOrder(-1, Cur_Cache.V_KLineData[0]);
+                    OpenOrder(-1, Cur_Cache.V_KLineData[0],orderPercent);
                 }
             }
         }
@@ -191,7 +191,7 @@ public class TaticsTestRunner
     /// <summary>
     /// 开单
     /// </summary>
-    public virtual void OpenOrder(int dir, KLine kline)
+    public virtual void OpenOrder(int dir, KLine kline,float percent)
     {
         V_OrderCount++;
         //Console.WriteLine("{0}  :  开仓:{1} 价格:{2} 资金：{3}", kline.V_Timestamp, dir > 0 ? "多" : "空", kline.V_ClosePrice, V_CurMoney);
@@ -205,7 +205,7 @@ public class TaticsTestRunner
         //    price = kline.V_LowPrice;
         //}
 
-        float vol = V_LeaveMoney * orderPercent;
+        float vol = V_LeaveMoney * percent;
 
         if (V_Positions.Count > 0) {
             for (int i = 0; i < V_Positions.Count; i++)
@@ -213,7 +213,10 @@ public class TaticsTestRunner
                 Position p = V_Positions[i];
                 if (p.V_Dir == dir) {
                     //叠加单
-
+                    p.V_Avg_Price = (p.V_Avg_Price * p.V_AllVol + price * vol) / (p.V_AllVol + vol);
+                    p.V_AllVol += vol;
+                    p.V_AvailVol = p.V_AllVol;
+                    p.V_TimeStamp = kline.V_Timestamp;
                     return;
                 }
             }
@@ -227,7 +230,7 @@ public class TaticsTestRunner
     /// <summary>
     /// 平仓
     /// </summary>
-    public virtual void CloseOrder(KLine kline,int dir)
+    public virtual void CloseOrder(KLine kline,int dir,float percent=1)
     {
 
         if (V_Positions == null || V_Positions.Count <= 0) {
@@ -251,11 +254,17 @@ public class TaticsTestRunner
         float p = removeItem.GetPercentTest(kline, helper.V_LossPercent);
 
         float temp = 0;
-        temp = (p * 0.01f + 1) * removeItem.V_AllVol;
+        temp = (p * 0.01f + percent) * removeItem.V_AllVol;
         V_LeaveMoney += temp;
-        //Console.WriteLine("{0}  :  平仓价格:{1}  盈利：{2}  资金：{3}  百分比：{4}", kline.V_Timestamp, kline.V_ClosePrice, temp, V_CurMoney, p);
-
-        V_Positions.Remove(removeItem);
+        //Console.WriteLine("{0}  :  平仓价格:{1}  盈利：{2}  资金：{3}  百分比：{4}", kline.V_Timestamp, kline.V_ClosePrice, temp, V_LeaveMoney, p);
+        if (percent >= 1)
+        {
+            V_Positions.Remove(removeItem);
+        }
+        else {
+            removeItem.V_AllVol *= 1 - percent;
+            removeItem.V_AvailVol = removeItem.V_AllVol;
+        }
     }
 
     public virtual void ResetData() {

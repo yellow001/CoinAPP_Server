@@ -110,35 +110,37 @@ public class AccountInfo
     /// <summary>
     /// 对手价平仓
     /// </summary>
-    public async Task ClearPositions(int dir=0) {
+    public async Task ClearPositions(int dir=0,float percent=1) {
         if (V_Positions == null || V_Positions.Count == 0) {
             return;
         }
-
-        Console.WriteLine("{0} {1}:  平仓: price {2}，方向：{3}，盈利率{4},剩余 {5}",
-            DateTime.Now,
-            V_Instrument_id,
-            V_CurPrice,
-            V_Position.V_Dir > 0 ? "平多" : "平空",
-            V_Position.GetPercent(V_CurPrice),
-            GetAvailMoney());
-
-        Debugger.Warn(string.Format("{0} {1}:  平仓: price {2}，方向：{3}，盈利率{4},剩余 {5}",
-            DateTime.Now,
-            V_Instrument_id,
-            V_CurPrice,
-            V_Position.V_Dir > 0 ? "平多" : "平空",
-            V_Position.GetPercent(V_CurPrice),
-            GetAvailMoney()));
 
         for (int i = 0; i < V_Positions.Count; i++)
         {
             Position p = V_Positions[i];
             if (dir==0||(dir > 0 && p.V_Dir > 0)|| (dir < 0 && p.V_Dir < 0)) {
                 SwapApi api = CommonData.Ins.V_SwapApi;
-                await api.makeOrderAsync(V_Instrument_id, p.V_Dir > 0 ? "3" : "4", (decimal)V_CurPrice, (int)p.V_AvailVol, "", 0, "1");
+                await api.makeOrderAsync(V_Instrument_id, p.V_Dir > 0 ? "3" : "4", (decimal)V_CurPrice, (int)(p.V_AvailVol * percent), "", 0, "1");
             }
         }
+
+        Console.WriteLine("{0} {1}:  平仓: price {2}，方向：{3}，盈利率{4}，平仓百分比 {5},剩余 {6}",
+            DateTime.Now,
+            V_Instrument_id,
+            V_CurPrice,
+            V_Position.V_Dir > 0 ? "平多" : "平空",
+            V_Position.GetPercent(V_CurPrice),
+            percent*100,
+            GetAvailMoney());
+
+        Debugger.Warn(string.Format("{0} {1}:  平仓: price {2}，方向：{3}，盈利率{4}，平仓百分比 {5},剩余 {6}",
+            DateTime.Now,
+            V_Instrument_id,
+            V_CurPrice,
+            V_Position.V_Dir > 0 ? "平多" : "平空",
+            V_Position.GetPercent(V_CurPrice),
+            percent*100,
+            GetAvailMoney()));
 
         JObject obj = await CommonData.Ins.V_SwapApi.getAccountsByInstrumentAsync(V_Instrument_id);
         RefreshData(obj["info"].ToString());
@@ -150,14 +152,14 @@ public class AccountInfo
     /// <param name="dir">方向 >0 多</param>
     /// <param name="vol">金额</param>
     /// <returns></returns>
-    public async Task<bool> MakeOrder(int dir,float vol) {
-        if (vol > GetAvailMoney())
+    public async Task<bool> MakeOrder(int dir,float vol,float percent=1) {
+        if (vol*percent > GetAvailMoney())
         {
             return false;
         }
         else {
             //获取张数(BTC 1张=100USD EOS 1张=10USD)
-            int v = GetOrderVol(vol);
+            int v = GetOrderVol(vol * percent);
             SwapApi api = CommonData.Ins.V_SwapApi;
             await api.makeOrderAsync(V_Instrument_id, dir > 0 ? "1" : "2", (decimal)V_CurPrice, v, "", 0, "1");
             Console.WriteLine("{0}  {1}:  开仓:{2} 价格:{3} 张数:{4}",DateTime.Now,V_Instrument_id,dir > 0 ? "多" : "空", V_CurPrice,v);

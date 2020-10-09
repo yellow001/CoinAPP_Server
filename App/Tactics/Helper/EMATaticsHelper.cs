@@ -150,13 +150,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
     {
         if (!isTest)
         {
-            DateTime t = DateTime.UtcNow;
-
-            int hourValue = (int)Math.Ceiling((t.Hour + (t.Minute / 60f)) * 100f);
-
-            int v = (int)((V_Min / 60f) * 100f);
-
-            if ((v - hourValue % v) > 4 || (V_LastOpTime.Day == t.Day && V_LastOpTime.Hour == t.Hour))
+            if (!F_CanHanleOrder())
             {
                 return 0;
             }

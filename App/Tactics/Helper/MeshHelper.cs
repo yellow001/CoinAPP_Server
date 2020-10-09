@@ -50,11 +50,6 @@ public class MeshHelper: BaseTaticsHelper
     /// 网格交易整个百分比
     /// </summary>
     float WholePercent = 0;
-
-    /// <summary>
-    /// 兼容百分比
-    /// </summary>
-    float CompatiblePercent = 0;
     #endregion
 
     #region 运行时变量
@@ -94,19 +89,18 @@ public class MeshHelper: BaseTaticsHelper
     #region 重载
 
     /// <summary>
-    /// 初始化设置  合约名;时长;网格价格差百分比;兼容涨跌百分比;倍数
+    /// 初始化设置  合约名;时长;网格价格差百分比;倍数
     /// </summary>
     /// <param name="setting"></param>
     public override void Init(string setting)
     {
         string[] strs = setting.Split(';');
-        if (strs.Length >= 5)
+        if (strs.Length >= 3)
         {
             V_Instrument_id = strs[0];
             V_Min = int.Parse(strs[1]);
             WholePercent = float.Parse(strs[2]);
-            CompatiblePercent = float.Parse(strs[3]);
-            V_Leverage = float.Parse(strs[4]);
+            V_Leverage = float.Parse(strs[3]);
 
             V_HandleOrderSelf = true;
         }
@@ -268,7 +262,7 @@ public class MeshHelper: BaseTaticsHelper
                     }
                     else {
                         //平仓
-                        testRunner.CloseOrder(V_Cache.V_KLineData[0], item.Dir, item.Percent);
+                        testRunner.CloseOrder(V_Cache.V_KLineData[0], item.Dir, item.Percent,false);
                     }
                 }
                 
@@ -282,8 +276,6 @@ public class MeshHelper: BaseTaticsHelper
     /// <param name="isTest"></param>
     /// <returns>操作列表</returns>
     List<OrderOperation> HandleOrder(List<Position> curPositionList,bool isTest=false) {
-
-        float orderPercent = float.Parse(AppSetting.Ins.GetValue("OrderValue"));
 
         if (MeshHighPrice == 0) {
             RefreshMeshPrice();
@@ -335,6 +327,7 @@ public class MeshHelper: BaseTaticsHelper
 
             if ((V_Cache.V_KLineData[0].V_Timestamp - ResetTime).TotalMinutes > lossCooldown * V_Min)
             {
+                CloseOrder(0);
                 RefreshMeshPrice();
                 Reset = false;
             }
@@ -385,7 +378,8 @@ public class MeshHelper: BaseTaticsHelper
                 bool IsCompatible = true;
 
                 float p = (curValue - MeshHighPrice) / MeshHighPrice;
-                if (p*100 > CompatiblePercent) {
+                if (p * 100 > Math.Abs(lossPercent) * 0.1f)
+                {
                     IsCompatible = false;
                 }
 
@@ -406,7 +400,7 @@ public class MeshHelper: BaseTaticsHelper
                 bool IsCompatible = true;
 
                 float p = (MeshLowPrice - curValue) / curValue;
-                if (p*100 > CompatiblePercent)
+                if (p * 100 > Math.Abs(lossPercent) * 0.1f)
                 {
                     IsCompatible = false;
                 }
@@ -433,7 +427,12 @@ public class MeshHelper: BaseTaticsHelper
         if (CanOpenOrder) {
 
             //判断下操作时间
-
+            if (!isTest)
+            {
+                if (!F_CanHanleOrder()) {
+                    return null;
+                }
+            }
 
             switch (curIndex)
             {
@@ -442,7 +441,7 @@ public class MeshHelper: BaseTaticsHelper
                     if (!orderList.Contains(2))
                     {
                         //order short 20%
-                        result.Add(new OrderOperation(1, -1, orderPercent*2));
+                        result.Add(new OrderOperation(1, -1, GetOrderPercent(2)));
                         orderList.Add(2);
                     }
                     //2. 是否在-2开过多单且单子还在？是的话 平多 100%
@@ -462,7 +461,7 @@ public class MeshHelper: BaseTaticsHelper
                     if (!orderList.Contains(1))
                     {
                         //open short 10%
-                        result.Add(new OrderOperation(1, -1, orderPercent));
+                        result.Add(new OrderOperation(1, -1, GetOrderPercent(1)));
                         orderList.Add(1);
                     }
                     //2. 是否在-1开过多单且单子还在？是的话 平多 10%（就是单子的1/3）
@@ -489,7 +488,7 @@ public class MeshHelper: BaseTaticsHelper
                     if (!orderList.Contains(-1))
                     {
                         //order long 10%
-                        result.Add(new OrderOperation(1, 1, orderPercent));
+                        result.Add(new OrderOperation(1, 1, GetOrderPercent(1)));
                         orderList.Add(-1);
                     }
                     //2. 是否在1开过空单且单子还在？是的话 平空 10%（就是单子的1/3）
@@ -513,7 +512,7 @@ public class MeshHelper: BaseTaticsHelper
                     if (!orderList.Contains(-2))
                     {
                         //order long 20%
-                        result.Add(new OrderOperation(1, 1, orderPercent*2));
+                        result.Add(new OrderOperation(1, 1, GetOrderPercent(2)));
                         orderList.Add(-2);
                     }
 
@@ -577,6 +576,10 @@ public class MeshHelper: BaseTaticsHelper
             }
         }
 
+        if (dir == 0) {
+            orderList.Clear();
+        }
+
         return result;
     }
 
@@ -591,6 +594,22 @@ public class MeshHelper: BaseTaticsHelper
     {
         base.ClearRunData();
         ResetHelperData();
+    }
+
+    float GetOrderPercent(int value) {
+
+        float orderPercent = float.Parse(AppSetting.Ins.GetValue("OrderValue"));
+
+        //int all = 6;
+        //int had = 0;
+        //foreach (var item in orderList)
+        //{
+        //    had += Math.Abs(item);
+        //}
+
+        //return (value*1f / (all - had))* orderPercent;
+        return orderPercent * value;
+
     }
 
     void ResetHelperData() {

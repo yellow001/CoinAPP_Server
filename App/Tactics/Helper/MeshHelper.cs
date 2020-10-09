@@ -210,8 +210,8 @@ public class MeshHelper: BaseTaticsHelper
             }
 
             float p = (MeshHighPrice - MeshLowPrice) / MeshLowPrice;
-            if (p >= WholePercent) {
-                continue;
+            if (p*100 >= WholePercent) {
+                break;
             }
 
         }
@@ -384,6 +384,10 @@ public class MeshHelper: BaseTaticsHelper
                 //区域上方 todo
                 bool IsCompatible = true;
 
+                float p = (curValue - MeshHighPrice) / MeshHighPrice;
+                if (p*100 > CompatiblePercent) {
+                    IsCompatible = false;
+                }
 
                 if (IsCompatible)
                 {
@@ -401,6 +405,11 @@ public class MeshHelper: BaseTaticsHelper
                 //区域下方 todo
                 bool IsCompatible = true;
 
+                float p = (MeshLowPrice - curValue) / curValue;
+                if (p*100 > CompatiblePercent)
+                {
+                    IsCompatible = false;
+                }
 
                 if (IsCompatible)
                 {

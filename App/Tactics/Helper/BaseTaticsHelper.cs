@@ -14,6 +14,8 @@ public class BaseTaticsHelper
     /// </summary>
     public string V_Instrument_id;
 
+    public string CoinType;
+
     /// <summary>
     /// 倍数
     /// </summary>
@@ -86,7 +88,7 @@ public class BaseTaticsHelper
 
     public BaseTaticsHelper() {
         //cooldown *= (long)V_Min*60 * Util.Second_Ticks;
-        cooldown = AppSetting.Ins.GetInt("CoolDown");
+        //cooldown = AppSetting.Ins.GetInt("CoolDown");
     }
 
     /// <summary>
@@ -96,6 +98,10 @@ public class BaseTaticsHelper
     public virtual void Init(string setting) {
         Console.WriteLine("合约 " + V_Instrument_id);
         Debugger.Warn("合约 " + V_Instrument_id);
+
+        CoinType = V_Instrument_id.Split('-')[0];
+        cooldown = AppSetting.Ins.GetInt("CoolDown_"+CoinType);
+
     }
 
     public long GetCoolDownTest() {
@@ -168,7 +174,7 @@ public class BaseTaticsHelper
                 lossCooldown = 0;
             }
             else {
-                if (!lastResult) { lossCooldown += AppSetting.Ins.GetFloat("LossCoolDown"); }
+                if (!lastResult) { lossCooldown = AppSetting.Ins.GetFloat("LossCoolDown_"+CoinType); }
             }
             V_LastOpTime = line.V_Timestamp;
             V_MaxAlready = false;
@@ -195,7 +201,7 @@ public class BaseTaticsHelper
             }
             else
             {
-                if (!lastResult) { lossCooldown += AppSetting.Ins.GetFloat("LossCoolDown"); }
+                if (!lastResult) { lossCooldown = AppSetting.Ins.GetFloat("LossCoolDown_"+CoinType); }
             }
             V_LastOpTime = DateTime.UtcNow;
             V_MaxAlready = false;

@@ -5,10 +5,25 @@ pos:50_0_30;15_0_-25;15_0_20;40_0_-5;28_0_95;36_0_18;41_0_6;-4_0_-26;-4_0_-26;41
 //api:keyname;Passphrase;apikey;SecretKey
 
 
-//普通冷却K线个数
-CoolDown:1
-//止损递增K线个数
-LossCoolDown:2
+//止盈冷却
+CoolDown_BTC:2
+CoolDown_ETH:2
+CoolDown_LTC:2
+CoolDown_EOS:0
+CoolDown_BCH:0
+CoolDown_XRP:0
+CoolDown_ETC:0
+CoolDown_BSV:0
+
+//止损冷却
+LossCoolDown_BTC:10
+LossCoolDown_ETH:0
+LossCoolDown_LTC:2
+LossCoolDown_EOS:0
+LossCoolDown_BCH:0
+LossCoolDown_XRP:0
+LossCoolDown_ETC:0
+LossCoolDown_BSV:0
 
 //刷新设置时间（单位为K线时长*配置）
 RefreshSettingTime:42
@@ -33,11 +48,11 @@ MA_XRP:XRP-USD-SWAP;5;1;30
 MA_BSV:BSV-USD-SWAP;5;1;20
 
 //EMA多空头排列	合约名;K线时长(min);采样点;倍数
-EMA_BTC:BTC-USD-SWAP;60;0.18;28
-EMA_ETH:ETH-USD-SWAP;60;0.36;18
+EMA_BTC:BTC-USD-SWAP;60;0.18;30
+EMA_ETH:ETH-USD-SWAP;60;0.36;20
 EMA_EOS:EOS-USD-SWAP;60;1;20
 EMA_BCH:BCH-USD-SWAP;60;1;20
-EMA_LTC:LTC-USD-SWAP;60;0.18;15
+EMA_LTC:LTC-USD-SWAP;60;0.18;20
 
 EMA_ETC:ETC-USD-SWAP;60;1;20
 EMA_XRP:XRP-USD-SWAP;60;1;20

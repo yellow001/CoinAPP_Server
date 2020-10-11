@@ -8,6 +8,7 @@
 using NetFrame.Tool;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -333,43 +334,45 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         bool isShort = false;
 
         //V_CycleList[2]敏感度
-
         if (V_CycleList[2] > 1)
         {
-            if (MaKValue > 0 && isGreenKLine)
-            {
-                isLong = true;
-            }
-
             if (MaKValue < 0 && !isGreenKLine)
             {
                 isShort = true;
             }
-        }
-        else if (V_CycleList[2] > 0)
-        {
-            if (MaKValue > 0 && highValue > boll_UpValue && isGreenKLine)
+
+            if (MaKValue > 0 && isGreenKLine)
             {
                 isLong = true;
             }
-
+        }
+        else if (V_CycleList[2] > 0)
+        {
             if (MaKValue < 0 && lowValue < boll_LowValue && !isGreenKLine)
             {
                 isShort = true;
             }
-        }
-        else
-        {
-            if (MaKValue > 0 && closeValue > MaValue && highValue > boll_UpValue && isGreenKLine)
+
+            if (MaKValue > 0 && highValue > boll_UpValue && isGreenKLine)
             {
                 isLong = true;
             }
-
+        }
+        else
+        {
             if (MaKValue < 0 && closeValue < MaValue && lowValue < boll_LowValue && !isGreenKLine)
             {
                 isShort = true;
             }
+
+            if (MaKValue > 0 && closeValue > MaValue && highValue > boll_UpValue && isGreenKLine)
+            {
+                isLong = true;
+            }
         }
+
+
+
 
         //if (MaKValue > 0 && highValue > boll_UpValue && isGreenKLine)
         //{
@@ -383,11 +386,11 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
         if (isOrder)
         {
-            if (isShort)
+            if (isShort && !isLong)
             {
                 return -1;
             }
-            if (isLong)
+            if (isLong && !isShort)
             {
                 return 1;
             }

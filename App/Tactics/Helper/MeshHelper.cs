@@ -190,25 +190,73 @@ public class MeshHelper: BaseTaticsHelper
 
     void RefreshMeshPrice() {
         //刷新网格策略参数
+
+        List<float> midPriceList = new List<float>();
+        List<float> percentList = new List<float>();
+
+        for (int i = 0; i < V_Cache.V_KLineData.Count; i++)
+        {
+            KLine kLine = V_Cache.V_KLineData[i];
+            midPriceList.Add((kLine.V_LowPrice + kLine.V_HightPrice) * 0.5f);
+            percentList.Add((kLine.V_HightPrice - kLine.V_LowPrice) / kLine.V_LowPrice);
+        }
+
+        float midPrice = midPriceList.Average();
+        float percent = percentList.Average();
+
+        percent*= WholePercent* 500f;
+
         MeshHighPrice = V_Cache.V_KLineData[0].V_HightPrice;
         MeshLowPrice = V_Cache.V_KLineData[0].V_LowPrice;
 
         for (int i = 0; i < V_Cache.V_KLineData.Count; i++)
         {
             KLine kLine = V_Cache.V_KLineData[i];
-            if (kLine.V_HightPrice > MeshHighPrice) {
+            if (kLine.V_HightPrice > MeshHighPrice)
+            {
                 MeshHighPrice = kLine.V_HightPrice;
             }
-            if (kLine.V_LowPrice < MeshLowPrice) {
+            if (kLine.V_LowPrice < MeshLowPrice)
+            {
                 MeshLowPrice = kLine.V_LowPrice;
             }
 
             float p = (MeshHighPrice - MeshLowPrice) / MeshLowPrice;
-            if (p*100 >= WholePercent) {
+            if (p * 100 >= percent)
+            {
+                //if (MeshHighPrice == kLine.V_HightPrice)
+                //{
+                //    MeshHighPrice = MeshLowPrice * (1 + p);
+                //}
+                //else if(MeshLowPrice == kLine.V_LowPrice){
+                //    MeshLowPrice = MeshHighPrice / (1 + p);
+                //}
+
+                MeshHighPrice = kLine.V_ClosePrice * (1 + 0.5f * p);
+                MeshLowPrice = kLine.V_ClosePrice / (1 + 0.5f * p);
+
                 break;
             }
 
         }
+
+        //List<float> midPriceList = new List<float>();
+        //List<float> percentList = new List<float>();
+
+        //for (int i = 0; i < V_Cache.V_KLineData.Count; i++)
+        //{
+        //    KLine kLine = V_Cache.V_KLineData[i];
+        //    midPriceList.Add((kLine.V_LowPrice + kLine.V_HightPrice) * 0.5f);
+        //    percentList.Add((kLine.V_HightPrice - kLine.V_LowPrice) / kLine.V_LowPrice);
+        //}
+
+        //float midPrice = midPriceList.Average();
+        //float percent = percentList.Average();
+
+        ////MeshHighPrice *= (1 + percent * 2f);
+        ////MeshLowPrice *= (1 - percent * 2f);
+
+        //Console.WriteLine(midPrice + " " + percent + " " + MeshHighPrice + " " + MeshLowPrice);
 
         //计算 mid
         MeshMidPrice = (MeshHighPrice + MeshLowPrice) * 0.5f;

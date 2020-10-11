@@ -103,7 +103,7 @@ ConnectKey:yellowzhong
 1-MA 2-MA2 3-EMA 4-EMA2 5-EMA3 6-FourPrice 7-Turtle 8-SimpleMA 9-Mesh
 RunHelper:3
 
-StopValue:-5_-40_20_80
+StopValue:-5_-40_20_65
 //StopValue:-5_-6_30_31
 
 //启动币种

@@ -332,15 +332,54 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         bool isLong = false;
         bool isShort = false;
 
-        if (MaKValue > 0 && highValue > boll_UpValue && isGreenKLine)
+        //V_CycleList[2]敏感度
+
+        if (V_CycleList[2] > 1)
         {
-            isLong = true;
+            if (MaKValue > 0 && isGreenKLine)
+            {
+                isLong = true;
+            }
+
+            if (MaKValue < 0 && !isGreenKLine)
+            {
+                isShort = true;
+            }
+        }
+        else if (V_CycleList[2] > 0)
+        {
+            if (MaKValue > 0 && highValue > boll_UpValue && isGreenKLine)
+            {
+                isLong = true;
+            }
+
+            if (MaKValue < 0 && lowValue < boll_LowValue && !isGreenKLine)
+            {
+                isShort = true;
+            }
+        }
+        else
+        {
+            if (MaKValue > 0 && closeValue > MaValue && highValue > boll_UpValue && isGreenKLine)
+            {
+                isLong = true;
+            }
+
+            if (MaKValue < 0 && closeValue < MaValue && lowValue < boll_LowValue && !isGreenKLine)
+            {
+                isShort = true;
+            }
         }
 
-        if (MaKValue < 0 && lowValue < boll_LowValue && !isGreenKLine)
-        {
-            isShort = true;
-        }
+        //if (MaKValue > 0 && highValue > boll_UpValue && isGreenKLine)
+        //{
+        //    isLong = true;
+        //}
+
+        //if (MaKValue < 0 && lowValue < boll_LowValue && !isGreenKLine)
+        //{
+        //    isShort = true;
+        //}
 
         if (isOrder)
         {

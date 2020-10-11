@@ -332,12 +332,12 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         bool isLong = false;
         bool isShort = false;
 
-        if (MaKValue > 0 && MaKValue2 > 0 && highValue > boll_UpValue && isGreenKLine)
+        if (MaKValue > 0 && highValue > boll_UpValue && isGreenKLine)
         {
             isLong = true;
         }
 
-        if (MaKValue < 0 && MaKValue2 < 0 && lowValue < boll_LowValue && !isGreenKLine)
+        if (MaKValue < 0 && lowValue < boll_LowValue && !isGreenKLine)
         {
             isShort = true;
         }
@@ -357,17 +357,57 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         {
             if (orderDir > 0)
             {
-                if (MaKValue < 0 || closeValue < boll_MidValue || openValue > boll_UpValue)
+                //V_CycleList[2]敏感度，越高越容易返回1
+
+                if (V_CycleList[2] > 1)
                 {
-                    return 1;
+                    if (MaKValue < 0 || closeValue <= MaValue || MaKValue2 < 0 || lowValue < boll_MidValue)
+                    {
+                        return 1;
+                    }
+                }
+                else if (V_CycleList[2] > 0)
+                {
+                    if ((MaKValue < 0 && closeValue <= MaValue) || MaKValue2 < 0 || lowValue < boll_MidValue)
+                    {
+                        return 1;
+                    }
+                }
+                else {
+                    if (MaKValue < 0 && closeValue <= MaValue && MaKValue2 < 0)
+                    {
+                        return 1;
+                    }
                 }
             }
 
             if (orderDir < 0)
             {
-                if (MaKValue > 0 || closeValue > boll_MidValue || openValue < boll_LowValue)
+                if ((MaKValue > 0 && closeValue >= MaValue) || highValue > boll_MidValue)
                 {
                     return 1;
+                }
+
+                if (V_CycleList[2] > 1)
+                {
+                    if (MaKValue > 0 || closeValue >= MaValue || MaKValue2 > 0 || highValue > boll_MidValue)
+                    {
+                        return 1;
+                    }
+                }
+                else if (V_CycleList[2] > 0)
+                {
+                    if ((MaKValue > 0 && closeValue >= MaValue) || MaKValue2 > 0 || highValue < boll_MidValue)
+                    {
+                        return 1;
+                    }
+                }
+                else
+                {
+                    if (MaKValue > 0 && closeValue >= MaValue && MaKValue2 > 0)
+                    {
+                        return 1;
+                    }
                 }
             }
         }

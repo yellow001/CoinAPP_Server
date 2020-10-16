@@ -147,8 +147,12 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         {
             int result = GetValue(false, dir, isTest);
 
-            if (percent >= winPercent)
-            {
+            //int closeResult = GetValue(false, dir, true);
+            int orderResult = GetValue(true, dir, true);
+
+            bool equals = orderResult == dir || orderResult == 0;
+
+            if (percent < winPercent * V_Length && (!equals || result > 0)) {
                 return true;
             }
 
@@ -156,6 +160,13 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             {
                 return result > 0;
             }
+
+            //if (percent >= winPercent)
+            //{
+            //    V_MaxAlready = true;
+            //    return true;
+            //}
+
         }
         return false;
     }
@@ -178,7 +189,16 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             }
         }
 
+        bool isGreenKLine = V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice;
 
+        float closeValue = V_Cache.V_KLineData[0].V_ClosePrice;
+        float openValue = V_Cache.V_KLineData[0].V_OpenPrice;
+        float highValue = V_Cache.V_KLineData[0].V_HightPrice;
+        float lowValue = V_Cache.V_KLineData[0].V_LowPrice;
+
+        KLine LastKLine = V_Cache.V_KLineData[1];
+
+        #region 1.0
         //#region 点 计算
 
         //float p1 = F_GetEMA(V_CycleList[0], 0);
@@ -191,13 +211,6 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
 
         //#endregion
-
-        //float closeValue = V_Cache.V_KLineData[0].V_ClosePrice;
-        //float openValue = V_Cache.V_KLineData[0].V_OpenPrice;
-        //float highValue = V_Cache.V_KLineData[0].V_HightPrice;
-        //float lowValue = V_Cache.V_KLineData[0].V_LowPrice;
-
-        //bool isGreenKline = closeValue > openValue;
 
         //bool isPLong = false;
         //bool isPShort = false;
@@ -303,120 +316,213 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         //}
 
         //return 0;
+        #endregion
 
 
-        float MaValue = F_GetEMA(V_CycleList[0], 0);
+        #region 2.0
+        //float MaValue = F_GetEMA(V_CycleList[0], 0);
+
+        //float boll_MidValue, boll_UpValue, boll_LowValue;
+
+        //boll_MidValue = Boll.GetBoll(V_CycleList[1], V_Cache.V_KLineData, out boll_UpValue, out boll_LowValue);
+
+        ////float MaValue2 = F_GetMA(MaLength2);
+        ////float LongMaValue = F_GetMA(LongMaLength);
+
+        //float MaKValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[V_CycleList[0]].V_ClosePrice;
+        //float MaKValue2 = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[V_CycleList[1]].V_ClosePrice;
+        ////float LongMaKValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[LongMaLength].V_ClosePrice;
+
+        //bool isGreenKLine = V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice;
+
+        ////float longValue = isTest ? V_Cache.V_KLineData[0].V_HightPrice : V_Cache.V_KLineData[0].V_ClosePrice;
+        ////float shortValue = isTest? V_Cache.V_KLineData[0].V_LowPrice : V_Cache.V_KLineData[0].V_ClosePrice;
+
+        //float closeValue = V_Cache.V_KLineData[0].V_ClosePrice;
+        //float openValue = V_Cache.V_KLineData[0].V_OpenPrice;
+        //float highValue = V_Cache.V_KLineData[0].V_HightPrice;
+        //float lowValue = V_Cache.V_KLineData[0].V_LowPrice;
+
+        //KLine LastKLine = V_Cache.V_KLineData[1];
+
+        //bool isLong = false;
+        //bool isShort = false;
+
+        ////V_CycleList[2]敏感度
+        //if (V_CycleList[2] > 1)
+        //{
+        //    if (MaKValue < 0 && !isGreenKLine)
+        //    {
+        //        isShort = true;
+        //    }
+
+        //    if (MaKValue > 0 && isGreenKLine)
+        //    {
+        //        isLong = true;
+        //    }
+        //}
+        //else if (V_CycleList[2] > 0)
+        //{
+        //    if (MaKValue < 0 && lowValue < boll_LowValue && !isGreenKLine)
+        //    {
+        //        isShort = true;
+        //    }
+
+        //    if (MaKValue > 0 && highValue > boll_UpValue && isGreenKLine)
+        //    {
+        //        isLong = true;
+        //    }
+        //}
+        //else
+        //{
+        //    if (MaKValue < 0 && closeValue < MaValue && lowValue < boll_LowValue && !isGreenKLine)
+        //    {
+        //        isShort = true;
+        //    }
+
+        //    if (MaKValue > 0 && closeValue > MaValue && highValue > boll_UpValue && isGreenKLine)
+        //    {
+        //        isLong = true;
+        //    }
+        //}
+
+        //if (isOrder)
+        //{
+        //    if (isShort && !isLong)
+        //    {
+        //        return -1;
+        //    }
+        //    if (isLong && !isShort)
+        //    {
+        //        return 1;
+        //    }
+        //}
+        //else
+        //{
+        //    if (orderDir > 0)
+        //    {
+        //        //V_CycleList[2]敏感度，越高越容易返回1
+
+        //        if (V_CycleList[2] > 1)
+        //        {
+        //            if (MaKValue < 0 || closeValue <= MaValue || MaKValue2 < 0 || lowValue < boll_MidValue)
+        //            {
+        //                return 1;
+        //            }
+        //        }
+        //        else if (V_CycleList[2] > 0)
+        //        {
+        //            if ((MaKValue < 0 && closeValue <= MaValue) || MaKValue2 < 0 || lowValue < boll_MidValue)
+        //            {
+        //                return 1;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (MaKValue < 0 && closeValue <= MaValue && MaKValue2 < 0)
+        //            {
+        //                return 1;
+        //            }
+        //        }
+        //    }
+
+        //    if (orderDir < 0)
+        //    {
+        //        if ((MaKValue > 0 && closeValue >= MaValue) || highValue > boll_MidValue)
+        //        {
+        //            return 1;
+        //        }
+
+        //        if (V_CycleList[2] > 1)
+        //        {
+        //            if (MaKValue > 0 || closeValue >= MaValue || MaKValue2 > 0 || highValue > boll_MidValue)
+        //            {
+        //                return 1;
+        //            }
+        //        }
+        //        else if (V_CycleList[2] > 0)
+        //        {
+        //            if ((MaKValue > 0 && closeValue >= MaValue) || MaKValue2 > 0 || highValue < boll_MidValue)
+        //            {
+        //                return 1;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (MaKValue > 0 && closeValue >= MaValue && MaKValue2 > 0)
+        //            {
+        //                return 1;
+        //            }
+        //        }
+        //    }
+        //}
+        #endregion
+
+
+        #region 3.0
+
+        float MaValue = F_GetEMA(V_CycleList[0]);
+        float MaValue2 = F_GetEMA(V_CycleList[1]);
+        float LongMaValue = F_GetEMA(V_CycleList[2]);
 
         float boll_MidValue, boll_UpValue, boll_LowValue;
 
         boll_MidValue = Boll.GetBoll(V_CycleList[1], V_Cache.V_KLineData, out boll_UpValue, out boll_LowValue);
 
-        //float MaValue2 = F_GetMA(MaLength2);
-        //float LongMaValue = F_GetMA(LongMaLength);
-
         float MaKValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[V_CycleList[0]].V_ClosePrice;
         float MaKValue2 = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[V_CycleList[1]].V_ClosePrice;
-        //float LongMaKValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[LongMaLength].V_ClosePrice;
-
-        bool isGreenKLine = V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice;
-
-        //float longValue = isTest ? V_Cache.V_KLineData[0].V_HightPrice : V_Cache.V_KLineData[0].V_ClosePrice;
-        //float shortValue = isTest? V_Cache.V_KLineData[0].V_LowPrice : V_Cache.V_KLineData[0].V_ClosePrice;
-
-        float closeValue = V_Cache.V_KLineData[0].V_ClosePrice;
-        float openValue = V_Cache.V_KLineData[0].V_OpenPrice;
-        float highValue = V_Cache.V_KLineData[0].V_HightPrice;
-        float lowValue = V_Cache.V_KLineData[0].V_LowPrice;
-
-        KLine LastKLine = V_Cache.V_KLineData[1];
-
-        bool isLong = false;
-        bool isShort = false;
-
-        //V_CycleList[2]敏感度
-        if (V_CycleList[2] > 1)
-        {
-            if (MaKValue < 0 && !isGreenKLine)
-            {
-                isShort = true;
-            }
-
-            if (MaKValue > 0 && isGreenKLine)
-            {
-                isLong = true;
-            }
-        }
-        else if (V_CycleList[2] > 0)
-        {
-            if (MaKValue < 0 && lowValue < boll_LowValue && !isGreenKLine)
-            {
-                isShort = true;
-            }
-
-            if (MaKValue > 0 && highValue > boll_UpValue && isGreenKLine)
-            {
-                isLong = true;
-            }
-        }
-        else
-        {
-            if (MaKValue < 0 && closeValue < MaValue && lowValue < boll_LowValue && !isGreenKLine)
-            {
-                isShort = true;
-            }
-
-            if (MaKValue > 0 && closeValue > MaValue && highValue > boll_UpValue && isGreenKLine)
-            {
-                isLong = true;
-            }
-        }
-
-
-
-
-        //if (MaKValue > 0 && highValue > boll_UpValue && isGreenKLine)
-        //{
-        //    isLong = true;
-        //}
-
-        //if (MaKValue < 0 && lowValue < boll_LowValue && !isGreenKLine)
-        //{
-        //    isShort = true;
-        //}
+        float LongMaKValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[V_CycleList[2]].V_ClosePrice;
 
         if (isOrder)
         {
-            if (isShort && !isLong)
+            //if (MaValue > MaValue2 && lowValue < boll_MidValue)
+            //{
+            //    if (MaKValue > 0 && openValue >= MaValue2 && isGreenKLine)
+            //    {
+            //        return 1;
+            //    }
+            //}
+
+            if (MaKValue != LongMaKValue)
+            {
+                if (closeValue > boll_UpValue) {
+                    return -1;
+                }
+                if (closeValue < boll_LowValue) {
+                    return 1;
+                }
+            }
+
+            if (closeValue < LongMaValue && MaKValue < 0)
             {
                 return -1;
             }
-            if (isLong && !isShort)
+            if (closeValue > LongMaValue && MaKValue > 0)
             {
                 return 1;
             }
+
+
+
         }
         else
         {
             if (orderDir > 0)
             {
-                //V_CycleList[2]敏感度，越高越容易返回1
 
-                if (V_CycleList[2] > 1)
-                {
-                    if (MaKValue < 0 || closeValue <= MaValue || MaKValue2 < 0 || lowValue < boll_MidValue)
+                if (!isGreenKLine) {
+
+                    if (MaKValue < 0 || closeValue < MaValue)
                     {
                         return 1;
                     }
-                }
-                else if (V_CycleList[2] > 0)
-                {
-                    if ((MaKValue < 0 && closeValue <= MaValue) || MaKValue2 < 0 || lowValue < boll_MidValue)
+
+                    if (MaKValue2 < 0 || closeValue < MaValue2)
                     {
                         return 1;
                     }
-                }
-                else {
-                    if (MaKValue < 0 && closeValue <= MaValue && MaKValue2 < 0)
+
+                    if (highValue < LastKLine.V_HightPrice)
                     {
                         return 1;
                     }
@@ -425,34 +531,30 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
             if (orderDir < 0)
             {
-                if ((MaKValue > 0 && closeValue >= MaValue) || highValue > boll_MidValue)
+                if (isGreenKLine)
                 {
-                    return 1;
-                }
 
-                if (V_CycleList[2] > 1)
-                {
-                    if (MaKValue > 0 || closeValue >= MaValue || MaKValue2 > 0 || highValue > boll_MidValue)
+                    if (MaKValue > 0 || closeValue > MaValue)
                     {
                         return 1;
                     }
-                }
-                else if (V_CycleList[2] > 0)
-                {
-                    if ((MaKValue > 0 && closeValue >= MaValue) || MaKValue2 > 0 || highValue < boll_MidValue)
+
+                    if (MaKValue2 > 0 || closeValue > MaValue2)
                     {
                         return 1;
                     }
-                }
-                else
-                {
-                    if (MaKValue > 0 && closeValue >= MaValue && MaKValue2 > 0)
+
+                    if (lowValue > LastKLine.V_HightPrice)
                     {
                         return 1;
                     }
+
                 }
             }
         }
+
+
+        #endregion
 
         return 0;
     }

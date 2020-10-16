@@ -100,7 +100,7 @@ public class BaseTaticsHelper
         Debugger.Warn("合约 " + V_Instrument_id);
 
         CoinType = V_Instrument_id.Split('-')[0];
-        cooldown = AppSetting.Ins.GetInt("CoolDown_"+CoinType);
+        cooldown = 0;
 
     }
 
@@ -227,7 +227,7 @@ public class BaseTaticsHelper
 
         int v = (int)((V_Min / 60f) * 100f);
 
-        if ((v - hourValue % v) > 4 || (V_LastOpTime.Day == t.Day && V_LastOpTime.Hour == t.Hour))
+        if ((v - hourValue % v) > 4)
         {
             return false;
         }

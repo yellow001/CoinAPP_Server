@@ -227,7 +227,7 @@ public class BaseTaticsHelper
 
         int v = (int)((V_Min / 60f) * 100f);
 
-        if ((v - hourValue % v) > 4)
+        if ((v - hourValue % v) >= 3)
         {
             return false;
         }

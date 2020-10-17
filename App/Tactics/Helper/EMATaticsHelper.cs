@@ -147,15 +147,6 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         {
             int result = GetValue(false, dir, isTest);
 
-            //int closeResult = GetValue(false, dir, true);
-            int orderResult = GetValue(true, dir, isTest);
-
-            bool equals = orderResult == dir || orderResult == 0;
-
-            if (percent < winPercent * V_Length && (!equals || result > 0)) {
-                return true;
-            }
-
             if (percent >= winPercent * V_Length)
             {
                 return result > 0;
@@ -485,72 +476,29 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
             if (MaKValue != LongMaKValue)
             {
-                if (closeValue > boll_UpValue) {
+                if (closeValue > boll_UpValue)
+                {
                     return -1;
                 }
-                if (closeValue < boll_LowValue) {
+                if (closeValue < boll_LowValue)
+                {
                     return 1;
                 }
             }
-
-            if (closeValue < LongMaValue && MaKValue < 0)
-            {
-                return -1;
+            else {
+                if (closeValue < LongMaValue && MaKValue < 0)
+                {
+                    return -1;
+                }
+                if (closeValue > LongMaValue && MaKValue > 0)
+                {
+                    return 1;
+                }
             }
-            if (closeValue > LongMaValue && MaKValue > 0)
-            {
-                return 1;
-            }
-
-
-
         }
         else
         {
-            if (orderDir > 0)
-            {
-
-                if (!isGreenKLine) {
-
-                    if (MaKValue < 0 || closeValue < MaValue)
-                    {
-                        return 1;
-                    }
-
-                    if (MaKValue2 < 0 || closeValue < MaValue2)
-                    {
-                        return 1;
-                    }
-
-                    if (highValue < LastKLine.V_HightPrice)
-                    {
-                        return 1;
-                    }
-                }
-            }
-
-            if (orderDir < 0)
-            {
-                if (isGreenKLine)
-                {
-
-                    if (MaKValue > 0 || closeValue > MaValue)
-                    {
-                        return 1;
-                    }
-
-                    if (MaKValue2 > 0 || closeValue > MaValue2)
-                    {
-                        return 1;
-                    }
-
-                    if (lowValue > LastKLine.V_HightPrice)
-                    {
-                        return 1;
-                    }
-
-                }
-            }
+            return 1;
         }
 
 

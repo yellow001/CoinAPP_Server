@@ -16,9 +16,9 @@ CoolDown_ETC:0
 CoolDown_BSV:0
 
 //止损冷却
-LossCoolDown_BTC:13
-LossCoolDown_ETH:13
-LossCoolDown_LTC:13
+LossCoolDown_BTC:50
+LossCoolDown_ETH:50
+LossCoolDown_LTC:50
 LossCoolDown_EOS:0
 LossCoolDown_BCH:0
 LossCoolDown_XRP:0
@@ -49,11 +49,11 @@ MA_XRP:XRP-USD-SWAP;5;1;30
 MA_BSV:BSV-USD-SWAP;5;1;20
 
 //EMA多空头排列	合约名;K线时长(min);采样点;倍数
-EMA_BTC:BTC-USD-SWAP;60;0.35;30
-EMA_ETH:ETH-USD-SWAP;60;0.45;20
+EMA_BTC:BTC-USD-SWAP;15;0.35;30
+EMA_ETH:ETH-USD-SWAP;15;0.35;20
 EMA_EOS:EOS-USD-SWAP;60;1;20
 EMA_BCH:BCH-USD-SWAP;60;1;20
-EMA_LTC:LTC-USD-SWAP;60;0.35;20
+EMA_LTC:LTC-USD-SWAP;15;0.35;20
 
 EMA_ETC:ETC-USD-SWAP;60;1;20
 EMA_XRP:XRP-USD-SWAP;60;1;20
@@ -112,7 +112,7 @@ Mesh_BSV:BSV-USD-SWAP;60;1;20
 Port:8888
 
 //OrderValue:0.48
-OrderValue:0.36
+OrderValue:0.35
 
 ConnectKey:yellowzhong
 

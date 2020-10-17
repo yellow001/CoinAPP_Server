@@ -148,7 +148,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             int result = GetValue(false, dir, isTest);
 
             //int closeResult = GetValue(false, dir, true);
-            int orderResult = GetValue(true, dir, true);
+            int orderResult = GetValue(true, dir, isTest);
 
             bool equals = orderResult == dir || orderResult == 0;
 

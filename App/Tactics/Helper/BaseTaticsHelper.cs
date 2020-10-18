@@ -86,6 +86,9 @@ public class BaseTaticsHelper
     /// </summary>
     public bool V_HandleOrderSelf = false;
 
+    public long V_LastKLineTime = 0;
+
+
     public BaseTaticsHelper() {
         //cooldown *= (long)V_Min*60 * Util.Second_Ticks;
         //cooldown = AppSetting.Ins.GetInt("CoolDown");
@@ -227,10 +230,12 @@ public class BaseTaticsHelper
 
         int v = (int)((V_Min / 60f) * 100f);
 
-        if ((v - hourValue % v) >= 3)
+        if ((v - hourValue % v) >= 3 || V_Cache.V_KLineData[0].V_Timestamp.Ticks == V_LastKLineTime)
         {
             return false;
         }
+
+        V_LastKLineTime = V_Cache.V_KLineData[0].V_Timestamp.Ticks;
 
         return true;
     }

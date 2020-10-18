@@ -149,6 +149,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
             if (percent >= winPercent * V_Length)
             {
+                Debugger.Log(percent + "  " + winPercent + "  " + V_Length);
                 return result > 0;
             }
 

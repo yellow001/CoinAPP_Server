@@ -99,7 +99,7 @@ public class BaseTaticsHelper
     /// </summary>
     /// <param name="setting"></param>
     public virtual void Init(string setting) {
-        Console.WriteLine("合约 " + V_Instrument_id);
+        Console.WriteLine("合约 " + V_Instrument_id+"  setting "+setting);
         Debugger.Warn("合约 " + V_Instrument_id);
 
         CoinType = V_Instrument_id.Split('-')[0];

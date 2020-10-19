@@ -253,6 +253,8 @@ public class TaticsTestRunner
 
         float p = removeItem.GetPercentTest(kline, limit?helper.V_LossPercent:-10000);
 
+        p = p - 5;
+
         float temp = 0;
         temp = (p * 0.01f + percent) * removeItem.V_AllVol;
         V_LeaveMoney += temp;

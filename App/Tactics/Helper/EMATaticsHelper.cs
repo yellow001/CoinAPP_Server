@@ -147,10 +147,24 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         {
             int result = GetValue(false, dir, isTest);
 
+            int orderResult = GetValue(true, dir, isTest);
+
             if (percent >= winPercent * V_Length)
             {
+#if !DEBUG
                 Debugger.Log(percent + "  " + winPercent + "  " + V_Length);
-                return result > 0;
+#endif
+                //return result > 0;
+                return result > 0|| orderResult == -dir;
+            }
+
+            if (percent <= 0)
+            {
+#if !DEBUG
+                Debugger.Log(percent + "  " + lossPercent + "  " + V_Length);
+#endif
+                //return orderResult == -dir;
+                return orderResult == -dir|| result > 0;
             }
 
             //if (percent >= winPercent)
@@ -465,6 +479,37 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         float MaKValue2 = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[V_CycleList[1]].V_ClosePrice;
         float LongMaKValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[V_CycleList[2]].V_ClosePrice;
 
+        bool isLong = false;
+        bool isShort = false;
+
+        if (MaKValue != LongMaKValue)
+        {
+            if (openValue > boll_UpValue && highValue < LastKLine.V_HightPrice && ShouldOrderByOldAvg() > 0)
+            {
+                isShort = true;
+                //return -1;
+            }
+            if (openValue < boll_LowValue && lowValue > LastKLine.V_LowPrice && ShouldOrderByOldAvg() < 0)
+            {
+                isLong = true;
+                //return 1;
+            }
+        }
+        else
+        {
+            if (closeValue < MaValue2 && MaKValue < 0 && highValue < MaValue && ShouldOrderByOldAvg() < 0)
+            {
+                isShort = true;
+                //return -1;
+            }
+            if (closeValue > MaValue2 && MaKValue > 0 && lowValue > MaValue && ShouldOrderByOldAvg() > 0)
+            {
+                isLong = true;
+                //return 1;
+            }
+        }
+
+
         if (isOrder)
         {
             //if (MaValue > MaValue2 && lowValue < boll_MidValue)
@@ -475,31 +520,30 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             //    }
             //}
 
-            if (MaKValue != LongMaKValue)
+            if (isLong)
             {
-                if (closeValue > boll_UpValue)
-                {
-                    return -1;
-                }
-                if (closeValue < boll_LowValue)
-                {
-                    return 1;
-                }
+                return 1;
             }
-            else {
-                if (closeValue < LongMaValue && MaKValue < 0)
-                {
-                    return -1;
-                }
-                if (closeValue > LongMaValue && MaKValue > 0)
-                {
-                    return 1;
-                }
+
+            if (isShort)
+            {
+                return -1;
             }
+
         }
         else
         {
-            return 1;
+            if (orderDir > 0)
+            {
+                return isShort ? 1 : 0;
+            }
+
+            if (orderDir < 0)
+            {
+                return isLong ? 1 : 0;
+            }
+
+            //return 1;
         }
 
 
@@ -531,6 +575,40 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
     float F_GetMA(int length)
     {
         return MA.GetMA(length, V_Cache.V_KLineData);
+    }
+
+    int ShouldOrderByOldAvg() {
+
+        KLine curLine = V_Cache.V_KLineData[0];
+
+        if (curLine.V_ClosePrice < V_Cache.V_KLineData[V_CycleList[0]].V_ClosePrice)
+        {
+            if (V_Cache.V_KLineData[V_CycleList[2] - V_CycleList[1]].V_ClosePrice > V_Cache.V_KLineData[V_CycleList[2]].V_ClosePrice)
+            {
+                return -1;
+            }
+        }
+
+        if (curLine.V_ClosePrice > V_Cache.V_KLineData[V_CycleList[0]].V_ClosePrice) {
+            if (V_Cache.V_KLineData[V_CycleList[2] - V_CycleList[1]].V_ClosePrice < V_Cache.V_KLineData[V_CycleList[2]].V_ClosePrice)
+            {
+                return 1;
+            }
+        }
+
+
+        //if (V_Cache.V_KLineData[V_CycleList[1] - V_CycleList[0]].V_ClosePrice < V_Cache.V_KLineData[V_CycleList[1]].V_ClosePrice)
+        //{
+        //    return -1;
+        //}
+
+        //if (V_Cache.V_KLineData[V_CycleList[1] - V_CycleList[0]].V_ClosePrice > V_Cache.V_KLineData[V_CycleList[1]].V_ClosePrice)
+        //{
+        //    return 1;
+        //}
+
+
+        return 0;
     }
 
 

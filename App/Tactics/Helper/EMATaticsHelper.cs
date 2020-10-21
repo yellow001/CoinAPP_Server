@@ -482,7 +482,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         bool isLong = false;
         bool isShort = false;
 
-        if (MaKValue != LongMaKValue)
+        if ((MaKValue2 > 0 && LongMaKValue < 0) || (MaKValue2 < 0 && LongMaKValue > 0))
         {
             if (openValue > boll_UpValue && highValue < LastKLine.V_HightPrice && ShouldOrderByOldAvg() > 0)
             {
@@ -497,12 +497,12 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         }
         else
         {
-            if (closeValue < MaValue2 && MaKValue < 0 && highValue < MaValue && ShouldOrderByOldAvg() < 0)
+            if (closeValue > MaValue2 && MaKValue < 0 && ShouldOrderByOldAvg() < 0)
             {
                 isShort = true;
                 //return -1;
             }
-            if (closeValue > MaValue2 && MaKValue > 0 && lowValue > MaValue && ShouldOrderByOldAvg() > 0)
+            if (closeValue < MaValue2 && MaKValue > 0 && ShouldOrderByOldAvg() > 0)
             {
                 isLong = true;
                 //return 1;
@@ -520,12 +520,12 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             //    }
             //}
 
-            if (isLong)
+            if (isLong && !isShort)
             {
                 return 1;
             }
 
-            if (isShort)
+            if (isShort && !isLong)
             {
                 return -1;
             }

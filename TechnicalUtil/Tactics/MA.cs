@@ -26,6 +26,9 @@ public class MA
         }
 
         float sum = 0;
+
+        length = length > data.Count ? data.Count : length;
+
         for (int i = 0; i < length; i++)
         {
             sum += data[i].V_ClosePrice;

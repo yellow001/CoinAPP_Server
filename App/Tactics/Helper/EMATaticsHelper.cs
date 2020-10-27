@@ -151,18 +151,21 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
             if (percent >= winPercent * V_Length)
             {
-#if !DEBUG
-                Debugger.Log(percent + "  " + winPercent + "  " + V_Length);
-#endif
+                if (!isTest)
+                {
+                    Debugger.Log(percent + "  " + winPercent + "  " + V_Length);
+                }
                 //return result > 0;
                 return result > 0|| orderResult == -dir;
             }
 
             if (percent <= 0)
             {
-#if !DEBUG
-                Debugger.Log(percent + "  " + lossPercent + "  " + V_Length);
-#endif
+                if (!isTest)
+                {
+                    Debugger.Log(percent + "  " + lossPercent + "  " + V_Length);
+                }
+
                 //return orderResult == -dir;
                 return orderResult == -dir|| result > 0;
             }
@@ -374,38 +377,45 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
         #region 4.0
 
-        if (MaValue < MaValue2 && MaValue2 < LongMaValue)
+        if (!bigVol)
         {
-            if (MaValue < 0 && MaValue2 < 0 && LongMaValue < 0)
+            //量能低
+
+            if (MathF.Abs(per3) < 2.5f && MathF.Abs(k3) < 0.05f)
             {
-                if (per2 > -2 && per3 > -4&&closeValue<minValue)
+                if (highValue > boll_UpValue && highValue < maxValue && highValue < LastKLine.V_HightPrice)
                 {
                     isShort = true;
                 }
-            }
-        }
 
-        if (MathF.Abs(per3) < 1.6f && MathF.Abs(k3) < 0.04f)
-        {
-            if (openValue > boll_UpValue && closeValue < maxValue)
-            {
-                isShort = true;
-            }
-
-            if (openValue < boll_LowValue && closeValue > minValue)
-            {
-                isLong = true;
-            }
-        }
-
-
-        if (MaValue > MaValue2 && MaValue2 > LongMaValue)
-        {
-            if (MaValue > 0 && MaValue2 > 0 && LongMaValue > 0)
-            {
-                if (per2 < 2 && per3 < 4&&closeValue>maxValue)
+                if (lowValue < boll_LowValue && lowValue > minValue && lowValue > LastKLine.V_LowPrice)
                 {
                     isLong = true;
+                }
+            }
+        }
+        else
+        {
+            if (MaValue < MaValue2)
+            {
+                if (MaValue < 0 && MaValue2 < 0)
+                {
+                    if (MathF.Abs(per2) < 2 && MathF.Abs(per3) < 4)
+                    {
+                        isShort = true;
+                    }
+                }
+            }
+
+
+            if (MaValue > MaValue2)
+            {
+                if (MaValue > 0 && MaValue2 > 0)
+                {
+                    if (MathF.Abs(per2) < 2 && MathF.Abs(per3) < 4)
+                    {
+                        isLong = true;
+                    }
                 }
             }
         }
@@ -413,20 +423,14 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
         if (isOrder)
         {
-            if (!bigVol)
+            if (isShort)
             {
-                //量能低，不管
-                return 0;
+                return -1;
             }
 
             if (isLong && !isShort)
             {
                 return 1;
-            }
-
-            if (isShort && !isLong)
-            {
-                return -1;
             }
 
         }

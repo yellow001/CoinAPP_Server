@@ -156,7 +156,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
                     Debugger.Log(percent + "  " + winPercent + "  " + V_Length);
                 }
                 //return result > 0;
-                return result > 0|| orderResult == -dir;
+                return result > 0 || orderResult == -dir;
             }
 
             if (percent <= 0)
@@ -167,7 +167,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
                 }
 
                 //return orderResult == -dir;
-                return orderResult == -dir|| result > 0;
+                return orderResult == -dir || result > 0;
             }
 
             //if (percent >= winPercent)
@@ -232,7 +232,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
 
         float a = F_GetMA(V_CycleList[0]);
-        float b = F_GetMA(V_CycleList[0],1);
+        float b = F_GetMA(V_CycleList[0], 1);
 
         float k1 = (a - b) / b * 100;
         //Console.WriteLine("0 "+a+"  "+b+"  "+v);
@@ -271,7 +271,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         float per3 = (closeValue - LongMaValue) / LongMaValue * 100;
 
         bool bigVol = false;
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 24; i++)
         {
             if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 5f)
             {
@@ -377,60 +377,73 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
         #region 4.0
 
-        if (!bigVol)
+        if (MaValue < MaValue2)
         {
-            //量能低
-
-            if (MathF.Abs(per3) < 2.5f && MathF.Abs(k3) < 0.05f)
+            if (k1 < -0.2f && MaKValue2 < 0)
             {
-                if (highValue > boll_UpValue && highValue < maxValue && highValue < LastKLine.V_HightPrice)
+                if (per2 > -2 && closeValue < minValue)
                 {
                     isShort = true;
                 }
+            }
 
-                if (lowValue < boll_LowValue && lowValue > minValue && lowValue > LastKLine.V_LowPrice)
+            if (per3 > 4 && k1 < -0.4f)
+            {
+                isShort = true;
+            }
+
+        }
+
+        if (MaValue > MaValue2)
+        {
+            if (k1 > 0.2f && MaKValue2 > 0)
+            {
+                if (per2 < 2 && closeValue > maxValue)
                 {
                     isLong = true;
                 }
             }
+
+            if (per3 < -4 && k1 < -0.4f)
+            {
+                isShort = true;
+            }
+
         }
-        else
+
+        if (MathF.Abs(per3) < 2f && MathF.Abs(k3) < 0.036f)
         {
-            if (MaValue < MaValue2)
+            if (highValue > boll_UpValue && closeValue < maxValue && highValue < LastKLine.V_HightPrice)
             {
-                if (MaValue < 0 && MaValue2 < 0)
-                {
-                    if (MathF.Abs(per2) < 2 && MathF.Abs(per3) < 4)
-                    {
-                        isShort = true;
-                    }
-                }
+                isShort = true;
             }
 
-
-            if (MaValue > MaValue2)
+            if (lowValue < boll_LowValue && closeValue > minValue && lowValue > LastKLine.V_LowPrice)
             {
-                if (MaValue > 0 && MaValue2 > 0)
-                {
-                    if (MathF.Abs(per2) < 2 && MathF.Abs(per3) < 4)
-                    {
-                        isLong = true;
-                    }
-                }
+                isLong = true;
             }
         }
+
+
+
 
 
         if (isOrder)
         {
-            if (isShort)
+            if (!bigVol)
             {
-                return -1;
+                //量能低，不管
+                return 0;
             }
 
             if (isLong && !isShort)
             {
                 return 1;
+            }
+
+            if (isShort && !isLong)
+            {
+                return -1;
             }
 
         }
@@ -481,7 +494,8 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         return MA.GetMA(length, V_Cache.V_KLineData.GetRange(index, length));
     }
 
-    int ShouldOrderByOldAvg() {
+    int ShouldOrderByOldAvg()
+    {
 
         KLine curLine = V_Cache.V_KLineData[0];
 
@@ -493,7 +507,8 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             }
         }
 
-        if (curLine.V_ClosePrice > V_Cache.V_KLineData[V_CycleList[0]].V_ClosePrice) {
+        if (curLine.V_ClosePrice > V_Cache.V_KLineData[V_CycleList[0]].V_ClosePrice)
+        {
             if (V_Cache.V_KLineData[V_CycleList[2] - V_CycleList[1]].V_ClosePrice < V_Cache.V_KLineData[V_CycleList[2]].V_ClosePrice)
             {
                 return 1;

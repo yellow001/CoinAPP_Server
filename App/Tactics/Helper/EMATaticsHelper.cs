@@ -151,20 +151,20 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
             if (percent >= winPercent * V_Length)
             {
-                if (!isTest)
-                {
-                    Debugger.Log(percent + "  " + winPercent + "  " + V_Length);
-                }
+                //if (!isTest)
+                //{
+                //    Debugger.Log(percent + "  " + winPercent + "  " + V_Length);
+                //}
                 //return result > 0;
                 return result > 0 || orderResult == -dir;
             }
 
             if (percent <= 0)
             {
-                if (!isTest)
-                {
-                    Debugger.Log(percent + "  " + lossPercent + "  " + V_Length);
-                }
+                //if (!isTest)
+                //{
+                //    Debugger.Log(percent + "  " + lossPercent + "  " + V_Length);
+                //}
 
                 //return orderResult == -dir;
                 return orderResult == -dir || result > 0;

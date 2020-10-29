@@ -271,7 +271,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         float per3 = (closeValue - LongMaValue) / LongMaValue * 100;
 
         bool bigVol = false;
-        for (int i = 0; i < 24; i++)
+        for (int i = 0; i < 32; i++)
         {
             if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 5f)
             {
@@ -377,64 +377,56 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
         #region 4.0
 
-        if (MaValue < MaValue2)
+        if (bigVol)
         {
-            if (k1 < -0.2f && MaKValue2 < 0)
+            if (MaValue < MaValue2 && MaKValue < 0)
             {
-                if (per2 > -2 && closeValue < minValue)
+                if (k1 < -0.1f)
                 {
-                    isShort = true;
+                    if (per2 > -3)
+                    {
+                        isShort = true;
+                    }
                 }
-            }
 
-            if (per3 > 4 && k1 < -0.4f)
-            {
-                isShort = true;
-            }
-
-        }
-
-        if (MaValue > MaValue2)
-        {
-            if (k1 > 0.2f && MaKValue2 > 0)
-            {
-                if (per2 < 2 && closeValue > maxValue)
-                {
+                if (per3 < -4 && k1 > 0.3f) {
                     isLong = true;
                 }
             }
 
-            if (per3 < -4 && k1 < -0.4f)
+            if (MaValue > MaValue2 && MaKValue > 0)
             {
-                isShort = true;
-            }
+                if (k1 > 0.1f)
+                {
+                    if (per2 < 3)
+                    {
+                        isLong = true;
+                    }
+                }
 
-        }
-
-        if (MathF.Abs(per3) < 2f && MathF.Abs(k3) < 0.036f)
-        {
-            if (highValue > boll_UpValue && closeValue < maxValue && highValue < LastKLine.V_HightPrice)
-            {
-                isShort = true;
-            }
-
-            if (lowValue < boll_LowValue && closeValue > minValue && lowValue > LastKLine.V_LowPrice)
-            {
-                isLong = true;
+                if (per3 > 4 && k1 < -0.3f)
+                {
+                    isLong = true;
+                }
             }
         }
+        else {
+            if (MathF.Abs(per3) < 3f && MathF.Abs(k3) < 0.05f)
+            {
+                if (highValue > boll_UpValue && closeValue < maxValue && highValue < LastKLine.V_HightPrice)
+                {
+                    isShort = true;
+                }
 
-
-
-
+                if (lowValue < boll_LowValue && closeValue > minValue && lowValue > LastKLine.V_LowPrice)
+                {
+                    isLong = true;
+                }
+            }
+        }
 
         if (isOrder)
         {
-            if (!bigVol)
-            {
-                //量能低，不管
-                return 0;
-            }
 
             if (isLong && !isShort)
             {

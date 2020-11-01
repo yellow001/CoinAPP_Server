@@ -82,61 +82,6 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
     /// <returns></returns>
     protected override bool OnShouldCloseOrder(int dir, float percent, bool isTest = false)
     {
-        //if (percent <= lossPercent)
-        //{
-        //    //无条件止损
-        //    return true;
-        //}
-        //else
-        //{
-        //    int result = GetValue(false, dir, isTest);
-
-        //    if (percent >= winPercent)
-        //    {
-        //        return result > 0;
-        //    }
-
-        //    DateTime t = DateTime.UtcNow;
-        //    if (isTest)
-        //    {
-        //        t = V_Cache.V_KLineData[0].V_Timestamp;
-        //    }
-
-        //    if (percent >= winPercent)
-        //    {
-        //        return true;
-        //    }
-
-        //    //指标反向，溜
-        //    if (result > 0 && percent >= winPercent * 0.25f)
-        //    {
-        //        return true;
-        //    }
-
-        //    //if (result > 1 && percent < 0)
-        //    //{
-        //    //    return true;
-        //    //}
-
-        //    //if (F_IsWeekend(t) && result > 0 && percent >= winPercent * 0.2f)
-        //    //{
-        //    //    //周末当他是震荡行情
-        //    //    return true;
-        //    //}
-
-        //    //if (percent < 0 && result > 0) {
-        //    //    return true;
-        //    //}
-
-
-        //    if (percent < 0 && (t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
-        //    {
-        //        //持仓时间有点久了，看机会溜吧
-        //        return result > 0;
-        //    }
-
-        //}
-        //return false;
 
         if (percent <= lossPercent)
         {
@@ -151,30 +96,8 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
             if (percent >= winPercent * V_Length)
             {
-                //if (!isTest)
-                //{
-                //    Debugger.Log(percent + "  " + winPercent + "  " + V_Length);
-                //}
-                //return result > 0;
                 return result > 0 || orderResult == -dir;
             }
-
-            if (percent <= 0)
-            {
-                //if (!isTest)
-                //{
-                //    Debugger.Log(percent + "  " + lossPercent + "  " + V_Length);
-                //}
-
-                //return orderResult == -dir;
-                return orderResult == -dir || result > 0;
-            }
-
-            //if (percent >= winPercent)
-            //{
-            //    V_MaxAlready = true;
-            //    return true;
-            //}
 
         }
         return false;
@@ -271,9 +194,9 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         float per3 = (closeValue - LongMaValue) / LongMaValue * 100;
 
         bool bigVol = false;
-        for (int i = 0; i < 32; i++)
+        for (int i = 0; i < V_CycleList[1]; i++)
         {
-            if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 5f)
+            if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * V_CycleList[0])
             {
                 bigVol = true;
                 break;

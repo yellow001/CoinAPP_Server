@@ -258,6 +258,7 @@ public class TaticsTestRunner
         float temp = 0;
         temp = (p * 0.01f + percent) * removeItem.V_AllVol;
         V_LeaveMoney += temp;
+        temp = p * 0.01f * removeItem.V_AllVol;
         //Console.WriteLine("{0}  :  平仓价格:{1}  盈利：{2}  资金：{3}  百分比：{4}  仓位：{5}", kline.V_Timestamp, kline.V_ClosePrice, temp, V_LeaveMoney, p, percent*100);
         if (percent >= 1)
         {

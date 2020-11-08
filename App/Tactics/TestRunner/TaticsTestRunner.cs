@@ -335,8 +335,8 @@ public class TaticsTestRunner
 
             if (string.IsNullOrEmpty(best_Cycle)) {
                 best_Cycle = cycleList[0];
-                loss = -50;
-                win = 100;
+                loss = -25;
+                win = 60;
                 Console.WriteLine("{0}:无盈利方案，将采用默认值",helper.V_Instrument_id);
                 Debugger.Warn(string.Format("{0}:无盈利方案，将采用默认值", helper.V_Instrument_id));
             }

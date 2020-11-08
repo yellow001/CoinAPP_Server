@@ -90,14 +90,19 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         }
         else
         {
-            int result = GetValue(false, dir, isTest);
-
-            int orderResult = GetValue(true, dir, isTest);
-
-            if (percent >= winPercent * V_Length)
+            if (percent>=winPercent)
             {
-                return result > 0 || orderResult == -dir;
+
             }
+
+            //int result = GetValue(false, dir, isTest);
+
+            //int orderResult = GetValue(true, dir, isTest);
+
+            //if (percent >= winPercent * V_Length)
+            //{
+            //    return result > 0 || orderResult == -dir;
+            //}
 
         }
         return false;
@@ -146,12 +151,18 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             }
         }
 
+        float allVol = 0;
         List<float> volList = new List<float>();
+        List<float> perList = new List<float>();
         for (int i = 0; i < V_Cache.V_KLineData.Count; i++)
         {
-            volList.Add(V_Cache.V_KLineData[i].V_Vol);
+            KLine line = V_Cache.V_KLineData[i];
+            perList.Add((line.V_HightPrice - line.V_LowPrice) / line.V_HightPrice * 100);
+            volList.Add(line.V_Vol);
+            allVol += V_Cache.V_KLineData[i].V_OpenPrice >= V_Cache.V_KLineData[i].V_ClosePrice ? -V_Cache.V_KLineData[i].V_Vol : V_Cache.V_KLineData[i].V_Vol;
         }
         float vol_avg = volList.Average();
+        float per_avg = perList.Average() * 0.5f;
 
 
         float a = F_GetMA(V_CycleList[0]);
@@ -206,150 +217,69 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
         #region 3.0
 
-        ////空头排列
-        //if (MaValue < MaValue2 && MaValue2 < LongMaValue)
-        //{
-        //    //均线向下
-        //    if (MaKValue < 0 && MaKValue2 < 0 && LongMaKValue < 0)
-        //    {
-        //        bool kValueEnough = MathF.Abs(per2) < 1 || (k1 > 0.2f && k3 > 0.02f);
-
-        //        if (closeValue < MaValue && closeValue < LongMaValue && kValueEnough)
-        //        {
-        //            isShort = true;
-        //        }
-        //    }
-        //}
-
-        //if (MaValue > LongMaValue && k3 < -0.02f && k1 < -0.4f)
-        //{
-        //    isShort = true;
-        //}
-
-        //if (MaValue < 0 && LongMaKValue > 0 && MaValue2 > LongMaValue)
-        //{
-        //    if (per3 > 2 && k1 < -0.2f)
-        //    {
-        //        isShort = true;
-        //    }
-        //}
-
-
-        ////多头排列
-        //if (MaValue > MaValue2 && MaValue2 > LongMaValue)
-        //{
-        //    //均线向上
-        //    if (MaKValue > 0 && MaKValue2 > 0 && LongMaKValue > 0)
-        //    {
-        //        bool kValueEnough = MathF.Abs(per2) < 1 || (k1 < -0.2f && k3 < -0.02f);
-        //        if (closeValue > MaValue && closeValue > LongMaValue && kValueEnough)
-        //        {
-        //            isLong = true;
-        //        }
-        //    }
-        //}
-
-        //if (MaValue < LongMaValue && k3 > 0.02f && k1 > 0.4f)
-        //{
-        //    isLong = true;
-        //}
-
-        //if (MaValue > 0 && LongMaKValue < 0 && MaValue2 < LongMaValue)
-        //{
-        //    if (MaValue > 0 && per3 > 2 && k1 > 0.2f)
-        //    {
-        //        isLong = true;
-        //    }
-        //}
-
-        //if (isOrder)
-        //{
-        //    if (!bigVol)
-        //    {
-        //        //量能低，不管
-        //        return 0;
-        //    }
-
-        //    if (isLong && !isShort)
-        //    {
-        //        return 1;
-        //    }
-
-        //    if (isShort && !isLong)
-        //    {
-        //        return -1;
-        //    }
-
-        //}
-        //else
-        //{
-        //    if (orderDir > 0)
-        //    {
-        //        //return isShort ? 1 : 0;
-        //        return (MaKValue < 0 && k1 < -0.1f) ? 1 : 0;
-        //    }
-
-        //    if (orderDir < 0)
-        //    {
-        //        //return isLong ? 1 : 0;
-        //        return (MaKValue > 0 && k1 > 0.1f) ? 1 : 0;
-        //    }
-        //}
-
-        #endregion
-
-        #region 4.0
-
-        if (bigVol)
+        //空头排列
+        if (MaValue < MaValue2 && MaValue2 < LongMaValue)
         {
-            if (MaValue < MaValue2 && MaKValue < 0)
+            //均线向下
+            if (MaKValue < 0 && MaKValue2 < 0 && LongMaKValue < 0)
             {
-                if (k1 < -0.1f)
-                {
-                    if (per2 > -3)
-                    {
-                        isShort = true;
-                    }
-                }
+                bool kValueEnough = MathF.Abs(per2) < 1 || (k1 > 0.2f && k3 > 0.02f);
 
-                if (per3 < -4 && k1 > 0.3f) {
-                    isLong = true;
+                if (closeValue < MaValue && closeValue < LongMaValue && kValueEnough)
+                {
+                    isShort = true;
                 }
             }
+        }
 
-            if (MaValue > MaValue2 && MaKValue > 0)
+        if (MaValue > LongMaValue && k3 < -0.02f && k1 < -0.4f)
+        {
+            isShort = true;
+        }
+
+        if (MaValue < 0 && LongMaKValue > 0 && MaValue2 > LongMaValue)
+        {
+            if (per3 > 2 && k1 < -0.2f)
             {
-                if (k1 > 0.1f)
-                {
-                    if (per2 < 3)
-                    {
-                        isLong = true;
-                    }
-                }
+                isShort = true;
+            }
+        }
 
-                if (per3 > 4 && k1 < -0.3f)
+
+        //多头排列
+        if (MaValue > MaValue2 && MaValue2 > LongMaValue)
+        {
+            //均线向上
+            if (MaKValue > 0 && MaKValue2 > 0 && LongMaKValue > 0)
+            {
+                bool kValueEnough = MathF.Abs(per2) < 1 || (k1 < -0.2f && k3 < -0.02f);
+                if (closeValue > MaValue && closeValue > LongMaValue && kValueEnough)
                 {
                     isLong = true;
                 }
             }
         }
-        else {
-            if (MathF.Abs(per3) < 3f && MathF.Abs(k3) < 0.05f)
-            {
-                if (highValue > boll_UpValue && closeValue < maxValue && highValue < LastKLine.V_HightPrice)
-                {
-                    isShort = true;
-                }
 
-                if (lowValue < boll_LowValue && closeValue > minValue && lowValue > LastKLine.V_LowPrice)
-                {
-                    isLong = true;
-                }
+        if (MaValue < LongMaValue && k3 > 0.02f && k1 > 0.4f)
+        {
+            isLong = true;
+        }
+
+        if (MaValue > 0 && LongMaKValue < 0 && MaValue2 < LongMaValue)
+        {
+            if (MaValue > 0 && per3 > 2 && k1 > 0.2f)
+            {
+                isLong = true;
             }
         }
 
         if (isOrder)
         {
+            if (!bigVol)
+            {
+                //量能低，不管
+                return 0;
+            }
 
             if (isLong && !isShort)
             {
@@ -366,14 +296,14 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         {
             if (orderDir > 0)
             {
-                return isShort ? 1 : 0;
-                //return (MaKValue < 0 && k1 < -0.1f) ? 1 : 0;
+                //return isShort ? 1 : 0;
+                return (MaKValue < 0 && k1 < -0.1f) ? 1 : 0;
             }
 
             if (orderDir < 0)
             {
-                return isLong ? 1 : 0;
-                //return (MaKValue > 0 && k1 > 0.1f) ? 1 : 0;
+                //return isLong ? 1 : 0;
+                return (MaKValue > 0 && k1 > 0.1f) ? 1 : 0;
             }
         }
 

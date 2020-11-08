@@ -27,6 +27,8 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     /// </summary>
     public List<int> V_CycleList = new List<int>() { 5, 10, 20 };
 
+    float maxPercent = 0;
+
     #region 重载
     /// <summary>
     /// 初始化设置 合约;K线时长;采样点;周期(小_中_大);倍数
@@ -74,6 +76,12 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         return GetValue(true, 0, isTest);
     }
 
+    public override void ClearTempData()
+    {
+        base.ClearTempData();
+        maxPercent = 0;
+    }
+
     /// <summary>
     /// 是否要平仓
     /// </summary>
@@ -90,13 +98,26 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         }
         else
         {
-            int result = GetValue(false, dir, isTest);
+            int result = GetValue(false, dir, true);
 
             int orderResult = GetValue(true, dir, true);
 
-            if (percent >= winPercent * V_Length || percent < 0)
+            maxPercent = maxPercent < percent ? percent : maxPercent;
+
+            if (percent >= winPercent * V_Length||percent<0)
             {
                 return result > 0 || orderResult == -dir;
+            }
+
+            if (percent>winPercent)
+            {
+                V_MaxAlready = true;
+            }
+
+            if (percent > 0 && maxPercent - percent > V_Leverage && V_MaxAlready)
+            {
+                //利润回撤 走吧
+                return true;
             }
         }
         return false;
@@ -156,7 +177,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
             volList.Add(line.V_Vol);
         }
         float vol_avg = volList.Average();
-        float per_avg = perList.Average()*0.5f;
+        float per_avg = perList.Average();
 
 
         float a = F_GetMA(V_CycleList[0]);
@@ -177,9 +198,11 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         float k3 = (a - b) / b * 100;
         //Console.WriteLine("2 " + a + "  " + b + "  " + v);
 
-        float MaValue = F_GetEMA(V_CycleList[0]);
+        float MaValue = F_GetMA(V_CycleList[0]);
         float MaValue2 = F_GetMA(V_CycleList[1]);
         float LongMaValue = F_GetMA(V_CycleList[2]);
+
+        float EMaValue = F_GetEMA(V_CycleList[0]);
 
         float boll_MidValue, boll_UpValue, boll_LowValue;
 
@@ -194,12 +217,13 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         bool isLong = false;
         bool isShort = false;
 
-        float per1 = (closeValue - MaValue) / MaValue * 100;
-        float per2 = (closeValue - MaValue2) / MaValue2 * 100;
-        float per3 = (closeValue - LongMaValue) / LongMaValue * 100;
+        float per1 = (closeValue - MaValue) / closeValue * 100;
+        float per2 = (closeValue - MaValue2) / closeValue * 100;
+        float per3 = (closeValue - LongMaValue) / closeValue * 100;
 
+        float allVol = 0;
         bool bigVol = true;
-        for (int i = 0; i < V_CycleList[0]; i++)
+        for (int i = 0; i < V_CycleList[1]; i++)
         {
             if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 5)
             {
@@ -207,73 +231,79 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
                 break;
             }
         }
+
+        for (int i = 0; i < V_CycleList[1]; i++)
+        {
+            allVol += V_Cache.V_KLineData[i].V_OpenPrice >= V_Cache.V_KLineData[i].V_ClosePrice ? -V_Cache.V_KLineData[i].V_Vol : V_Cache.V_KLineData[i].V_Vol;
+        }
+
         #region 4.0
 
-        if (midValue < MaValue && per3 < -per_avg * V_CycleList[0] && per3 > -per_avg * V_CycleList[1])
+        if (MaValue > MaValue2 && MaValue2 > LongMaValue)
+        {
+
+            if (MaKValue > 0 && highValue > EMaValue)
+            {
+                if (per3 <= 2 && bigVol)
+                {
+                    isLong = true;
+                }
+            }
+        }
+
+        if (per3 >= 5 && closeValue < EMaValue && bigVol)
         {
             isShort = true;
         }
 
-        if (bigVol)
+
+        if (MaValue < MaValue2 && MaValue2 < LongMaValue)
         {
-            if (MaKValue > 0 && midValue < LongMaValue && per3 < -per_avg * V_CycleList[1])
+
+            if (MaKValue < 0 && lowValue < EMaValue && bigVol)
             {
-                isLong = true;
+                if (per3 >= -2)
+                {
+                    isShort = true;
+                }
             }
         }
 
-
-        if (midValue > MaValue && per3 > per_avg * V_CycleList[0] && per3 < per_avg * V_CycleList[1])
+        if (per3 <= -5 && closeValue > EMaValue && bigVol)
         {
             isLong = true;
         }
 
-
-        if (bigVol)
-        {
-            if (MaKValue < 0 && midValue > LongMaValue && per3 > per_avg * V_CycleList[1])
-            {
-                isShort = true;
-            }
-        }
-        
-
         if (isOrder)
         {
-
-            if (isLong && !isShort)
-            {
-                return 1;
-            }
-
-            if (isShort && !isLong)
+            if (isShort)
             {
                 return -1;
             }
 
+            if (isLong)
+            {
+                return 1;
+            }
         }
         else
         {
-            if (orderDir > 0)
-            {
-                //return 1;
-                //return MaKValue < 0 ? 1 :0;
-                return isShort ? 1 : 0;
-                //return (MaKValue < 0 && k1 < -0.1f) ? 1 : 0;
 
-                //return MaKValue < 0 && (Math.Abs(per3) < per_avg * V_CycleList[0] || per3 > per_avg * V_CycleList[1]) ? 1 : 0;
+            if (orderDir>0)
+            {
+                return closeValue < EMaValue||isShort ? 1 : 0;
             }
 
             if (orderDir < 0)
             {
-                //return 1;
-                //return MaKValue > 0 ? 1:0;
-                return isLong ? 1 : 0;
-                //return (MaKValue > 0 && k1 > 0.1f) ? 1 : 0;
-
-                //return MaKValue > 0 && (Math.Abs(per3) < per_avg * V_CycleList[0] || per3 < -per_avg * V_CycleList[1]) ? 1 : 0;
+                return closeValue > EMaValue||isLong ? 1 : 0;
             }
+
+
         }
+
+
+        
 
         #endregion
 

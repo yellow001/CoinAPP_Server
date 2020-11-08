@@ -104,17 +104,17 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
 
             maxPercent = maxPercent < percent ? percent : maxPercent;
 
-            if (percent >= winPercent * V_Length||percent<0)
+            if (percent >= winPercent * V_Length || percent < 0)
             {
                 return result > 0 || orderResult == -dir;
             }
 
-            if (percent>winPercent)
+            if (percent > winPercent)
             {
                 V_MaxAlready = true;
             }
 
-            if (percent > 0 && maxPercent - percent > V_Leverage && V_MaxAlready)
+            if (percent > 0 && maxPercent - percent >= V_Leverage && V_MaxAlready)
             {
                 //利润回撤 走吧
                 return true;
@@ -225,7 +225,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         bool bigVol = true;
         for (int i = 0; i < V_CycleList[1]; i++)
         {
-            if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 5)
+            if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 3)
             {
                 bigVol = true;
                 break;
@@ -289,21 +289,29 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         else
         {
 
-            if (orderDir>0)
+            if (orderDir > 0)
             {
-                return closeValue < EMaValue||isShort ? 1 : 0;
+                if (per3 > 5 && isGreenKLine && vol > vol_avg * 10)
+                {
+                    return 1;
+                }
+
+
+                return isShort ? 1 : 0;
             }
 
             if (orderDir < 0)
             {
-                return closeValue > EMaValue||isLong ? 1 : 0;
+
+                if (per3 < -5 && !isGreenKLine && vol > vol_avg * 10)
+                {
+                    return 1;
+                }
+
+                return isLong ? 1 : 0;
             }
 
-
         }
-
-
-        
 
         #endregion
 

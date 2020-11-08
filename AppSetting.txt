@@ -7,24 +7,24 @@ pos:50_0_30;15_0_-25;15_0_20;40_0_-5;28_0_95;36_0_18;41_0_6;-4_0_-26;-4_0_-26;41
 
 
 //止盈冷却
-CoolDown_BTC:10
-CoolDown_ETH:10
-CoolDown_LTC:10
-CoolDown_EOS:10
-CoolDown_BCH:10
-CoolDown_XRP:10
-CoolDown_ETC:10
-CoolDown_BSV:10
+CoolDown_BTC:8
+CoolDown_ETH:8
+CoolDown_LTC:8
+CoolDown_EOS:8
+CoolDown_BCH:8
+CoolDown_XRP:8
+CoolDown_ETC:8
+CoolDown_BSV:8
 
 //止损冷却
-LossCoolDown_BTC:20
-LossCoolDown_ETH:20
-LossCoolDown_LTC:20
-LossCoolDown_EOS:20
-LossCoolDown_BCH:20
-LossCoolDown_XRP:20
-LossCoolDown_ETC:20
-LossCoolDown_BSV:20
+LossCoolDown_BTC:16
+LossCoolDown_ETH:16
+LossCoolDown_LTC:16
+LossCoolDown_EOS:16
+LossCoolDown_BCH:16
+LossCoolDown_XRP:16
+LossCoolDown_ETC:16
+LossCoolDown_BSV:16
 
 //刷新设置时间（单位为K线时长*配置）
 RefreshSettingTime:42

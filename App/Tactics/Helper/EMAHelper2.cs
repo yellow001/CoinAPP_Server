@@ -113,12 +113,6 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
             {
                 V_MaxAlready = true;
             }
-
-            if (percent > 0 && maxPercent - percent >= V_Leverage && V_MaxAlready)
-            {
-                //利润回撤 走吧
-                return true;
-            }
         }
         return false;
     }
@@ -239,7 +233,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
 
         #region 4.0
 
-        if (MaValue > MaValue2 && MaValue2 > LongMaValue)
+        if ((MaValue > MaValue2 && MaValue2 > LongMaValue) || (closeValue > MaValue2))
         {
 
             if (MaKValue > 0 && highValue > EMaValue)
@@ -257,7 +251,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         }
 
 
-        if (MaValue < MaValue2 && MaValue2 < LongMaValue)
+        if ((MaValue < MaValue2 && MaValue2 < LongMaValue)|| (closeValue < MaValue2))
         {
 
             if (MaKValue < 0 && lowValue < EMaValue && bigVol)

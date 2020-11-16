@@ -73,7 +73,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     /// </returns>
     public override int MakeOrder(bool isTest = false)
     {
-        return GetValue(true, 0, isTest);
+        return GetValue(true, 0, true);
     }
 
     public override void ClearTempData()
@@ -98,9 +98,9 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         }
         else
         {
-            int result = GetValue(false, dir, true);
+            int result = GetValue(false, dir, isTest);
 
-            int orderResult = GetValue(true, dir, true);
+            int orderResult = GetValue(true, dir, isTest);
 
             maxPercent = maxPercent < percent ? percent : maxPercent;
 

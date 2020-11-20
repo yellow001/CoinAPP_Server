@@ -104,10 +104,17 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
 
             maxPercent = maxPercent < percent ? percent : maxPercent;
 
-            if (percent >= winPercent * V_Length || percent < 0)
+            if (percent>=winPercent)
             {
                 return result > 0 || orderResult == -dir;
             }
+
+
+            if (V_MaxAlready&&(percent >= winPercent * V_Length || percent < 0))
+            {
+                return result > 0 || orderResult == -dir;
+            }
+
 
             if (percent > winPercent)
             {
@@ -217,12 +224,16 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
 
         float allVol = 0;
         bool bigVol = true;
-        for (int i = 0; i < V_CycleList[1]; i++)
+        bool bigBigVol = false;
+        for (int i = 0; i < V_CycleList[0]; i++)
         {
-            if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 3)
+            if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 2)
             {
                 bigVol = true;
-                break;
+            }
+            if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 8)
+            {
+                bigBigVol = true;
             }
         }
 
@@ -250,6 +261,11 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
             isShort = true;
         }
 
+        if (per3 >= 6 && bigBigVol)
+        {
+            isShort = true;
+        }
+
 
         if ((MaValue < MaValue2 && MaValue2 < LongMaValue)|| (closeValue < MaValue2))
         {
@@ -264,6 +280,11 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         }
 
         if (per3 <= -5 && closeValue > EMaValue && bigVol)
+        {
+            isLong = true;
+        }
+
+        if (per3 <= -6 && bigBigVol)
         {
             isLong = true;
         }

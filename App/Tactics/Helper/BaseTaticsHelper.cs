@@ -88,6 +88,7 @@ public class BaseTaticsHelper
 
     public long V_LastKLineTime = 0;
 
+    public float V_LongShortRatio = 1;
 
     public BaseTaticsHelper() {
         //cooldown *= (long)V_Min*60 * Util.Second_Ticks;
@@ -312,5 +313,27 @@ public class BaseTaticsHelper
 
     public virtual void ClearRunData() { 
         
+    }
+
+    public async Task GetLongShortRatio(DateTime time) {
+        V_LongShortRatio = await OnGetLongShortRatio(time);
+    }
+
+    /// <summary>
+    /// 获取多空比(只有btc的有参考性)
+    /// </summary>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    public async Task<float> OnGetLongShortRatio(DateTime time) {
+        InformationApi api = CommonData.Ins.V_InformationApi;
+        JContainer con = await api.getLongShortRatioAsync(CoinType.ToLower(), time.AddMinutes(-V_Min), time, V_Min * 60);
+        JToken temp = con.First;
+        while (temp != null)
+        {
+            List<string> content = temp.ToObject<List<string>>();
+            
+            temp = temp.Next;
+        }
+        return await CommonData.Ins.V_InformationApi.F_GetLongShortRatio("btc", time, V_Min);
     }
 }

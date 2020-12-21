@@ -73,7 +73,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     /// </returns>
     public override int MakeOrder(bool isTest = false)
     {
-        return GetValue(true, 0, true);
+        return GetValue(true, 0,0, isTest);
     }
 
     public override void ClearTempData()
@@ -98,9 +98,9 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         }
         else
         {
-            int result = GetValue(false, dir, isTest);
+            int result = GetValue(false, dir,percent, isTest);
 
-            int orderResult = GetValue(true, dir, isTest);
+            int orderResult = GetValue(true, dir,percent, isTest);
 
             maxPercent = maxPercent < percent ? percent : maxPercent;
 
@@ -110,7 +110,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
             }
 
 
-            if (V_MaxAlready&&(percent >= winPercent * V_Length || percent < 0))
+            if (V_MaxAlready)
             {
                 return result > 0 || orderResult == -dir;
             }
@@ -120,6 +120,12 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
             {
                 V_MaxAlready = true;
             }
+
+            if (percent < lossPercent * V_Length)
+            {
+                return result > 0;
+            }
+
         }
         return false;
     }
@@ -132,7 +138,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     /// </summary>
     /// <param name="dir">大于0为多，其他均为空</param>
     /// <returns></returns>
-    int GetValue(bool isOrder, int orderDir, bool isTest = false)
+    int GetValue(bool isOrder, int orderDir,float percent, bool isTest = false)
     {
         if (!isTest)
         {
@@ -223,7 +229,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
         float per3 = (closeValue - LongMaValue) / closeValue * 100;
 
         float allVol = 0;
-        bool bigVol = true;
+        bool bigVol = false;
         bool bigBigVol = false;
         for (int i = 0; i < V_CycleList[0]; i++)
         {
@@ -231,7 +237,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
             {
                 bigVol = true;
             }
-            if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 8)
+            if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 6)
             {
                 bigBigVol = true;
             }
@@ -244,59 +250,50 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
 
         #region 4.0
 
-        if ((MaValue > MaValue2 && MaValue2 > LongMaValue) || (closeValue > MaValue2))
+        if ((MaValue > MaValue2 && MaValue2 > LongMaValue))
         {
 
             if (MaKValue > 0 && highValue > EMaValue)
             {
-                if (per3 <= 2 && bigVol)
+                if ((per3 <= 2 || V_LongShortRatio < 0.8f))
                 {
                     isLong = true;
                 }
             }
         }
 
-        if (per3 >= 5 && closeValue < EMaValue && bigVol)
-        {
-            isShort = true;
-        }
-
-        if (per3 >= 6 && bigBigVol)
+        if (per3 >= 5 && bigBigVol && V_LongShortRatio > 1.2f)
         {
             isShort = true;
         }
 
 
-        if ((MaValue < MaValue2 && MaValue2 < LongMaValue)|| (closeValue < MaValue2))
+        if ((MaValue < MaValue2 && MaValue2 < LongMaValue))
         {
 
-            if (MaKValue < 0 && lowValue < EMaValue && bigVol)
+            if (MaKValue < 0 && lowValue < EMaValue)
             {
-                if (per3 >= -2)
+                if ((per3 >= -2||V_LongShortRatio >1.2f))
                 {
                     isShort = true;
                 }
             }
         }
 
-        if (per3 <= -5 && closeValue > EMaValue && bigVol)
-        {
-            isLong = true;
-        }
-
-        if (per3 <= -6 && bigBigVol)
+        if (per3 <= -5 && bigBigVol && V_LongShortRatio < 0.8f)
         {
             isLong = true;
         }
 
         if (isOrder)
         {
-            if (isShort)
+
+            if (isShort&&V_LongShortRatio>0.8f)
             {
                 return -1;
             }
 
-            if (isLong)
+            if (isLong && V_LongShortRatio < 1.2f)
             {
                 return 1;
             }
@@ -306,7 +303,21 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
 
             if (orderDir > 0)
             {
-                if (per3 > 5 && isGreenKLine && vol > vol_avg * 10)
+                if (percent < 0 && percent > lossPercent)
+                {
+                    if (per3 > 0 || !bigVol)
+                    {
+                        return 0;
+                    }
+                }
+
+
+                if (per3 > 6 && isGreenKLine && bigBigVol)
+                {
+                    return 1;
+                }
+
+                if (per3 <0 && per1<0)
                 {
                     return 1;
                 }
@@ -318,14 +329,26 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
             if (orderDir < 0)
             {
 
-                if (per3 < -5 && !isGreenKLine && vol > vol_avg * 10)
+                if (percent < 0 && percent > lossPercent)
+                {
+                    if (per3 < 0 || !bigVol)
+                    {
+                        return 0;
+                    }
+                }
+
+                if (per3 < -6 && !isGreenKLine && bigBigVol)
+                {
+                    return 1;
+                }
+
+                if (per3 > 0 && per1 > 0)
                 {
                     return 1;
                 }
 
                 return isLong ? 1 : 0;
             }
-
         }
 
         #endregion

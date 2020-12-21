@@ -57,10 +57,10 @@ EMA_EOS:EOS-USD-SWAP;30;0.42;9
 EMA_BCH:BCH-USD-SWAP;30;0.42;9
 EMA_LTC:LTC-USD-SWAP;30;0.42;9
 
-EMA_ETC:ETC-USD-SWAP;30;0.36;8
-EMA_XRP:XRP-USD-SWAP;30;0.36;8
+EMA_ETC:ETC-USD-SWAP;30;0.36;9
+EMA_XRP:XRP-USD-SWAP;30;0.36;9
 
-EMA_BSV:BSV-USD-SWAP;30;0.36;8
+EMA_BSV:BSV-USD-SWAP;30;0.36;9
 
 //菲阿里四价	合约名;合并K线;K线时长(min);倍数
 FOUR_BTC:BTC-USD-SWAP;4;60;35
@@ -113,17 +113,17 @@ Mesh_BSV:BSV-USD-SWAP;60;1;20
 
 Port:8888
 
-//OrderValue:0.48
-OrderValue:0.5
+OrderValue:0.45
+//OrderValue:0.5
 
 ConnectKey:yellowzhong
 
 1-MA 2-MA2 3-EMA 4-EMA2 5-EMA3 6-FourPrice 7-Turtle 8-SimpleMA 9-Mesh
 RunHelper:4
 
-StopValue:-15_-25_50_80
+StopValue:-15_-25_40_80
 //StopValue:-5_-6_30_31
 
 //启动币种
-Run:BTC;ETH;LTC
+Run:BTC
 //Run:BTC

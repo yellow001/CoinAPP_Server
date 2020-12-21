@@ -152,6 +152,10 @@ namespace CoinAPP_Server.App
             //Dictionary<int, int> winDic = new Dictionary<int, int>();
 
             //Dictionary<int, Dictionary<int, float>> all_ResultDic = new Dictionary<int, Dictionary<int, float>>();
+
+            float t = await CommonData.Ins.V_InformationApi.F_GetLongShortRatio("BTC", DateTime.Now, 5);
+
+
             int runHelper = AppSetting.Ins.GetInt("RunHelper");
             string[] coins = AppSetting.Ins.GetValue("Run").Split(';');
             Console.WriteLine(AppSetting.Ins.GetValue("Run"));

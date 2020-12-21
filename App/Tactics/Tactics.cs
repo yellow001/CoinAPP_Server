@@ -214,7 +214,7 @@ public class Tactics
 
     public async Task Handle()
     {
-        if (V_TacticsState == EM_TacticsState.Pause) { return; }
+        //if (V_TacticsState == EM_TacticsState.Pause) { return; }
 
         if (error) {
             error = false;
@@ -274,6 +274,9 @@ public class Tactics
             await m_TaticsHelper.F_HandleOrder(V_AccountInfo);
         }
         else {
+
+            await m_TaticsHelper.GetLongShortRatio(m_TaticsHelper.V_Cache.V_KLineData[0].V_Timestamp);
+
             bool hasLong = false, hasShort = false;
             float longPercent = 0, shortPrecent = 0;
             if (V_AccountInfo.V_Positions != null && V_AccountInfo.V_Positions.Count > 0)
@@ -325,6 +328,11 @@ public class Tactics
                 }
             }
 
+
+            if (V_TacticsState == EM_TacticsState.Pause)
+            {
+                return;
+            }
 
             bool makeOrder = false;
 
@@ -409,7 +417,7 @@ public class Tactics
         if (V_AccountInfo.V_Positions == null || V_AccountInfo.V_Positions.Count == 0)
         {
             //什么单都没有   可以开
-            tempVol = V_AccountInfo.GetAvailMoney() * 0.2f;
+            tempVol = V_AccountInfo.GetAvailMoney() * orderPercent;
             await V_AccountInfo.MakeOrder(V_TacticsState==EM_TacticsState.Short?-1:1, tempVol);
             return;
         }

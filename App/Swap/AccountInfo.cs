@@ -161,10 +161,14 @@ public class AccountInfo
             //获取张数(BTC 1张=100USD EOS 1张=10USD)
             int v = GetOrderVol(vol * percent);
             SwapApi api = CommonData.Ins.V_SwapApi;
-            await api.makeOrderAsync(V_Instrument_id, dir > 0 ? "1" : "2", (decimal)V_CurPrice, v, "", 0, "1");
-            Console.WriteLine("{0}  {1}:  开仓:{2} 价格:{3} 张数:{4}",DateTime.Now,V_Instrument_id,dir > 0 ? "多" : "空", V_CurPrice,v);
 
-            Debugger.Warn(string.Format("{0}  {1}:  开仓:{2} 价格:{3} 张数:{4}", DateTime.Now, V_Instrument_id, dir > 0 ? "多" : "空", V_CurPrice, v));
+            double price = V_CurPrice * (dir > 0 ? 1.05f : 0.95f);
+
+            await api.makeOrderAsync(V_Instrument_id, dir > 0 ? "1" : "2", (decimal)price, v, "", 0, "1");
+            Console.WriteLine("{0}  {1}:  开仓:{2} 价格:{3} 张数:{4}",DateTime.Now,V_Instrument_id,dir > 0 ? "多" : "空", price, v);
+
+            Debugger.Warn(string.Format("可用 {0} 量 {1}", GetAvailMoney(), vol));
+            Debugger.Warn(string.Format("{0}  {1}:  开仓:{2} 价格:{3} 张数:{4}", DateTime.Now, V_Instrument_id, dir > 0 ? "多" : "空", price, v));
             return true;
         }
     }

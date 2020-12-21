@@ -10,6 +10,8 @@ public class CommonData
 
     public SwapApi V_SwapApi;
 
+    public InformationApi V_InformationApi;
+
 
     static CommonData ins;
 
@@ -24,6 +26,8 @@ public class CommonData
                 ins.V_ApiKey = new AccountAPIKey(keys);
 
                 ins.V_SwapApi = new SwapApi(ins.V_ApiKey);
+
+                ins.V_InformationApi = new InformationApi(ins.V_ApiKey);
             }
             return ins;
         }

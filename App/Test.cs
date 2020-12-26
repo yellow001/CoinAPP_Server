@@ -153,7 +153,7 @@ namespace CoinAPP_Server.App
 
             //Dictionary<int, Dictionary<int, float>> all_ResultDic = new Dictionary<int, Dictionary<int, float>>();
 
-            float t = await CommonData.Ins.V_InformationApi.F_GetLongShortRatio("BTC", DateTime.Now, 5);
+            //float t = await CommonData.Ins.V_InformationApi.F_GetLongShortRatio("BTC", DateTime.Now, 5);
 
 
             int runHelper = AppSetting.Ins.GetInt("RunHelper");
@@ -186,14 +186,14 @@ namespace CoinAPP_Server.App
                 else if(runHelper == 4)
                 {
                     EMATaticsHelper2 m_helper = new EMATaticsHelper2();
-                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA2_{0}", item)));
 
                     await m_helper.RunHistory();
                 }
                 else if (runHelper == 5)
                 {
                     EMAHelper3 m_helper = new EMAHelper3();
-                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+                    m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA3_{0}", item)));
 
                     await m_helper.RunHistory();
                 }

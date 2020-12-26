@@ -1,6 +1,7 @@
 ﻿using NetFrame.Tool;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,17 +10,14 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
     /// <summary>
     /// 采样点
     /// </summary>
-    public int V_Length = 5;
+    public float V_Length = 0.5f;
 
     /// <summary>
     /// 周期
     /// </summary>
     public List<int> V_CycleList = new List<int>() { 5, 10, 20 };
 
-    /// <summary>
-    /// 最近K线缓存
-    /// </summary>
-    public List<KLine> kLineCache = new List<KLine>();
+    float maxPercent = 0;
 
     #region 重载
     /// <summary>
@@ -35,7 +33,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         {
             V_Instrument_id = strs[0];
             V_Min = int.Parse(strs[1]);
-            V_Length = int.Parse(strs[2]);
+            V_Length = float.Parse(strs[2]);
             V_Leverage = float.Parse(strs[3]);
         }
         base.Init(setting);
@@ -65,7 +63,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
     /// </returns>
     public override int MakeOrder(bool isTest = false)
     {
-        return GetValue(true, 0);
+        return GetValue(true, 0, isTest);
     }
 
     /// <summary>
@@ -84,37 +82,35 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         }
         else
         {
-
-            int sign = GetValue(false, dir);
-
             if (percent >= winPercent)
             {
-                V_MaxAlready = true;
-                return sign > 0;
-            }
+                int result = GetValue(false, dir, isTest);
 
-            if (percent < lossPercent * 0.5f && sign > 0)
-            {
-                //指标反向+亏损，溜吧
-                return true;
-            }
+                int orderResult = GetValue(true, dir, isTest);
 
-            if (V_MaxAlready && sign > 0)
-            {
-                //如果曾经到达过最高而指标反向，止盈一下吧
-                return true;
-            }
+                maxPercent = maxPercent < percent ? percent : maxPercent;
 
-            DateTime t = DateTime.UtcNow;
+                if (percent >= winPercent)
+                {
+                    return result > 0 || orderResult == -dir;
+                }
 
-            if (isTest)
-            {
-                t = V_Cache.V_KLineData[0].V_Timestamp;
-            }
-            if (percent < 0 && (t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
-            {
-                //持仓时间有点久了，看机会溜吧
-                return sign > 0;
+
+                if (V_MaxAlready)
+                {
+                    return result > 0 || orderResult == -dir;
+                }
+
+
+                if (percent > winPercent)
+                {
+                    V_MaxAlready = true;
+                }
+
+                if (percent < lossPercent * V_Length)
+                {
+                    return result > 0;
+                }
             }
 
         }
@@ -130,7 +126,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
     /// </summary>
     /// <param name="index">下标</param>
     /// <returns></returns>
-    float GetEMAValue(int length, int index = 0)
+    float F_GetEMA(int length, int index = 0)
     {
         if (V_Cache == null)
         {
@@ -145,40 +141,9 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         return EMA.GetEMA(length, V_Cache.V_KLineData.GetRange(index, length));
     }
 
-    /// <summary>
-    /// 获取倍数值的 EMA 值
-    /// </summary>
-    /// <param name="length"></param>
-    /// <param name="per">倍数</param>
-    /// <param name="index"></param>
-    /// <returns></returns>
-    float GetEMAValue(int length,int per, int index = 0)
+    float F_GetMA(int length, int index = 0)
     {
-        if (V_Cache == null)
-        {
-            return 0;
-        }
-
-        if (V_Cache.V_KLineData.Count < (length  + index)* per)
-        {
-            return 0;
-        }
-
-        return EMA.GetEMA(length * per, V_Cache.V_KLineData.GetRange(index * per, length * per));
-    }
-
-    float GetEMA_KValue(int value)
-    {
-        if (GetEMAValue(value, 0) > GetEMAValue(value, 1) && GetEMAValue(value, 1) > GetEMAValue(value, 2))
-        {
-            return 1;
-        }
-        else if (GetEMAValue(value, 0) < GetEMAValue(value, 1) && GetEMAValue(value, 1) < GetEMAValue(value, 2))
-        {
-            return -1;
-        }
-
-        return 0;
+        return MA.GetMA(length, V_Cache.V_KLineData.GetRange(index, length));
     }
 
     /// <summary>
@@ -186,58 +151,161 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
     /// </summary>
     /// <param name="dir">大于0为多，其他均为空</param>
     /// <returns></returns>
-    int GetValue(bool isOrder, int orderDir)
+    int GetValue(bool isOrder, int orderDir, bool isTest = false)
     {
-        #region 点 计算
-
-        Dictionary<int, float> pDic1 = new Dictionary<int, float>();
-        Dictionary<int, float> pDic2 = new Dictionary<int,float>();
-        Dictionary<int, float> pDic3 = new Dictionary<int, float>();
-
-        for (int i = 0; i < V_CycleList.Count; i++)
+        if (!isTest)
         {
-            float p1 = GetEMAValue(V_CycleList[i], i);
-            float p2 = GetEMAValue(V_CycleList[i],3, i);
-            float p3 = GetEMAValue(V_CycleList[i],12, i);
-
-            pDic1[V_CycleList[i]] = p1;
-            pDic2[V_CycleList[i]] = p2;
-            pDic3[V_CycleList[i]] = p3;
+            if (!F_CanHanleOrder())
+            {
+                return 0;
+            }
         }
-        #endregion
+
+        bool isGreenKLine = V_Cache.V_KLineData[0].V_ClosePrice > V_Cache.V_KLineData[0].V_OpenPrice;
+
+        float closeValue = V_Cache.V_KLineData[0].V_ClosePrice;
+        float openValue = V_Cache.V_KLineData[0].V_OpenPrice;
+        float highValue = V_Cache.V_KLineData[0].V_HightPrice;
+        float lowValue = V_Cache.V_KLineData[0].V_LowPrice;
+
+        float midValue = (highValue + lowValue) * 0.5f;
+
+        KLine LastKLine = V_Cache.V_KLineData[1];
+
+        float minValue = V_Cache.V_KLineData[V_CycleList[0]].V_HightPrice;
+        float maxValue = V_Cache.V_KLineData[V_CycleList[0]].V_LowPrice;
+
+        for (int i = V_CycleList[0]; i < V_CycleList[2]; i++)
+        {
+            if (minValue > V_Cache.V_KLineData[i].V_HightPrice)
+            {
+                minValue = V_Cache.V_KLineData[i].V_HightPrice;
+            }
+
+            if (maxValue < V_Cache.V_KLineData[i].V_LowPrice)
+            {
+                maxValue = V_Cache.V_KLineData[i].V_LowPrice;
+            }
+        }
+
+        List<float> volList = new List<float>();
+        List<float> perList = new List<float>();
+        for (int i = 0; i < V_Cache.V_KLineData.Count; i++)
+        {
+            KLine line = V_Cache.V_KLineData[i];
+            perList.Add((line.V_HightPrice - line.V_LowPrice) / line.V_HightPrice * 100);
+            volList.Add(line.V_Vol);
+        }
+        float vol_avg = volList.Average();
+        float per_avg = perList.Average();
+
+
+        float a = F_GetMA(V_CycleList[0]);
+        float b = F_GetMA(V_CycleList[0], 1);
+
+        float k1 = (a - b) / b * 100;
+        //Console.WriteLine("0 "+a+"  "+b+"  "+v);
+
+        a = F_GetMA(V_CycleList[1]);
+        b = F_GetMA(V_CycleList[1], 1);
+
+        float k2 = (a - b) / b * 100;
+        //Console.WriteLine("1 " + a + "  " + b + "  " + v);
+
+        a = F_GetMA(V_CycleList[2]);
+        b = F_GetMA(V_CycleList[2], 1);
+
+        float k3 = (a - b) / b * 100;
+        //Console.WriteLine("2 " + a + "  " + b + "  " + v);
+
+        float MaValue = F_GetMA(V_CycleList[0]);
+        float MaValue2 = F_GetMA(V_CycleList[1]);
+        float LongMaValue = F_GetMA(V_CycleList[2]);
+
+        float EMaValue = F_GetEMA(V_CycleList[0]);
+        float EMaValue2 = F_GetEMA(V_CycleList[1]);
+        float LongEMaValue = F_GetEMA(V_CycleList[2]);
+
+        float EMaKValue = EMaValue-F_GetEMA(V_CycleList[0],2);
+
+        float boll_MidValue, boll_UpValue, boll_LowValue;
+
+        boll_MidValue = Boll.GetBoll(V_CycleList[1], V_Cache.V_KLineData, out boll_UpValue, out boll_LowValue);
+
+        float MaKValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[V_CycleList[0]].V_ClosePrice;
+        float MaKValue2 = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[V_CycleList[1]].V_ClosePrice;
+        float LongMaKValue = V_Cache.V_KLineData[0].V_ClosePrice - V_Cache.V_KLineData[V_CycleList[2]].V_ClosePrice;
+
+        float vol = V_Cache.V_KLineData[0].V_Vol;
+
+        bool isLong = false;
+        bool isShort = false;
+
+        float per1 = (closeValue - MaValue) / closeValue * 100;
+        float per2 = (closeValue - MaValue2) / closeValue * 100;
+        float per3 = (closeValue - LongMaValue) / closeValue * 100;
+
+        float allVol = 0;
+        bool bigVol = false;
+        bool bigBigVol = false;
+        for (int i = 0; i < V_CycleList[0]; i++)
+        {
+            if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 2)
+            {
+                bigVol = true;
+            }
+            if (V_Cache.V_KLineData[i].V_Vol >= vol_avg * 6)
+            {
+                bigBigVol = true;
+            }
+        }
+
+        for (int i = 0; i < V_CycleList[1]; i++)
+        {
+            allVol += V_Cache.V_KLineData[i].V_OpenPrice >= V_Cache.V_KLineData[i].V_ClosePrice ? -V_Cache.V_KLineData[i].V_Vol : V_Cache.V_KLineData[i].V_Vol;
+        }
+
+        #region 4.0
+
+        if (EMaKValue > 0 && ((per2 > 0 && per2 < 3) || per2 < -8))
+        {
+            isLong = true;
+        }
+
+        if (EMaKValue < 0 && ((per2 < 0 && per2 > -3) || per2 > 8))
+        {
+            isShort = true;
+        }
 
         if (isOrder)
         {
-            //多头排列三连或空头排列三连才开单
-            if (pDic1[V_CycleList[0]] >= pDic1[V_CycleList[1]] && pDic1[V_CycleList[1]] >= pDic1[V_CycleList[2]]
-                && pDic2[V_CycleList[0]] >= pDic2[V_CycleList[1]] && pDic2[V_CycleList[1]] >= pDic2[V_CycleList[2]]
-                && pDic3[V_CycleList[0]] >= pDic3[V_CycleList[1]] && pDic3[V_CycleList[1]] >= pDic3[V_CycleList[2]]) {
-                return 1;
-            }
 
-            if (pDic1[V_CycleList[0]] <= pDic1[V_CycleList[1]] && pDic1[V_CycleList[1]] <= pDic1[V_CycleList[2]]
-                && pDic2[V_CycleList[0]] <= pDic2[V_CycleList[1]] && pDic2[V_CycleList[1]] <= pDic2[V_CycleList[2]]
-                && pDic3[V_CycleList[0]] <= pDic3[V_CycleList[1]] && pDic3[V_CycleList[1]] <= pDic3[V_CycleList[2]])
+            if (isShort && V_LongShortRatio > 0.8f)
             {
                 return -1;
+            }
+
+            if (isLong && V_LongShortRatio < 1.2)
+            {
+                return 1;
             }
         }
         else
         {
-            //返回>0就是要平仓
-            if (orderDir < 0)
-            {
-                if (pDic1[V_CycleList[0]] >= pDic1[V_CycleList[1]] && pDic1[V_CycleList[1]] >= pDic1[V_CycleList[2]]){
-                    return 1;
-                }
-            }
+
             if (orderDir > 0)
             {
-                if (pDic1[V_CycleList[0]] <= pDic1[V_CycleList[1]] && pDic1[V_CycleList[1]] <= pDic1[V_CycleList[2]]){
-                    return 1;
-                }
+                return isLong ? 0 : 1;
+            }
+
+            if (orderDir < 0)
+            {
+                return isShort ? 0 : 1;
             }
         }
+
+        #endregion
+
 
 
         return 0;
@@ -253,5 +321,6 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
             V_CycleList[2] = int.Parse(cycles[2]);
         }
     }
+
     #endregion
 }

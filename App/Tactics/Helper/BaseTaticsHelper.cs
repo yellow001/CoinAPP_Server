@@ -104,7 +104,8 @@ public class BaseTaticsHelper
         Debugger.Warn("合约 " + V_Instrument_id);
 
         CoinType = V_Instrument_id.Split('-')[0];
-        cooldown = 0;
+
+        cooldown = AppSetting.Ins.GetInt("CoolDown_" + CoinType);
 
     }
 
@@ -178,7 +179,10 @@ public class BaseTaticsHelper
                 lossCooldown = 0;
             }
             else {
-                if (!lastResult) { lossCooldown = AppSetting.Ins.GetFloat("LossCoolDown_"+CoinType); }
+                if (!lastResult)
+                {
+                    lossCooldown = AppSetting.Ins.GetFloat("LossCoolDown_" + CoinType);
+                }
             }
             V_LastOpTime = line.V_Timestamp;
             V_MaxAlready = false;
@@ -205,7 +209,10 @@ public class BaseTaticsHelper
             }
             else
             {
-                if (!lastResult) { lossCooldown = AppSetting.Ins.GetFloat("LossCoolDown_"+CoinType); }
+                if (!lastResult)
+                {
+                    lossCooldown = AppSetting.Ins.GetFloat("LossCoolDown_" + CoinType);
+                }
             }
             V_LastOpTime = DateTime.UtcNow;
             V_MaxAlready = false;
@@ -231,7 +238,18 @@ public class BaseTaticsHelper
 
         int v = (int)((V_Min / 60f) * 100f);
 
-        if ((v - hourValue % v) >= 3 || V_Cache.V_KLineData[0].V_Timestamp.Ticks == V_LastKLineTime)
+        int value = 3;
+        if (V_Min<15)
+        {
+            value = 2;
+        }
+
+        if (V_Min>60)
+        {
+            value = 5;
+        }
+
+        if ((v - hourValue % v) >= value || V_Cache.V_KLineData[0].V_Timestamp.Ticks == V_LastKLineTime)
         {
             return false;
         }

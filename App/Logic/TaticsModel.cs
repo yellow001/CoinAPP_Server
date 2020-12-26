@@ -69,7 +69,7 @@ public class TaticsModel
         else if (runHelper == 4)
         {
             EMATaticsHelper2 m_helper = new EMATaticsHelper2();
-            m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+            m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA2_{0}", item)));
 
             Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);
 
@@ -82,7 +82,7 @@ public class TaticsModel
         }
         else if (runHelper == 5) {
             EMAHelper3 m_helper = new EMAHelper3();
-            m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA_{0}", item)));
+            m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA3_{0}", item)));
 
             Tactics tactics = new Tactics(string.Format("{0}-USD-SWAP", coin), m_helper);
 

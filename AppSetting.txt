@@ -5,33 +5,33 @@ pos:50_0_30;15_0_-25;15_0_20;40_0_-5;28_0_95;36_0_18;41_0_6;-4_0_-26;-4_0_-26;41
 //api:keyname;Passphrase;apikey;SecretKey
 
 
-// 360_24_48  30_20_64   5_60_120
+// 360_6_12  30_32_72   5_80_120
 
 //止盈冷却
-CoolDown_BTC:20
-CoolDown_ETH:20
-CoolDown_LTC:20
-CoolDown_EOS:20
-CoolDown_BCH:20
-CoolDown_XRP:20
-CoolDown_ETC:20
-CoolDown_BSV:20
+CoolDown_BTC:32
+CoolDown_ETH:32
+CoolDown_LTC:32
+CoolDown_EOS:32
+CoolDown_BCH:32
+CoolDown_XRP:32
+CoolDown_ETC:32
+CoolDown_BSV:32
 
 //止损冷却
-LossCoolDown_BTC:64
-LossCoolDown_ETH:64
-LossCoolDown_LTC:64
-LossCoolDown_EOS:64
-LossCoolDown_BCH:64
-LossCoolDown_XRP:64
-LossCoolDown_ETC:64
-LossCoolDown_BSV:64
+LossCoolDown_BTC:72
+LossCoolDown_ETH:72
+LossCoolDown_LTC:72
+LossCoolDown_EOS:72
+LossCoolDown_BCH:72
+LossCoolDown_XRP:72
+LossCoolDown_ETC:72
+LossCoolDown_BSV:72
 
 //刷新设置时间（单位为K线时长*配置）
 RefreshSettingTime:42
 
 //强制平仓时间
-ForceOrderTime:5
+ForceOrderTime:20
 
 //周期列表
 //CycleList:5_10_0;5_10_1;5_10_2;5_15_0;5_15_1;5_15_2;5_20_0;5_20_1;5_20_2;5_25_0;5_25_1;5_25_2;7_15_0;7_15_1;7_15_2;7_20_0;7_20_1;7_20_2;7_25_0;7_25_1;7_25_2;10_17_0;10_17_1;10_17_2;10_20_0;10_20_1;10_20_2;10_25_0;10_25_1;10_25_2
@@ -138,17 +138,17 @@ Mesh_BSV:BSV-USD-SWAP;60;1;20
 
 Port:8888
 
-OrderValue:0.32
-//OrderValue:0.5  360_0.72 30_0.5 5_0.32
+OrderValue:0.6
+//OrderValue:0.5  360_0.72 30_0.6 5_0.36
 
 ConnectKey:yellowzhong
 
 1-MA 2-MA2 3-EMA 4-EMA2 5-EMA3 6-FourPrice 7-Turtle 8-SimpleMA 9-Mesh
 RunHelper:4
 
-StopValue:-15_-25_40_80
+StopValue:-15_-25_40_120
 //StopValue:-5_-6_30_31
 
 //启动币种
-Run:BTC;LTC;ETH;BCH;EOS
+Run:BTC;LTC;ETH
 //Run:BTC

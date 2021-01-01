@@ -176,13 +176,17 @@ public class BaseTaticsHelper
             V_WinClose = percent > 0;
             if (V_WinClose)
             {
-                lossCooldown = 0;
+                //if (lastResult)
+                //{
+                    cooldown = AppSetting.Ins.GetInt("CoolDown_" + CoinType);
+                //}
             }
             else {
-                if (!lastResult)
-                {
+
+                //if (!lastResult)
+                //{
                     lossCooldown = AppSetting.Ins.GetFloat("LossCoolDown_" + CoinType);
-                }
+                //}
             }
             V_LastOpTime = line.V_Timestamp;
             V_MaxAlready = false;
@@ -238,18 +242,9 @@ public class BaseTaticsHelper
 
         int v = (int)((V_Min / 60f) * 100f);
 
-        int value = 3;
-        if (V_Min<15)
-        {
-            value = 2;
-        }
+        float result = v - hourValue % v;
 
-        if (V_Min>60)
-        {
-            value = 5;
-        }
-
-        if ((v - hourValue % v) >= value || V_Cache.V_KLineData[0].V_Timestamp.Ticks == V_LastKLineTime)
+        if (result>v*0.2f||result<v*0.8f|| V_Cache.V_KLineData[0].V_Timestamp.Ticks == V_LastKLineTime)
         {
             return false;
         }

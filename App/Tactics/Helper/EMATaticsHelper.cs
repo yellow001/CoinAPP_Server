@@ -115,17 +115,49 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
                 if (V_MaxAlready)
                 {
-                    return result > 0 || orderResult == -dir;
+                    if ((dir > 0 && V_LongShortRatio < 0.8f) || (dir < 0 && V_LongShortRatio > 1.2f))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        
+                    }
                 }
 
 
-                if (percent > winPercent)
+                if (percent > -lossPercent)
                 {
-                    V_MaxAlready = true;
+                    if ((dir > 0 && V_LongShortRatio < 0.8f) || (dir < 0 && V_LongShortRatio > 1.2f))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return result > 0 || orderResult == -dir;
+                    }
                 }
 
                 if (percent < lossPercent * V_Length)
                 {
+                    if ((dir > 0 && V_LongShortRatio < 0.8f) || (dir < 0 && V_LongShortRatio > 1.2f))
+                    {
+                        return false;
+                    }
+                    else {
+                        return result > 0;
+                    }
+                }
+
+                DateTime t = DateTime.UtcNow;
+
+                if (isTest)
+                {
+                    t = V_Cache.V_KLineData[0].V_Timestamp;
+                }
+                if ((t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
+                {
+                    //持仓时间有点久了，看机会溜吧
                     return result > 0;
                 }
             }
@@ -144,7 +176,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
     /// <returns></returns>
     int GetValue(bool isOrder, int orderDir, bool isTest = false)
     {
-        if (!isTest)
+        if (!isTest && (V_LongShortRatio < 0.8f || V_LongShortRatio > 1.2f))
         {
             if (!F_CanHanleOrder())
             {
@@ -254,13 +286,14 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             allVol += V_Cache.V_KLineData[i].V_OpenPrice >= V_Cache.V_KLineData[i].V_ClosePrice ? -V_Cache.V_KLineData[i].V_Vol : V_Cache.V_KLineData[i].V_Vol;
         }
 
+
         #region 4.0
-        if (midValue > EMaValue && MaKValue2 > 0 && per3 < 4f && LongMaKValue > 0)
+        if (midValue > EMaValue && MaKValue2 > 0 && per3 < 2f && LongMaKValue > 0)
         {
             isLong = true;
         }
 
-        if (midValue < EMaValue && MaKValue2 < 0 && per3 > -4f && LongMaKValue < 0)
+        if (midValue < EMaValue && MaKValue2 < 0 && per3 > -2f && LongMaKValue < 0)
         {
             isShort = true;
         }
@@ -268,12 +301,12 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
         if (isOrder)
         {
 
-            if (isShort && V_LongShortRatio > 0.8f && per3 >-2.5f)
+            if (isShort && V_LongShortRatio > 0.8f && (per3 > -2f && per3 < 0f) || per3 >= 5)
             {
                 return -1;
             }
 
-            if (isLong && V_LongShortRatio < 1.2 && per3 < 2.5f)
+            if (isLong && V_LongShortRatio < 1.2 && (per3 < 2f && per3 > 0f) || per3<=-5)
             {
                 return 1;
             }
@@ -283,7 +316,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
 
             if (orderDir > 0)
             {
-                if (per3>5&&bigVol)
+                if (per3 > 5 && bigVol)
                 {
                     return 1;
                 }
@@ -294,7 +327,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
             if (orderDir < 0)
             {
 
-                if (per3 < - 5 && bigVol)
+                if (per3 < -5 && bigVol)
                 {
                     return 1;
                 }

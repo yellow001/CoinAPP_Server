@@ -112,7 +112,14 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
 
             if (V_MaxAlready)
             {
-                return result > 0 || orderResult == -dir;
+                if ((dir > 0 && V_LongShortRatio < 0.8f) || (dir < 0 && V_LongShortRatio > 1.2f))
+                {
+                    return false;
+                }
+                else
+                {
+                    return result > 0 || orderResult == -dir;
+                }
             }
 
 
@@ -121,8 +128,39 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
                 V_MaxAlready = true;
             }
 
+            if (percent > -lossPercent)
+            {
+                if ((dir > 0 && V_LongShortRatio < 0.8f) || (dir < 0 && V_LongShortRatio > 1.2f))
+                {
+                    return false;
+                }
+                else
+                {
+                    return result > 0 || orderResult == -dir;
+                }
+            }
+
             if (percent < lossPercent * V_Length)
             {
+                if ((dir > 0 && V_LongShortRatio < 0.8f) || (dir < 0 && V_LongShortRatio > 1.2f))
+                {
+                    return false;
+                }
+                else
+                {
+                    return result > 0;
+                }
+            }
+
+            DateTime t = DateTime.UtcNow;
+
+            if (isTest)
+            {
+                t = V_Cache.V_KLineData[0].V_Timestamp;
+            }
+            if ((t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
+            {
+                //持仓时间有点久了，看机会溜吧
                 return result > 0;
             }
 
@@ -140,7 +178,7 @@ public class EMATaticsHelper2 : BaseTaticsHelper, ICycleTatics
     /// <returns></returns>
     int GetValue(bool isOrder, int orderDir,float percent, bool isTest = false)
     {
-        if (!isTest)
+        if (!isTest && (V_LongShortRatio < 0.8f || V_LongShortRatio > 1.2f))
         {
             if (!F_CanHanleOrder())
             {

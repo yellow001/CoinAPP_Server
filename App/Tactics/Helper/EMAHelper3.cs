@@ -108,7 +108,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
             if (percent < lossPercent * V_Length)
             {
-                if ((dir > 0 && V_LongShortRatio < 0.8f) || (dir < 0 && V_LongShortRatio > 1.2f))
+                if ((dir > 0 && V_LongShortRatio < CommonData.Ins.ShortRatio) || (dir < 0 && V_LongShortRatio > CommonData.Ins.LongRatio))
                 {
                     return false;
                 }
@@ -157,7 +157,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
     /// <returns></returns>
     int GetValue(bool isOrder, int orderDir, bool isTest = false)
     {
-        if (!isTest&& (V_LongShortRatio < 0.8f || V_LongShortRatio > 1.2f))
+        if (!isTest&& (V_LongShortRatio < CommonData.Ins.ShortMaxRatio || V_LongShortRatio > CommonData.Ins.LongMaxRatio))
         {
             if (!F_CanHanleOrder())
             {
@@ -271,12 +271,12 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
         #region 4.0
 
-        if (MaKValue>0 && per2 < 8)
+        if (MaKValue>0 && (per2 < 8|| per2 < -12))
         {
             isLong = true;
         }
 
-        if (MaKValue<0 && per2 > -8)
+        if (MaKValue<0 && (per2 > -8 || per2 < 12))
         {
             isShort = true;
         }
@@ -284,12 +284,12 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         if (isOrder)
         {
 
-            if (isShort && V_LongShortRatio > 0.8f)
+            if (isShort && V_LongShortRatio > CommonData.Ins.ShortRatio)
             {
                 return -1;
             }
 
-            if (isLong && V_LongShortRatio < 1.2)
+            if (isLong && V_LongShortRatio < CommonData.Ins.LongMaxRatio)
             {
                 return 1;
             }

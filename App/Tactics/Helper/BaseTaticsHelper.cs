@@ -105,7 +105,7 @@ public class BaseTaticsHelper
 
         CoinType = V_Instrument_id.Split('-')[0];
 
-        cooldown = AppSetting.Ins.GetInt("CoolDown_" + CoinType);
+        cooldown = AppSetting.Ins.GetInt("CoolDown");
 
     }
 
@@ -178,14 +178,14 @@ public class BaseTaticsHelper
             {
                 //if (lastResult)
                 //{
-                    cooldown = AppSetting.Ins.GetInt("CoolDown_" + CoinType);
+                    cooldown = AppSetting.Ins.GetInt("CoolDown");
                 //}
             }
             else {
 
                 //if (!lastResult)
                 //{
-                    lossCooldown = AppSetting.Ins.GetFloat("LossCoolDown_" + CoinType);
+                    lossCooldown = AppSetting.Ins.GetFloat("LossCoolDown");
                 //}
             }
             V_LastOpTime = line.V_Timestamp;
@@ -215,7 +215,7 @@ public class BaseTaticsHelper
             {
                 if (!lastResult)
                 {
-                    lossCooldown = AppSetting.Ins.GetFloat("LossCoolDown_" + CoinType);
+                    lossCooldown = AppSetting.Ins.GetFloat("LossCoolDown");
                 }
             }
             V_LastOpTime = DateTime.UtcNow;
@@ -240,7 +240,7 @@ public class BaseTaticsHelper
 
         int hourValue = (int)Math.Ceiling((t.Hour + (t.Minute / 60f)) * 100f);
 
-        int v = (int)((V_Min / 60f) * 100f);
+        int v = (int)((Math.Min(V_Min, 30) / 60f) * 100f);
 
         float result = v - hourValue % v;
 

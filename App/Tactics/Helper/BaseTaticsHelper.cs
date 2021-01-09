@@ -240,11 +240,11 @@ public class BaseTaticsHelper
 
         int hourValue = (int)Math.Ceiling((t.Hour + (t.Minute / 60f)) * 100f);
 
-        int v = (int)((Math.Min(V_Min, 30) / 60f) * 100f);
+        int v = (int)((Math.Min(V_Min, 60) / 60f) * 100f);
 
         float result = v - hourValue % v;
 
-        if (result>v*0.2f||result<v*0.8f|| V_Cache.V_KLineData[0].V_Timestamp.Ticks == V_LastKLineTime)
+        if (result>v*0.1f||result<v*0.9f|| V_Cache.V_KLineData[0].V_Timestamp.Ticks == V_LastKLineTime)
         {
             return false;
         }

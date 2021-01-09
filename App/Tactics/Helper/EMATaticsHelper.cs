@@ -176,7 +176,7 @@ public class EMATaticsHelper : BaseTaticsHelper, ICycleTatics
     /// <returns></returns>
     int GetValue(bool isOrder, int orderDir, bool isTest = false)
     {
-        if (!isTest && (V_LongShortRatio < CommonData.Ins.ShortRatio || V_LongShortRatio > CommonData.Ins.LongRatio))
+        if (!isTest && (V_LongShortRatio > CommonData.Ins.ShortMaxRatio && V_LongShortRatio < CommonData.Ins.LongMaxRatio))
         {
             if (!F_CanHanleOrder())
             {

@@ -130,7 +130,7 @@ Mesh_BSV:BSV-USD-SWAP;60;1;20
 
 Port:8888
 
-OrderValue:0.7
+OrderValue:0.6
 //OrderValue:0.5  360_0.66 30_0.6 5_0.36
 
 ConnectKey:yellowzhong

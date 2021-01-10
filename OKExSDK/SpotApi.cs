@@ -13,6 +13,14 @@ namespace OKExSDK
     {
         private string SPOT_SEGMENT = "api/spot/v3";
 
+        /// <summary>
+        /// SpotApi构造函数
+        /// </summary>
+        /// <param name="apiKey">API Key</param>
+        /// <param name="secret">Secret</param>
+        /// <param name="passPhrase">Passphrase</param>
+        public SpotApi(AccountAPIKey api) : base(api.V_ApiKey, api.V_SecretKey, api.V_Passphrase) { }
+
         public SpotApi(string apiKey, string secret, string passPhrase) : base(apiKey, secret, passPhrase) { }
 
         /// <summary>

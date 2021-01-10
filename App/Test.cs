@@ -155,6 +155,7 @@ namespace CoinAPP_Server.App
 
             //float t = await CommonData.Ins.V_InformationApi.F_GetLongShortRatio("BTC", DateTime.Now, 5);
 
+            //var result = await CommonData.Ins.V_SpotApi.getInstrumentsAsync();
 
             int runHelper = AppSetting.Ins.GetInt("RunHelper");
             string[] coins = AppSetting.Ins.GetValue("Run").Split(';');

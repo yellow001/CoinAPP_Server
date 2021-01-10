@@ -142,5 +142,5 @@ StopValue:-15_-25_40_120
 //StopValue:-5_-6_30_31
 
 //启动币种
-Run:BTC;LTC;ETH
+Run:BTC
 //Run:BTC

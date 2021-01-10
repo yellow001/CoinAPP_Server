@@ -10,6 +10,8 @@ public class CommonData
 
     public SwapApi V_SwapApi;
 
+    public SpotApi V_SpotApi;
+
     public InformationApi V_InformationApi;
 
 
@@ -32,12 +34,14 @@ public class CommonData
 
                 ins.V_SwapApi = new SwapApi(ins.V_ApiKey);
 
+                ins.V_SpotApi = new SpotApi(ins.V_ApiKey);
+
                 ins.V_InformationApi = new InformationApi(ins.V_ApiKey);
 
-                float LongRatio = AppSetting.Ins.GetFloat("LongRatio");
-                float LongMaxRatio = AppSetting.Ins.GetFloat("LongMaxRatio");
-                float ShortRatio = AppSetting.Ins.GetFloat("ShortRatio");
-                float ShortMaxRatio = AppSetting.Ins.GetFloat("ShortMaxRatio");
+                ins.LongRatio = AppSetting.Ins.GetFloat("LongRatio");
+                ins.LongMaxRatio = AppSetting.Ins.GetFloat("LongMaxRatio");
+                ins.ShortRatio = AppSetting.Ins.GetFloat("ShortRatio");
+                ins.ShortMaxRatio = AppSetting.Ins.GetFloat("ShortMaxRatio");
             }
             return ins;
         }

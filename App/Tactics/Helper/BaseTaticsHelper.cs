@@ -244,7 +244,7 @@ public class BaseTaticsHelper
 
         float result = v - hourValue % v;
 
-        if (result>v*0.1f||result<v*0.9f|| V_Cache.V_KLineData[0].V_Timestamp.Ticks == V_LastKLineTime)
+        if ((result>v*0.12f&&result<v*0.88f)|| V_Cache.V_KLineData[0].V_Timestamp.Ticks == V_LastKLineTime)
         {
             return false;
         }

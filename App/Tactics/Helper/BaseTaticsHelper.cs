@@ -90,6 +90,8 @@ public class BaseTaticsHelper
 
     public float V_LongShortRatio = 1;
 
+    public bool hasOrder = false;
+
     public BaseTaticsHelper() {
         //cooldown *= (long)V_Min*60 * Util.Second_Ticks;
         //cooldown = AppSetting.Ins.GetInt("CoolDown");

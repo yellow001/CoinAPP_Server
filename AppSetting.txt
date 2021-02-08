@@ -8,13 +8,13 @@ pos:50_0_30;15_0_-25;15_0_20;40_0_-5;28_0_95;36_0_18;41_0_6;-4_0_-26;-4_0_-26;41
 // 360_5_10  30_32_72   5_80_120
 
 //止盈冷却
-CoolDown:5
+CoolDown:2
 
 //止损冷却
-LossCoolDown:10
+LossCoolDown:3
 
-LongRatio:1.25
-LongMaxRatio:1.42
+LongRatio:1.4
+LongMaxRatio:1.66
 ShortRatio:0.75
 ShortMaxRatio:0.66
 

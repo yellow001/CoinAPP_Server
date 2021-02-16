@@ -276,10 +276,21 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
         if (hourCache!=null && hourCache.V_KLineData!=null &&hourCache.V_KLineData.Count>0)
         {
-            float hourMA1 = MA.GetMA(V_CycleList[0], hourCache.V_KLineData.GetRange(0, V_CycleList[0]));
-            float hourMA2 = MA.GetMA(V_CycleList[0], hourCache.V_KLineData.GetRange(V_CycleList[0], V_CycleList[0]));
+            float hourMA1 = MA.GetMA(V_CycleList[0], hourCache.V_KLineData);
+            float hourMA2 = MA.GetMA(V_CycleList[1], hourCache.V_KLineData);
 
-            hourValue = hourMA1 - hourMA2;
+            float hourKMA1 = hourMA1 - MA.GetMA(V_CycleList[0], hourCache.V_KLineData.GetRange(2,80));
+
+            if (hourMA1 > hourMA2 && hourKMA1 > 0)
+            {
+                hourValue = 1;
+            }
+
+            if (hourMA1 < hourMA2 && hourKMA1 < 0)
+            {
+                hourValue = -1;
+            }
+
         }
 
         

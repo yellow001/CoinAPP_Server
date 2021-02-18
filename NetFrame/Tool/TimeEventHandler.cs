@@ -164,6 +164,7 @@ namespace NetFrame.Tool
         {
             if (!addList.Contains(model))
             {
+                model.InitData();
                 addList.Add(model);
             }
         }

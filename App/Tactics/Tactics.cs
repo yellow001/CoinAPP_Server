@@ -281,6 +281,8 @@ public class Tactics
             float longPercent = 0, shortPrecent = 0;
             if (V_AccountInfo.V_Positions != null && V_AccountInfo.V_Positions.Count > 0)
             {
+                m_TaticsHelper.hasOrder = true;
+
                 foreach (var item in V_AccountInfo.V_Positions)
                 {
                     if (item.V_Dir > 0)
@@ -327,7 +329,13 @@ public class Tactics
                     }
                 }
             }
-
+            else {
+                if (m_TaticsHelper.hasOrder)
+                {
+                    m_TaticsHelper.hasOrder = false;
+                    m_TaticsHelper.V_LastOpTime = DateTime.UtcNow;
+                }
+            }
 
             if (V_TacticsState == EM_TacticsState.Pause)
             {

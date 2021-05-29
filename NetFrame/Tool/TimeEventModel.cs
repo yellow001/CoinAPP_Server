@@ -49,5 +49,10 @@ namespace NetFrame.Tool
             this.count = count;
             this.de = de;
         }
+
+        public void InitData()
+        {
+            Excute_time = DateTime.Now.Ticks + Wait_time;
+        }
     }
 }

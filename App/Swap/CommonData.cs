@@ -38,10 +38,10 @@ public class CommonData
 
                 ins.V_InformationApi = new InformationApi(ins.V_ApiKey);
 
-                float LongRatio = AppSetting.Ins.GetFloat("LongRatio");
-                float LongMaxRatio = AppSetting.Ins.GetFloat("LongMaxRatio");
-                float ShortRatio = AppSetting.Ins.GetFloat("ShortRatio");
-                float ShortMaxRatio = AppSetting.Ins.GetFloat("ShortMaxRatio");
+                ins.LongRatio = AppSetting.Ins.GetFloat("LongRatio");
+                ins.LongMaxRatio = AppSetting.Ins.GetFloat("LongMaxRatio");
+                ins.ShortRatio = AppSetting.Ins.GetFloat("ShortRatio");
+                ins.ShortMaxRatio = AppSetting.Ins.GetFloat("ShortMaxRatio");
             }
             return ins;
         }

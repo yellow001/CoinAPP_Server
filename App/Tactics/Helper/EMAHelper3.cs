@@ -1,4 +1,5 @@
 ﻿using NetFrame.Tool;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,8 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
     public List<int> V_CycleList = new List<int>() { 5, 10, 20 };
 
     float maxPercent = 0;
+
+    KLineCache hourCache = new KLineCache();
 
     #region 重载
     /// <summary>
@@ -269,6 +272,30 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
             allVol += V_Cache.V_KLineData[i].V_OpenPrice >= V_Cache.V_KLineData[i].V_ClosePrice ? -V_Cache.V_KLineData[i].V_Vol : V_Cache.V_KLineData[i].V_Vol;
         }
 
+        float hourValue = 0;
+
+        if (hourCache!=null && hourCache.V_KLineData!=null &&hourCache.V_KLineData.Count>0)
+        {
+            float hourMA1 = MA.GetMA(V_CycleList[0], hourCache.V_KLineData);
+            float hourMA2 = MA.GetMA(V_CycleList[1], hourCache.V_KLineData);
+
+            float hourKMA1 = hourMA1 - MA.GetMA(V_CycleList[0], hourCache.V_KLineData.GetRange(2,80));
+
+            if (hourMA1 > hourMA2 && hourKMA1 > 0)
+            {
+                hourValue = 1;
+            }
+
+            if (hourMA1 < hourMA2 && hourKMA1 < 0)
+            {
+                hourValue = -1;
+            }
+
+        }
+
+        
+
+
         #region 4.0
 
         if (MaKValue>0 && (per2 < 5|| per2 < -10))
@@ -299,13 +326,13 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
             if (orderDir > 0)
             {
-                return isLong ? 0 : 1;
+                return isLong&&hourValue>=0 ? 0 : 1;
             }
 
             if (orderDir < 0)
             {
 
-                return isShort ? 0 : 1;
+                return isShort&&hourValue<=0 ? 0 : 1;
             }
         }
 
@@ -315,6 +342,19 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
         return 0;
     }
+
+    public override async Task F_HandleOrder(AccountInfo info)
+    {
+        //获取 1h 数据
+
+        //获取近200条K线
+        JContainer con = await CommonData.Ins.V_SwapApi.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-60 * 200), DateTime.Now, 60 * 60);
+
+        hourCache.RefreshData(con);
+
+        await base.F_HandleOrder(info);
+    }
+
 
     public void SetCycle(string setting)
     {

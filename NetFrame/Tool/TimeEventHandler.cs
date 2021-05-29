@@ -127,6 +127,12 @@ namespace NetFrame.Tool
                         //如果委托不为空 执行
                         models[index].de?.Invoke();
 
+                        if (models[index].count == 0)
+                        {
+                            RemoveEvent(models[index]);
+                            return;
+                        }
+
                         //执行次数大于0，减一并更新下一次执行时间
                         if (models[index].count > 0)
                         {
@@ -154,12 +160,21 @@ namespace NetFrame.Tool
             }
         }
 
-        public void AddEvent(TimeEventModel model) {
-            addList.Add(model);
+        public void AddEvent(TimeEventModel model)
+        {
+            if (!addList.Contains(model))
+            {
+                model.InitData();
+                addList.Add(model);
+            }
         }
 
-        public void RemoveEvent(TimeEventModel model) {
-            removeList.Add(model);
+        public void RemoveEvent(TimeEventModel model)
+        {
+            if (!removeList.Contains(model))
+            {
+                removeList.Add(model);
+            }
         }
     }
 }

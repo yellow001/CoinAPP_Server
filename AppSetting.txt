@@ -4,7 +4,6 @@ pos:50_0_30;15_0_-25;15_0_20;40_0_-5;28_0_95;36_0_18;41_0_6;-4_0_-26;-4_0_-26;41
 
 //api:keyname;Passphrase;apikey;SecretKey
 
-
 // 360_5_10  30_32_72   5_80_120
 
 //止盈冷却
@@ -144,3 +143,13 @@ StopValue:-15_-25_40_120
 //启动币种
 Run:BTC;LTC;ETH
 //Run:BTC
+
+
+HttpUtl:http://+:9876/
+HttpUtlA:http://+:9877/
+
+//过滤列表
+Ignore:USDC;TUSD;PAX;GUSD;PAX;DAI;ANW
+
+//0 币圈  1 A股
+Mode:0

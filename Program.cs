@@ -1,4 +1,5 @@
 ﻿using CoinAPP_Server.App;
+using CoinAPP_Server.NetFrame.Base;
 using NetFrame.Base;
 using NetFrame.EnDecode;
 using NetFrame.EnDecode.Extend;
@@ -6,6 +7,8 @@ using NetFrame.Interfaces;
 using NetFrame.Tool;
 using System;
 using System.IO;
+using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +19,9 @@ namespace CoinAPP_Server
         static void Main(string[] args)
         {
 
-            //Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             //StreamWriter sw = new StreamWriter("ConsoleOutput.txt");
             //Console.SetOut(sw);
@@ -44,9 +49,25 @@ namespace CoinAPP_Server
 
             //Console.WriteLine(dr.rows);
 
-#if DEBUG
-            Test t = new Test();
-            Console.ReadLine();
+#if true
+            //Test t = new Test();
+
+            if (AppSetting.Ins.GetInt("Mode") == 1)
+            {
+                HttpHandler handler2 = new HttpHandler(new ASpotHandle(), AppSetting.Ins.GetValue("HttpUtlA"));
+            }
+            else {
+                HttpHandler handler = new HttpHandler(new SpotHandle(), AppSetting.Ins.GetValue("HttpUtl"));
+            }
+            
+
+            while (true)
+            {
+                Task.Run(delegate
+                {
+                    Thread.Sleep(36000000);
+                }).Wait();
+            }
 #else
 
             int port = AppSetting.Ins.GetInt("Port");

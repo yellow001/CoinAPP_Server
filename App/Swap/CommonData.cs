@@ -10,6 +10,8 @@ public class CommonData
 
     public SwapApi V_SwapApi;
 
+    public SpotApi V_SpotApi;
+
     public InformationApi V_InformationApi;
 
 
@@ -31,6 +33,8 @@ public class CommonData
                 ins.V_ApiKey = new AccountAPIKey(keys);
 
                 ins.V_SwapApi = new SwapApi(ins.V_ApiKey);
+
+                ins.V_SpotApi = new SpotApi(ins.V_ApiKey);
 
                 ins.V_InformationApi = new InformationApi(ins.V_ApiKey);
 

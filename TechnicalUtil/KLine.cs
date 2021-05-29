@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -62,6 +63,15 @@ public class KLine
         }
     }
 
+    public void SetData(Dictionary<string,string> content)
+    {
+        if (content != null && content.Count >= 6)
+        {
+            List<string> keys = content.Keys.ToList();
+            SetData(content[keys[0]], content[keys[1]], content[keys[2]], content[keys[3]], content[keys[4]], content[keys[5]]);
+        }
+    }
+
     public static List<KLine> GetListFormJContainer(JContainer jcontainer)
     {
         List<KLine> result = new List<KLine>();
@@ -69,6 +79,21 @@ public class KLine
         while (temp!=null)
         {
             List<string> content = temp.ToObject<List<string>>();
+            KLine line = new KLine();
+            line.SetData(content);
+            result.Add(line);
+            temp = temp.Next;
+        }
+        return result;
+    }
+
+    public static List<KLine> GetAListFormJContainer(JContainer jcontainer)
+    {
+        List<KLine> result = new List<KLine>();
+        JToken temp = jcontainer.First;
+        while (temp != null)
+        {
+            Dictionary<string,string> content = temp.ToObject<Dictionary<string,string>>();
             KLine line = new KLine();
             line.SetData(content);
             result.Add(line);

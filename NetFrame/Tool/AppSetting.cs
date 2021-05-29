@@ -72,7 +72,7 @@ namespace NetFrame.Tool
                     foreach (var item in settings) {
                         if (item.StartsWith("//")) { continue; }
 
-                        string[] item2 = item.Split(':');
+                        string[] item2 = item.Split(':',2);
                         if (item2.Length == 2) {
                             Settings.Add(item2[0], item2[1]);
                         }

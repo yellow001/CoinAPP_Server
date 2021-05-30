@@ -70,13 +70,13 @@ namespace CoinAPP_Server.App
         public int GetCommandValue(bool debug=true) {
             List<int> tempList = new List<int>();
 
-            float doLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.DoLong, kLineDataDic, 1, ref tempList);
+            float doLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot,MatchItemActionType.DoLong, kLineDataDic, 1, ref tempList);
 
-            float doShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.DoShort, kLineDataDic, 1, ref tempList);
+            float doShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.DoShort, kLineDataDic, 1, ref tempList);
 
-            float closeLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.CloseLong, kLineDataDic, 1, ref tempList);
+            float closeLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.CloseLong, kLineDataDic, 1, ref tempList);
 
-            float closeShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.CLoseShort, kLineDataDic, 1, ref tempList);
+            float closeShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.CLoseShort, kLineDataDic, 1, ref tempList);
 
 
             float result = (int)(doLongValue + closeShortValue - doShortValue - closeLongValue)*10;
@@ -174,7 +174,7 @@ namespace CoinAPP_Server.App
 
         bool init = true;
 
-        public List<int> MinList = new List<int>() { 30, 60, 240, 360 };
+        public List<int> MinList = new List<int>() { 60, 2*60, 4*60, 6*60, 12*60, 24*60};
 
         public string htmlPath = AppDomain.CurrentDomain.BaseDirectory + "/" + "index.html";
 

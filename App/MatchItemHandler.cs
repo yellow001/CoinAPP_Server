@@ -7,7 +7,7 @@ namespace CoinAPP_Server.App
 {
     public class MatchItemHandler
     {
-        Dictionary<MatchItemType, List<MatchItem>> matchListDic = new Dictionary<MatchItemType, List<MatchItem>>();
+        Dictionary<MatchItemActionType, List<MatchItem>> matchListDic = new Dictionary<MatchItemActionType, List<MatchItem>>();
 
         public MatchItemHandler() {
             InitSetting();
@@ -42,12 +42,12 @@ namespace CoinAPP_Server.App
 
                         MatchItem matchItem = new MatchItem(item);
 
-                        if (!matchListDic.ContainsKey(matchItem.type))
+                        if (!matchListDic.ContainsKey(matchItem.actionType))
                         {
-                            matchListDic.Add(matchItem.type, new List<MatchItem>());
+                            matchListDic.Add(matchItem.actionType, new List<MatchItem>());
                         }
 
-                        matchListDic[matchItem.type].Add(matchItem);
+                        matchListDic[matchItem.actionType].Add(matchItem);
                     }
                 }
             }
@@ -58,21 +58,23 @@ namespace CoinAPP_Server.App
         }
 
 
-        public float GetMatchValue(MatchItemType type,Dictionary<int, KLineCache> klineDataDic, float btcLSPercent, ref List<int> matchIDList) {
+        public float GetMatchValue(MatchItemType type, MatchItemActionType actionType,Dictionary<int, KLineCache> klineDataDic, float btcLSPercent, ref List<int> matchIDList) {
             float result = 0;
-            if (matchListDic.ContainsKey(type))
+            if (matchListDic.ContainsKey(actionType))
             {
-                List<MatchItem> list = matchListDic[type];
+                List<MatchItem> list = matchListDic[actionType];
 
                 for (int i = 0; i < list.Count; i++)
                 {
-
-                    float matchValue = list[i].IsMatch(klineDataDic, btcLSPercent);
-
-                    if (matchValue>0)
+                    if (list[i].type == type)
                     {
-                        result += matchValue;
-                        matchIDList.Add(list[i].id);
+                        float matchValue = list[i].IsMatch(klineDataDic, btcLSPercent);
+
+                        if (matchValue > 0)
+                        {
+                            result += matchValue;
+                            matchIDList.Add(list[i].id);
+                        }
                     }
                 }
             }

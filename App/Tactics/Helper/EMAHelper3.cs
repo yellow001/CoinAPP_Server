@@ -205,13 +205,13 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
         List<int> tempList = new List<int>();
 
-        float doLongValue = matchItemHandler.GetMatchValue(MatchItemType.DoLong, kLineDataDic, V_LongShortRatio, ref tempList);
+        float doLongValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoLong, kLineDataDic, V_LongShortRatio, ref tempList);
 
-        float doShortValue = matchItemHandler.GetMatchValue(MatchItemType.DoShort, kLineDataDic, V_LongShortRatio, ref tempList);
+        float doShortValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoShort, kLineDataDic, V_LongShortRatio, ref tempList);
 
-        float closeLongValue = matchItemHandler.GetMatchValue(MatchItemType.CloseLong, kLineDataDic, V_LongShortRatio, ref tempList);
+        float closeLongValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.CloseLong, kLineDataDic, V_LongShortRatio, ref tempList);
 
-        float closeShortValue = matchItemHandler.GetMatchValue(MatchItemType.CLoseShort, kLineDataDic, V_LongShortRatio, ref tempList);
+        float closeShortValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.CLoseShort, kLineDataDic, V_LongShortRatio, ref tempList);
 
 
         #region 4.0

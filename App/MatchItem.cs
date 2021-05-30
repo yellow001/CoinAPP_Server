@@ -5,7 +5,13 @@ using System.Text;
 
 namespace CoinAPP_Server.App
 {
-    public enum MatchItemType { 
+    public enum MatchItemType
+    {
+        Swap = 1,
+        Spot = 2,
+    }
+
+    public enum MatchItemActionType { 
         DoLong=1,
         DoShort=2,
         CloseLong=3,
@@ -260,7 +266,9 @@ namespace CoinAPP_Server.App
     {
         public int id;
 
-        public MatchItemType type; 
+        public MatchItemType type;
+
+        public MatchItemActionType actionType; 
 
         public List<MatchConditionItem> matchConditions = new List<MatchConditionItem>();
 
@@ -273,9 +281,11 @@ namespace CoinAPP_Server.App
 
                 id = int.Parse(list[0]);
 
-                type = (MatchItemType)Enum.Parse(typeof(MatchItemType), list[1]);
+                type = (MatchItemType)Enum.Parse(typeof(MatchItemType), list[2]);
 
-                string[] conditionStr = list[2].Split(';');
+                actionType = (MatchItemActionType)Enum.Parse(typeof(MatchItemActionType), list[2]);
+
+                string[] conditionStr = list[3].Split(';');
 
                 for (int i = 0; i < conditionStr.Length; i++)
                 {
@@ -283,7 +293,7 @@ namespace CoinAPP_Server.App
                     matchConditions.Add(item);
                 }
 
-                matchValue = float.Parse(list[3]);
+                matchValue = float.Parse(list[4]);
             }
         }
 

@@ -56,10 +56,11 @@ namespace CoinAPP_Server
             {
                 HttpHandler handler2 = new HttpHandler(new ASpotHandle(), AppSetting.Ins.GetValue("HttpUtlA"));
             }
-            else {
+            else
+            {
                 HttpHandler handler = new HttpHandler(new SpotHandle(), AppSetting.Ins.GetValue("HttpUtl"));
             }
-            
+
 
             while (true)
             {

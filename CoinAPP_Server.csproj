@@ -7,9 +7,13 @@
 
   <ItemGroup>
     <None Remove="AppSetting.txt" />
+    <None Remove="MatchList.txt" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="MatchList.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="AppSetting.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

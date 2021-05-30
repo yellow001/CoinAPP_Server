@@ -175,7 +175,7 @@ namespace CoinAPP_Server.App
 
                     await m_helper.RunHistory();
                 }
-                else if(runHelper == 4)
+                else if (runHelper == 4)
                 {
                     EMATaticsHelper2 m_helper = new EMATaticsHelper2();
                     m_helper.Init(AppSetting.Ins.GetValue(string.Format("EMA2_{0}", item)));
@@ -201,34 +201,38 @@ namespace CoinAPP_Server.App
                     TurtleTaticsHelper m_helper = new TurtleTaticsHelper();
                     m_helper.Init(AppSetting.Ins.GetValue(string.Format("Turtle_{0}", item)));
 
+                }
             }
-        }
 
-        void WriteNext(JToken con) {
-            if (con!=null) {
-                Console.WriteLine(con);
-                WriteNext(con.Next);
-            }
-        }
-
-        void WriteLast(JToken con)
-        {
-            if (con != null)
+            void WriteNext(JToken con)
             {
-                Console.WriteLine(con);
-                WriteNext(con.Last);
+                if (con != null)
+                {
+                    Console.WriteLine(con);
+                    WriteNext(con.Next);
+                }
             }
-        }
 
-        async void Result(string msg)
-        {
-            if (msg.Contains("success")) {
-                List<string> list = new List<string>();
-                list.Add("swap/account:BTC-USD-SWAP");
-                await web.Subscribe(list);
+            void WriteLast(JToken con)
+            {
+                if (con != null)
+                {
+                    Console.WriteLine(con);
+                    WriteNext(con.Last);
+                }
             }
-            
-            Console.WriteLine(msg);
+
+            async void Result(string msg)
+            {
+                if (msg.Contains("success"))
+                {
+                    List<string> list = new List<string>();
+                    list.Add("swap/account:BTC-USD-SWAP");
+                    await web.Subscribe(list);
+                }
+
+                Console.WriteLine(msg);
+            }
         }
     }
 }

@@ -32,6 +32,8 @@ namespace CoinAPP_Server.App
 
         public int recommandValue;
 
+        public Dictionary<int, KLineCache> kLineDataDic = new Dictionary<int, KLineCache>();
+
         public SpotData() { }
 
         public SpotData(string c,string name) {
@@ -41,24 +43,16 @@ namespace CoinAPP_Server.App
 
 
         public void RefreshCommandValue(bool debug=true) {
-            if (dayData.V_KLineData.Count>=60)
+            V_CurPrice = dayData.V_KLineData[0].V_ClosePrice;
+            V_OpenPrice = dayData.V_KLineData[0].V_OpenPrice;
+
+            V_AllPrice = GetAllPrice();
+
+            recommandValue = GetCommandValue();
+
+            if (debug)
             {
-                V_CurPrice = dayData.V_KLineData[0].V_ClosePrice;
-                V_OpenPrice = dayData.V_KLineData[0].V_OpenPrice;
-
-                V_AllPrice = GetAllPrice();
-
-                if (SpotName.Equals("ETH-USDT",StringComparison.InvariantCultureIgnoreCase))
-                {
-                    SpotHandle.eth_usdt = V_CurPrice;
-                }
-
-                recommandValue = GetCommandValue();
-
-                if (debug)
-                {
-                    Debugger.Log(SpotName + "  推荐值：" + recommandValue);
-                }
+                Debugger.Log(SpotName + "  推荐值：" + recommandValue);
             }
         }
 
@@ -74,32 +68,31 @@ namespace CoinAPP_Server.App
 
 
         public int GetCommandValue(bool debug=true) {
+            List<int> tempList = new List<int>();
 
-            float dayMA30 = MA.GetMA(30, dayData.V_KLineData);
+            float doLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.DoLong, kLineDataDic, 1, ref tempList);
 
-            if (V_CurPrice < dayMA30)
+            float doShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.DoShort, kLineDataDic, 1, ref tempList);
+
+            float closeLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.CloseLong, kLineDataDic, 1, ref tempList);
+
+            float closeShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.CLoseShort, kLineDataDic, 1, ref tempList);
+
+
+            float result = (int)(doLongValue + closeShortValue - doShortValue - closeLongValue)*10;
+
+            if (result<=0)
             {
                 return 0;
             }
-
-            float dayEMA7 = EMA.GetEMA(7, dayData.V_KLineData);
-            float dayEMA30 = EMA.GetEMA(25, dayData.V_KLineData);
-
-            if (dayEMA7 < dayEMA30)
-            {
-                return 0;
-            }
-
-
-            float result = 0;
 
             float hourMA25 = MA.GetMA(25, hourData.V_KLineData);
 
-            float hourKMA25 = hourMA25 - MA.GetMA(25, hourData.V_KLineData.GetRange(6,50));
+            float hourKMA25 = hourMA25 - MA.GetMA(25, hourData.V_KLineData.GetRange(6, 50));
 
 
             float result_hour = 0;
-            if (V_CurPrice>=hourMA25)
+            if (V_CurPrice >= hourMA25)
             {
                 result_hour += 1;
             }
@@ -132,7 +125,7 @@ namespace CoinAPP_Server.App
 
             float per = Math.Abs((V_CurPrice - sixHourMA30) / sixHourMA30) * 100;
 
-            if (V_CurPrice >= sixHourMA30&&per < 5 && per > 0)
+            if (V_CurPrice >= sixHourMA30 && per < 5 && per > 0)
             {
                 result_sixhour += 8 - per;
             }
@@ -157,7 +150,7 @@ namespace CoinAPP_Server.App
                 result_day += 5 - per;
             }
 
-            result = (result_hour + result_sixhour  + result_day * 2) / 4; 
+            result += (result_hour + result_sixhour + result_day * 2) / 4;
 
             return (int)result;
         }
@@ -166,8 +159,6 @@ namespace CoinAPP_Server.App
     public class SpotHandle: SpotHandleInterface
     {
         public Dictionary<string, SpotData> m_USDTList = new Dictionary<string, SpotData>();
-
-        public Dictionary<string, SpotData> m_ETHList = new Dictionary<string, SpotData>();
 
         public Dictionary<string, SpotData> m_ResultDic = new Dictionary<string, SpotData>();
 
@@ -183,7 +174,11 @@ namespace CoinAPP_Server.App
 
         bool init = true;
 
+        public List<int> MinList = new List<int>() { 30, 60, 240, 360 };
+
         public string htmlPath = AppDomain.CurrentDomain.BaseDirectory + "/" + "index.html";
+
+        MatchItemHandler matchItemHandler = MatchItemHandler.Ins;
 
         public SpotHandle()
         {
@@ -237,13 +232,6 @@ namespace CoinAPP_Server.App
                         m_USDTList.Add(coin, new SpotData(coin,key));
                     }
                 }
-                else if (key.Contains("-ETH"))
-                {
-                    if (!m_ETHList.ContainsKey(coin))
-                    {
-                        m_ETHList.Add(coin, new SpotData(coin, key));
-                    }
-                }
 
                 if (!m_ResultDic.ContainsKey(coin))
                 {
@@ -271,15 +259,28 @@ namespace CoinAPP_Server.App
 
                     //Debugger.Log("获取K线数据：" + spotData.SpotName);
 
-                    JContainer con = await CommonData.Ins.V_SpotApi.getCandlesAsync(spotData.SpotName, DateTime.Now.AddMinutes(-60 * 200), DateTime.Now, 60 * 60);
-                    spotData.hourData.RefreshData(con);
-
-                    con = await CommonData.Ins.V_SpotApi.getCandlesAsync(spotData.SpotName, DateTime.Now.AddMinutes(-6 * 60 * 200), DateTime.Now, 6 * 60 * 60);
-                    spotData.sixHourData.RefreshData(con);
-
-                    con = await CommonData.Ins.V_SpotApi.getCandlesAsync(spotData.SpotName, DateTime.Now.AddMinutes(-24 * 60 * 200), DateTime.Now, 24 * 60 * 60);
+                    JContainer con = await CommonData.Ins.V_SpotApi.getCandlesAsync(spotData.SpotName, DateTime.Now.AddMinutes(-24 * 60 * 200), DateTime.Now, 24 * 60 * 60);
                     spotData.dayData.RefreshData(con);
 
+                    for (int i = 0; i < MinList.Count; i++)
+                    {
+                        int value = MinList[i];
+                        con = await CommonData.Ins.V_SpotApi.getCandlesAsync(spotData.SpotName, DateTime.Now.AddMinutes(-value * 200), DateTime.Now, 60 * value);
+
+                        if (spotData.kLineDataDic.ContainsKey(value))
+                        {
+                            spotData.kLineDataDic[value].RefreshData(con);
+                        }
+                        else
+                        {
+                            KLineCache kLineCache = new KLineCache();
+                            kLineCache.RefreshData(con);
+                            spotData.kLineDataDic.Add(value, kLineCache);
+                        }
+                    }
+
+                    spotData.hourData = spotData.kLineDataDic[60];
+                    spotData.sixHourData = spotData.kLineDataDic[360];
 
                     //计算推荐值
                     spotData.RefreshCommandValue(debug);
@@ -289,52 +290,15 @@ namespace CoinAPP_Server.App
                     Debugger.Error(ex.ToString());
                 }
             }
-
-            foreach (var item in m_ETHList.Keys)
-            {
-                //获取K线数据
-                //获取近200条K线
-
-                try
-                {
-                    SpotData spotData = m_ETHList[item];
-
-                    //Debugger.Log("获取K线数据：" + spotData.SpotName);
-
-                    JContainer con = await CommonData.Ins.V_SpotApi.getCandlesAsync(spotData.SpotName, DateTime.Now.AddMinutes(-60 * 200), DateTime.Now, 60 * 60);
-                    spotData.hourData.RefreshData(con);
-
-                    con = await CommonData.Ins.V_SpotApi.getCandlesAsync(spotData.SpotName, DateTime.Now.AddMinutes(-6 * 60 * 200), DateTime.Now, 6 * 60 * 60);
-                    spotData.sixHourData.RefreshData(con);
-
-                    con = await CommonData.Ins.V_SpotApi.getCandlesAsync(spotData.SpotName, DateTime.Now.AddMinutes(-24 * 60 * 200), DateTime.Now, 24 * 60 * 60);
-                    spotData.dayData.RefreshData(con);
-
-
-                    //计算推荐值
-                    spotData.RefreshCommandValue(debug);
-                }
-                catch (Exception ex)
-                {
-                    Debugger.Error(ex.ToString());
-                }
-            }
+            
 
             foreach (var key in m_ResultDic.Keys)
             {
-                if (m_USDTList.ContainsKey(key) && m_ETHList.ContainsKey(key))
+                if (m_USDTList.ContainsKey(key))
                 {
                     m_ResultDic[key].V_CurPrice = m_USDTList[key].V_CurPrice;
                     m_ResultDic[key].V_AllPrice = m_USDTList[key].V_AllPrice;
-                    m_ResultDic[key].recommandValue = m_USDTList[key].recommandValue+ m_ETHList[key].recommandValue;
-                }
-                else {
-                    if (m_USDTList.ContainsKey(key))
-                    {
-                        m_ResultDic[key].V_CurPrice = m_USDTList[key].V_CurPrice;
-                        m_ResultDic[key].V_AllPrice = m_USDTList[key].V_AllPrice;
-                        m_ResultDic[key].recommandValue = m_USDTList[key].recommandValue;
-                    }
+                    m_ResultDic[key].recommandValue = m_USDTList[key].recommandValue;
                 }
             }
 
@@ -366,14 +330,6 @@ namespace CoinAPP_Server.App
 
                         return 1;
                     });
-
-                    //for (int i = 0; i < 8; i++)
-                    //{
-                    //    if (i < result.Count)
-                    //    {
-                    //        Debugger.Log(result[i].coin + "  " + result[i].recommandValue);
-                    //    }
-                    //}
                 }
             }
             catch (Exception ex)

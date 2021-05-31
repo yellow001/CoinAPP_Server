@@ -230,6 +230,11 @@ public class BaseTaticsHelper
         return false;
     }
 
+    public virtual async Task F_AfterHandleOrder(AccountInfo info)
+    {
+
+    }
+
     public virtual async Task F_HandleOrder(AccountInfo info) {
     }
 

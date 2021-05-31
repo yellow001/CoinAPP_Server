@@ -254,7 +254,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         return 0;
     }
 
-    public override async Task F_HandleOrder(AccountInfo info)
+    public override async Task F_AfterHandleOrder(AccountInfo info)
     {
         for (int i = 0; i < MinList.Count; i++)
         {
@@ -265,15 +265,16 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
             {
                 kLineDataDic[value].RefreshData(con);
             }
-            else {
+            else
+            {
 
                 KLineCache kLineCache = new KLineCache();
                 kLineCache.RefreshData(con);
 
-                kLineDataDic.Add(value,kLineCache);
+                kLineDataDic.Add(value, kLineCache);
             }
         }
-        await base.F_HandleOrder(info);
+        await base.F_AfterHandleOrder(info);
     }
 
 

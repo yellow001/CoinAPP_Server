@@ -102,7 +102,9 @@ namespace CoinAPP_Server.App
                         bool match = true;
                         for (int i = 0; i < maList.Count -1; i++)
                         {
-                            if (maList[i]<maList[i+1])
+                            float perValue = MathF.Abs((maList[i] - maList[i + 1]) / maList[i + 1] * 100);
+
+                            if (perValue>1&&maList[i]<maList[i+1])
                             {
                                 match = false;
                                 break;

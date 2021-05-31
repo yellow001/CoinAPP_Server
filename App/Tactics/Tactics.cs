@@ -269,6 +269,8 @@ public class Tactics
     /// <returns></returns>
     public async Task AutoHandle() {
 
+        await m_TaticsHelper.F_AfterHandleOrder(V_AccountInfo);
+
         if (m_TaticsHelper.V_HandleOrderSelf)
         {
             await m_TaticsHelper.F_HandleOrder(V_AccountInfo);

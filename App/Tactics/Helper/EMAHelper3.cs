@@ -202,12 +202,14 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
         KLine LastKLine = V_Cache.V_KLineData[1];
 
-
         List<int> tempList = new List<int>();
 
-        float doLongValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoLong, kLineDataDic, V_LongShortRatio, ref tempList);
+        List<int> tempList1 = new List<int>();
+        List<int> tempList2 = new List<int>();
 
-        float doShortValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoShort, kLineDataDic, V_LongShortRatio, ref tempList);
+        float doLongValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoLong, kLineDataDic, V_LongShortRatio, ref tempList1);
+
+        float doShortValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoShort, kLineDataDic, V_LongShortRatio, ref tempList2);
 
         float closeLongValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.CloseLong, kLineDataDic, V_LongShortRatio, ref tempList);
 
@@ -222,11 +224,34 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
             if (doShortValue>doLongValue*2)
             {
+                if (!isTest)
+                {
+                    string str = "匹配id: ";
+                    for (int i = 0; i < tempList2.Count; i++)
+                    {
+                        str += tempList2[i] + "  ";
+                    }
+
+                    Debugger.Log(str);
+                }
+                
+
                 return -1;
             }
 
             if (doLongValue>doShortValue*2)
             {
+                if (!isTest)
+                {
+                    string str = "匹配id: ";
+                    for (int i = 0; i < tempList1.Count; i++)
+                    {
+                        str += tempList1[i] + "  ";
+                    }
+
+                    Debugger.Log(str);
+                }
+
                 return 1;
             }
         }

@@ -76,25 +76,25 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         {
             if (kLineDataDic.Count <= 0)
             {
-                kLineDataDic.Add(30, V_Cache);
+                kLineDataDic.Add(60, V_Cache);
 
-                KLineCache kLineCache60 = new KLineCache();
-                kLineCache60.RefreshData(V_Cache.GetMergeKLine(2));
-                kLineDataDic.Add(60, kLineCache60);
+                //KLineCache kLineCache60 = new KLineCache();
+                //kLineCache60.RefreshData(V_Cache.GetMergeKLine(1));
+                //kLineDataDic.Add(60, kLineCache60);
 
                 KLineCache kLineCache240 = new KLineCache();
-                kLineCache240.RefreshData(V_Cache.GetMergeKLine(8));
+                kLineCache240.RefreshData(V_Cache.GetMergeKLine(4));
                 kLineDataDic.Add(240, kLineCache240);
 
                 KLineCache kLineCache360 = new KLineCache();
-                kLineCache360.RefreshData(V_Cache.GetMergeKLine(12));
+                kLineCache360.RefreshData(V_Cache.GetMergeKLine(6));
                 kLineDataDic.Add(360, kLineCache360);
             }
             else {
-                kLineDataDic[30] = V_Cache;
-                kLineDataDic[60].RefreshData(V_Cache.GetMergeKLine(2));
-                kLineDataDic[240].RefreshData(V_Cache.GetMergeKLine(8));
-                kLineDataDic[360].RefreshData(V_Cache.GetMergeKLine(12));
+                kLineDataDic[60] = V_Cache;
+                //kLineDataDic[60].RefreshData(V_Cache.GetMergeKLine(1));
+                kLineDataDic[240].RefreshData(V_Cache.GetMergeKLine(4));
+                kLineDataDic[360].RefreshData(V_Cache.GetMergeKLine(6));
             }
         }
 
@@ -117,7 +117,11 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         }
         else
         {
+            //int order = GetValue(true, 0, isTest);
+
             int result = GetValue(false, dir, isTest);
+
+            //return result > 0;
 
             maxPercent = maxPercent < percent ? percent : maxPercent;
 
@@ -234,7 +238,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         {
             if (orderDir > 0)
             {
-                if (closeLongValue > doLongValue * 2)
+                if (closeLongValue > doLongValue)
                 {
                     return 1;
                 }
@@ -243,7 +247,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
             if (orderDir < 0)
             {
 
-                if (closeShortValue > doShortValue * 2)
+                if (closeShortValue > doShortValue)
                 {
                     return 1;
                 }

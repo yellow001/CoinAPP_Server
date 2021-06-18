@@ -281,7 +281,7 @@ namespace CoinAPP_Server.App
 
                 id = int.Parse(list[0]);
 
-                type = (MatchItemType)Enum.Parse(typeof(MatchItemType), list[1]);
+                type = (MatchItemType)Enum.Parse(typeof(MatchItemType), list[2]);
 
                 actionType = (MatchItemActionType)Enum.Parse(typeof(MatchItemActionType), list[2]);
 

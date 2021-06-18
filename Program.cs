@@ -50,16 +50,16 @@ namespace CoinAPP_Server
             //Console.WriteLine(dr.rows);
 
 #if true
-            Test t = new Test();
+            //Test t = new Test();
 
-            //if (AppSetting.Ins.GetInt("Mode") == 1)
-            //{
-            //    HttpHandler handler2 = new HttpHandler(new ASpotHandle(), AppSetting.Ins.GetValue("HttpUtlA"));
-            //}
-            //else
-            //{
-            //    HttpHandler handler = new HttpHandler(new SpotHandle(), AppSetting.Ins.GetValue("HttpUtl"));
-            //}
+            if (AppSetting.Ins.GetInt("Mode") == 1)
+            {
+                HttpHandler handler2 = new HttpHandler(new ASpotHandle(), AppSetting.Ins.GetValue("HttpUtlA"));
+            }
+            else
+            {
+                HttpHandler handler = new HttpHandler(new SpotHandle(), AppSetting.Ins.GetValue("HttpUtl"));
+            }
 
 
             while (true)

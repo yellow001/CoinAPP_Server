@@ -102,7 +102,9 @@ namespace CoinAPP_Server.App
                         bool match = true;
                         for (int i = 0; i < maList.Count -1; i++)
                         {
-                            if (maList[i]<maList[i+1])
+                            float perValue = MathF.Abs((maList[i] - maList[i + 1]) / maList[i + 1] * 100);
+
+                            if (perValue>1&&maList[i]<maList[i+1])
                             {
                                 match = false;
                                 break;
@@ -281,7 +283,7 @@ namespace CoinAPP_Server.App
 
                 id = int.Parse(list[0]);
 
-                type = (MatchItemType)Enum.Parse(typeof(MatchItemType), list[2]);
+                type = (MatchItemType)Enum.Parse(typeof(MatchItemType), list[1]);
 
                 actionType = (MatchItemActionType)Enum.Parse(typeof(MatchItemActionType), list[2]);
 

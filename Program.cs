@@ -49,7 +49,7 @@ namespace CoinAPP_Server
 
             //Console.WriteLine(dr.rows);
 
-#if true
+#if false
             //Test t = new Test();
 
             if (AppSetting.Ins.GetInt("Mode") == 1)

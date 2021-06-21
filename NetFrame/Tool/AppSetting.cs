@@ -53,6 +53,17 @@ namespace NetFrame.Tool
             return result;
         }
 
+        public List<int> GetIntList(string name,string split="_")
+        {
+            string[] value = GetValue(name).Split(split,StringSplitOptions.RemoveEmptyEntries);
+            List<int> result = new List<int>();
+            for (int i = 0; i < value.Length; i++)
+            {
+                result.Add(int.Parse(value[i]));
+            }
+            return result;
+        }
+
         public float GetFloat(string name)
         {
             float result = 0;

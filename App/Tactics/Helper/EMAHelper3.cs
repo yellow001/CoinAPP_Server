@@ -26,7 +26,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
     Dictionary<int, KLineCache> kLineDataDic = new Dictionary<int, KLineCache>();
 
-    public List<int> MinList = new List<int>() {30,60,240,360};
+    public List<int> V_MinList = new List<int>() {30,60,240,360};
 
     #region 重载
     /// <summary>
@@ -46,6 +46,8 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
             V_Leverage = float.Parse(strs[3]);
         }
         base.Init(setting);
+
+        V_MinList = AppSetting.Ins.GetIntList("MinList");
     }
 
     /// <summary>
@@ -74,28 +76,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
     {
         if (isTest)
         {
-            if (kLineDataDic.Count <= 0)
-            {
-                kLineDataDic.Add(30, V_Cache);
-
-                KLineCache kLineCache60 = new KLineCache();
-                kLineCache60.RefreshData(V_Cache.GetMergeKLine(2));
-                kLineDataDic.Add(60, kLineCache60);
-
-                KLineCache kLineCache240 = new KLineCache();
-                kLineCache240.RefreshData(V_Cache.GetMergeKLine(8));
-                kLineDataDic.Add(240, kLineCache240);
-
-                KLineCache kLineCache360 = new KLineCache();
-                kLineCache360.RefreshData(V_Cache.GetMergeKLine(12));
-                kLineDataDic.Add(360, kLineCache360);
-            }
-            else {
-                kLineDataDic[30] = V_Cache;
-                kLineDataDic[60].RefreshData(V_Cache.GetMergeKLine(2));
-                kLineDataDic[240].RefreshData(V_Cache.GetMergeKLine(8));
-                kLineDataDic[360].RefreshData(V_Cache.GetMergeKLine(12));
-            }
+            UpdateTestData();
         }
 
         return GetValue(true, 0, isTest);
@@ -110,6 +91,11 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
     protected override bool OnShouldCloseOrder(int dir, float percent, bool isTest = false)
     {
 
+        if (isTest)
+        {
+            UpdateTestData();
+        }
+
         if (percent <= lossPercent)
         {
             //无条件止损
@@ -118,35 +104,76 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         else
         {
             int result = GetValue(false, dir, isTest);
+            int order = GetValue(true, dir, isTest);
 
-            maxPercent = maxPercent < percent ? percent : maxPercent;
+            //maxPercent = maxPercent < percent ? percent : maxPercent;
 
-            if (percent >= winPercent)
+            //if (percent >= winPercent)
+            //{
+            //    return result > 0;
+            //}
+
+
+            //if (V_MaxAlready)
+            //{
+            //    return result > 0;
+            //}
+
+
+            //if (percent > winPercent)
+            //{
+            //    V_MaxAlready = true;
+            //}
+
+
+            //if (percent < lossPercent * V_Length)
+            //{
+            //    return result > 0;
+            //}
+
+            DateTime t = DateTime.UtcNow;
+
+            if (isTest)
             {
-                return result > 0;
+                t = V_Cache.V_KLineData[0].V_Timestamp;
+            }
+            //if ((t - V_LastOpTime).TotalMinutes > AppSetting.Ins.GetInt("ForceOrderTime") * V_Min)
+            //{
+            //    //持仓时间有点久了，看机会溜吧
+            //    return percent > 0 && (result > 0 || order != dir);
+            //}
+            if ((t - V_LastOpTime).TotalMinutes <= AppSetting.Ins.GetInt("ForceOrderTimeShort") * V_Min)
+            {
+                //开仓没多久就亏损，溜
+                return percent < -5;
             }
 
+            //return percent < -5 && result > 0;
 
-            if (V_MaxAlready)
-            {
-                return result > 0;
-            }
-
-
-            if (percent > winPercent)
-            {
-                V_MaxAlready = true;
-            }
-
-
-            if (percent < lossPercent * V_Length)
-            {
-                return result > 0;
-            }
+            return result > 0;
         }
         return false;
     }
 
+    void UpdateTestData()
+    {
+        if (kLineDataDic.Count <= 0)
+        {
+            for (int i = 0; i < V_MinList.Count; i++)
+            {
+                KLineCache cache = new KLineCache();
+                cache.RefreshData(V_Cache.GetMergeKLine(V_MinList[i]/60));
+                kLineDataDic.Add(V_MinList[i], cache);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < V_MinList.Count; i++)
+            {
+                kLineDataDic[V_MinList[i]].RefreshData(V_Cache.GetMergeKLine(V_MinList[i] / 60));
+            }
+        }
+    }
     #endregion
 
     #region 策略方法
@@ -207,13 +234,13 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         List<int> tempList1 = new List<int>();
         List<int> tempList2 = new List<int>();
 
-        float doLongValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoLong, kLineDataDic, V_LongShortRatio, ref tempList1);
+        float doLongValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoLong, kLineDataDic, V_LongShortRatio,V_CycleList, ref tempList1);
 
-        float doShortValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoShort, kLineDataDic, V_LongShortRatio, ref tempList2);
+        float doShortValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoShort, kLineDataDic, V_LongShortRatio, V_CycleList, ref tempList2);
 
-        float closeLongValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.CloseLong, kLineDataDic, V_LongShortRatio, ref tempList);
+        float closeLongValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.CloseLong, kLineDataDic, V_LongShortRatio, V_CycleList, ref tempList);
 
-        float closeShortValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.CLoseShort, kLineDataDic, V_LongShortRatio, ref tempList);
+        float closeShortValue = matchItemHandler.GetMatchValue(MatchItemType.Swap, MatchItemActionType.CLoseShort, kLineDataDic, V_LongShortRatio, V_CycleList, ref tempList);
 
 
         #region 4.0
@@ -222,7 +249,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         if (isOrder)
         {
 
-            if (doShortValue>doLongValue*2)
+            if ((doShortValue+closeLongValue)>(doLongValue+closeShortValue)*2)
             {
                 if (!isTest)
                 {
@@ -239,7 +266,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
                 return -1;
             }
 
-            if (doLongValue>doShortValue*2)
+            if ((doLongValue+closeShortValue)>(doShortValue+closeLongValue)*2)
             {
                 if (!isTest)
                 {
@@ -259,7 +286,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
         {
             if (orderDir > 0)
             {
-                if (closeLongValue > doLongValue * 2)
+                if ((doShortValue + closeLongValue) > (doLongValue + closeShortValue) * 2)
                 {
                     return 1;
                 }
@@ -268,7 +295,7 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
             if (orderDir < 0)
             {
 
-                if (closeShortValue > doShortValue * 2)
+                if ((doLongValue + closeShortValue) > (doShortValue + closeLongValue) * 2)
                 {
                     return 1;
                 }
@@ -281,9 +308,9 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
     public override async Task F_AfterHandleOrder(AccountInfo info)
     {
-        for (int i = 0; i < MinList.Count; i++)
+        for (int i = 0; i < V_MinList.Count; i++)
         {
-            int value = MinList[i];
+            int value = V_MinList[i];
             JContainer con = await CommonData.Ins.V_SwapApi.getCandlesDataAsync(V_Instrument_id, DateTime.Now.AddMinutes(-value * 200), DateTime.Now, 60 * value);
 
             if (kLineDataDic.ContainsKey(value))
@@ -305,12 +332,12 @@ public class EMAHelper3 : BaseTaticsHelper, ICycleTatics
 
     public void SetCycle(string setting)
     {
-        MinList.Clear();
+        V_CycleList.Clear();
         string[] cycles = setting.Split('_');
 
         for (int i = 0; i < cycles.Length; i++)
         {
-            MinList.Add(int.Parse(cycles[i]));
+            V_CycleList.Add(int.Parse(cycles[i]));
         }
     }
 

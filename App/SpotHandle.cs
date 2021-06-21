@@ -34,6 +34,8 @@ namespace CoinAPP_Server.App
 
         public Dictionary<int, KLineCache> kLineDataDic = new Dictionary<int, KLineCache>();
 
+        List<int> V_CycleList = new List<int> { 7, 14, 120 };
+
         public SpotData() { }
 
         public SpotData(string c,string name) {
@@ -70,13 +72,13 @@ namespace CoinAPP_Server.App
         public int GetCommandValue(bool debug=true) {
             List<int> tempList = new List<int>();
 
-            float doLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot,MatchItemActionType.DoLong, kLineDataDic, 1, ref tempList);
+            float doLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot,MatchItemActionType.DoLong, kLineDataDic, 1, V_CycleList, ref tempList);
 
-            float doShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.DoShort, kLineDataDic, 1, ref tempList);
+            float doShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.DoShort, kLineDataDic, 1, V_CycleList, ref tempList);
 
-            float closeLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.CloseLong, kLineDataDic, 1, ref tempList);
+            float closeLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.CloseLong, kLineDataDic, 1, V_CycleList, ref tempList);
 
-            float closeShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.CLoseShort, kLineDataDic, 1, ref tempList);
+            float closeShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.CLoseShort, kLineDataDic, 1, V_CycleList, ref tempList);
 
 
             float result = (int)(doLongValue + closeShortValue - doShortValue - closeLongValue)*10;

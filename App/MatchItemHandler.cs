@@ -58,7 +58,7 @@ namespace CoinAPP_Server.App
         }
 
 
-        public float GetMatchValue(MatchItemType type, MatchItemActionType actionType,Dictionary<int, KLineCache> klineDataDic, float btcLSPercent, ref List<int> matchIDList) {
+        public float GetMatchValue(MatchItemType type, MatchItemActionType actionType,Dictionary<int, KLineCache> klineDataDic, float btcLSPercent,List<int> MACycleList, ref List<int> matchIDList) {
             float result = 0;
             if (matchListDic.ContainsKey(actionType))
             {
@@ -68,7 +68,7 @@ namespace CoinAPP_Server.App
                 {
                     if (list[i].type == type)
                     {
-                        float matchValue = list[i].IsMatch(klineDataDic, btcLSPercent);
+                        float matchValue = list[i].IsMatch(klineDataDic, btcLSPercent,MACycleList);
 
                         if (matchValue > 0)
                         {

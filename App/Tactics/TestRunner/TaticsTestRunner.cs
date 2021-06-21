@@ -40,7 +40,7 @@ public class TaticsTestRunner
 
     int curentIndex = 0;
 
-    int count = 200;
+    int count = 400;
 
     float orderPercent = 0.3236f;
 
@@ -253,7 +253,7 @@ public class TaticsTestRunner
 
         float p = removeItem.GetPercentTest(kline, limit?helper.V_LossPercent:-10000);
 
-        p = p - 5;
+        //p = p;
 
         float temp = 0;
         temp = (p * 0.01f + percent) * removeItem.V_AllVol;

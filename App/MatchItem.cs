@@ -23,6 +23,7 @@ namespace CoinAPP_Server.App
         EMA = 2,
         BtcLSPercent=3,
         PriceList = 4,
+        OldPrice=5,
     }
 
     public class MatchConditionItem {
@@ -68,7 +69,7 @@ namespace CoinAPP_Server.App
             }
         }
 
-        public bool IsMatch(Dictionary<int, KLineCache> klineDataDic, float btcLSPercent)
+        public bool IsMatch(Dictionary<int, KLineCache> klineDataDic, float btcLSPercent, List<int> MACycleList)
         {
 
             switch (type)
@@ -88,7 +89,18 @@ namespace CoinAPP_Server.App
                         for (int i = 0; i < paramsList1.Count; i++)
                         {
 
-                            float maValue = MA.GetMA((int)paramsList1[i], kLineCache.V_KLineData);
+                            int maIndex = (int)paramsList1[i];
+
+                            float maValue = 0;
+
+                            if (maIndex == 0)
+                            {
+                                maValue = kLineCache.V_KLineData[0].V_ClosePrice;
+                            }
+                            else {
+                                maValue = MA.GetMA(MACycleList[maIndex-1], kLineCache.V_KLineData);
+                            }
+                            
 
                             maList.Add(maValue);
 
@@ -151,13 +163,23 @@ namespace CoinAPP_Server.App
 
                         for (int i = 0; i < paramsList1.Count; i++)
                         {
+                            int maIndex = (int)paramsList1[i];
 
-                            float emaValue = EMA.GetEMA((int)paramsList1[i], kLineCache.V_KLineData);
+                            float maValue = 0;
 
-                            maList.Add(emaValue);
+                            if (maIndex == 0)
+                            {
+                                maValue = kLineCache.V_KLineData[0].V_ClosePrice;
+                            }
+                            else
+                            {
+                                maValue = EMA.GetEMA(MACycleList[maIndex - 1], kLineCache.V_KLineData);
+                            }
+
+                            maList.Add(maValue);
 
 
-                            float perValue = MathF.Abs((kLineCache.V_KLineData[0].V_ClosePrice - emaValue) / emaValue * 100);
+                            float perValue = MathF.Abs((kLineCache.V_KLineData[0].V_ClosePrice - maValue) / maValue * 100);
 
                             perList.Add(perValue);
 
@@ -256,6 +278,50 @@ namespace CoinAPP_Server.App
                         return match;
                     }
                     break;
+                case MatchConditionType.OldPrice:
+
+                    value = (int)args1;
+
+                    if (klineDataDic.ContainsKey(value))
+                    {
+                        KLineCache kLineCache = klineDataDic[value];
+
+                        bool match = false;
+
+                        int startInedx = (int)paramsList1[0];
+                        int dir = (int)paramsList1[1];
+                        int count = Math.Abs(dir);
+
+                        float curValue = kLineCache.V_KLineData[0].V_ClosePrice;
+
+                        if (startInedx <= kLineCache.V_KLineData.Count)
+                        {
+                            float p1 = kLineCache.V_KLineData[startInedx].GetAvg();
+                            float p2 = kLineCache.V_KLineData[startInedx - count].GetAvg();
+
+                            float percent = MathF.Abs((p1 - p2) / p2 * 100);
+
+                            if (percent > 2)
+                            {
+                                if (dir > 0)
+                                {
+                                    if (p1 < p2 && curValue < p1)
+                                    {
+                                        match = true;
+                                    }
+                                }
+                                else
+                                {
+                                    if (p1 > p2 && curValue > p1)
+                                    {
+                                        match = true;
+                                    }
+                                }
+                            }
+                        }
+                        return match;
+                    }
+                    break;
                 default:
                     break;
             }
@@ -299,11 +365,11 @@ namespace CoinAPP_Server.App
             }
         }
 
-        public float IsMatch(Dictionary<int,KLineCache> klineDataDic,float btcLSPercent) {
+        public float IsMatch(Dictionary<int,KLineCache> klineDataDic,float btcLSPercent, List<int> MaCycleList) {
 
             for (int i = 0; i < matchConditions.Count; i++)
             {
-                if (!matchConditions[i].IsMatch(klineDataDic,btcLSPercent))
+                if (!matchConditions[i].IsMatch(klineDataDic,btcLSPercent,MaCycleList))
                 {
                     return 0;
                 }

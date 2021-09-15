@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetFrame.Tool;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -17,6 +18,10 @@ namespace CoinAPP_Server.App
             get {
                 if (ins == null)
                 {
+                    if (AppSetting.Ins.GetInt("Mode") == 1)
+                    {
+                        settingPath = AppDomain.CurrentDomain.BaseDirectory + "/" + "MatchListA.txt";
+                    }
                     ins = new MatchItemHandler();
                 }
 
@@ -74,6 +79,7 @@ namespace CoinAPP_Server.App
                         {
                             result += matchValue;
                             matchIDList.Add(list[i].id);
+                            //Debugger.Log(list[i].id.ToString());
                         }
                     }
                 }

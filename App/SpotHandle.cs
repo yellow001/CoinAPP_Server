@@ -54,16 +54,19 @@ namespace CoinAPP_Server.App
 
             if (debug)
             {
-                Debugger.Log(SpotName + "  推荐值：" + recommandValue);
+                Debugger.Log(coin + "  "+SpotName + "  推荐值：" + recommandValue);
             }
         }
 
         public float GetAllPrice() {
-            float p = MA.GetMA(5, dayData.V_KLineData);
+
+            int length = Math.Min(5, dayData.V_KLineData.Count);
+
+            float p = MA.GetMA(length, dayData.V_KLineData);
 
             List<float> vol = dayData.V_KLineData.Select((data) => data.V_Vol).ToList();
 
-            float v = MA.GetMA(5, vol);
+            float v = MA.GetMA(length, vol);
 
             return p * v;
         }
@@ -81,78 +84,78 @@ namespace CoinAPP_Server.App
             float closeShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.CLoseShort, kLineDataDic, 1, V_CycleList, ref tempList);
 
 
-            float result = (int)(doLongValue + closeShortValue - doShortValue - closeLongValue)*10;
+            float result = doLongValue + closeShortValue - doShortValue - closeLongValue;
 
-            if (result<=0)
-            {
-                return 0;
-            }
+            //if (result<=0)
+            //{
+            //    return 0;
+            //}
 
-            float hourMA25 = MA.GetMA(25, hourData.V_KLineData);
+            //float hourMA25 = MA.GetMA(25, hourData.V_KLineData);
 
-            float hourKMA25 = hourMA25 - MA.GetMA(25, hourData.V_KLineData.GetRange(6, 50));
-
-
-            float result_hour = 0;
-            if (V_CurPrice >= hourMA25)
-            {
-                result_hour += 1;
-            }
-            if (hourKMA25 > 0)
-            {
-                result_hour += 2;
-            }
+            //float hourKMA25 = hourMA25 - MA.GetMA(25, hourData.V_KLineData.GetRange(6, 50));
 
 
-            float sixHourMA10 = MA.GetMA(10, sixHourData.V_KLineData);
-
-            float sixHourMA30 = MA.GetMA(30, sixHourData.V_KLineData);
-
-            float sixHourKMA30 = sixHourMA30 - MA.GetMA(30, sixHourData.V_KLineData.GetRange(6, 50));
-
-
-            float result_sixhour = 0;
-            if (V_CurPrice >= sixHourMA10)
-            {
-                result_sixhour += 1;
-            }
-            if (V_CurPrice >= sixHourMA30)
-            {
-                result_sixhour += 1;
-            }
-            if (sixHourKMA30 > 0)
-            {
-                result_sixhour += 2;
-            }
-
-            float per = Math.Abs((V_CurPrice - sixHourMA30) / sixHourMA30) * 100;
-
-            if (V_CurPrice >= sixHourMA30 && per < 5 && per > 0)
-            {
-                result_sixhour += 8 - per;
-            }
-
-            float dayMA7 = MA.GetMA(7, dayData.V_KLineData);
-            float dayMA25 = MA.GetMA(25, dayData.V_KLineData);
+            //float result_hour = 0;
+            //if (V_CurPrice >= hourMA25)
+            //{
+            //    result_hour += 1;
+            //}
+            //if (hourKMA25 > 0)
+            //{
+            //    result_hour += 2;
+            //}
 
 
-            float result_day = 0;
-            if (V_CurPrice >= dayMA7)
-            {
-                result_day += 1;
-            }
+            //float sixHourMA10 = MA.GetMA(10, sixHourData.V_KLineData);
 
-            per = Math.Abs((V_CurPrice - dayMA25) / dayMA25) * 100;
-            if (V_CurPrice >= dayMA25 && per < 5 && per > 0)
-            {
-                result_day += 10 - per;
-            }
-            else if (V_CurPrice >= dayMA25 && per < 10 && per > 0)
-            {
-                result_day += 5 - per;
-            }
+            //float sixHourMA30 = MA.GetMA(30, sixHourData.V_KLineData);
 
-            result += (result_hour + result_sixhour + result_day * 2) / 4;
+            //float sixHourKMA30 = sixHourMA30 - MA.GetMA(30, sixHourData.V_KLineData.GetRange(6, 50));
+
+
+            //float result_sixhour = 0;
+            //if (V_CurPrice >= sixHourMA10)
+            //{
+            //    result_sixhour += 1;
+            //}
+            //if (V_CurPrice >= sixHourMA30)
+            //{
+            //    result_sixhour += 1;
+            //}
+            //if (sixHourKMA30 > 0)
+            //{
+            //    result_sixhour += 2;
+            //}
+
+            //float per = Math.Abs((V_CurPrice - sixHourMA30) / sixHourMA30) * 100;
+
+            //if (V_CurPrice >= sixHourMA30 && per < 5 && per > 0)
+            //{
+            //    result_sixhour += 8 - per;
+            //}
+
+            //float dayMA7 = MA.GetMA(7, dayData.V_KLineData);
+            //float dayMA25 = MA.GetMA(25, dayData.V_KLineData);
+
+
+            //float result_day = 0;
+            //if (V_CurPrice >= dayMA7)
+            //{
+            //    result_day += 1;
+            //}
+
+            //per = Math.Abs((V_CurPrice - dayMA25) / dayMA25) * 100;
+            //if (V_CurPrice >= dayMA25 && per < 5 && per > 0)
+            //{
+            //    result_day += 10 - per;
+            //}
+            //else if (V_CurPrice >= dayMA25 && per < 10 && per > 0)
+            //{
+            //    result_day += 5 - per;
+            //}
+
+            //result += (result_hour + result_sixhour + result_day * 2) / 4;
 
             return (int)result;
         }

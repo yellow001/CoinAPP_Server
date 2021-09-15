@@ -34,6 +34,8 @@ namespace CoinAPP_Server.App
 
         public List<ASpotData> m_allResult = new List<ASpotData>();
 
+        public List<ASpotData> m_stResult = new List<ASpotData>();
+
         public List<string> typeKeys = new List<string>();
 
         bool running = false;
@@ -43,6 +45,10 @@ namespace CoinAPP_Server.App
         bool init = true;
 
         public string htmlPath = AppDomain.CurrentDomain.BaseDirectory + "/" + "index.html";
+
+        TimeEventModel getKLineData;
+
+        int curIndex = 0;
 
         public ASpotHandle()
         {
@@ -68,40 +74,75 @@ namespace CoinAPP_Server.App
         {
             KLineCache tempCache = new KLineCache();
 
-            foreach (var item in m_List.Keys)
+            List<string> keys = m_List.Keys.ToList();
+
+            //获取K线数据
+            //获取近200条K线
+            try
             {
-                //获取K线数据
-                //获取近200条K线
+                ASpotData spotData = m_List[keys[curIndex]];
 
-                try
-                {
-                    ASpotData spotData = m_List[item];
+                //Debugger.Log("获取K线数据：" + spotData.SpotName);
 
-                    //Debugger.Log("获取K线数据：" + spotData.SpotName);
+                string result = GetKLineData(spotData.coin, 60, 400);
+                JContainer con = JArray.Parse(result);
+                spotData.hourData.RefreshAData(con);
 
-                    string result = GetKLineData(spotData.coin, 60,400);
-                    JContainer con  = JArray.Parse(result);
-                    spotData.hourData.RefreshAData(con);
+                spotData.sixHourData.RefreshData(spotData.hourData.GetMergeKLine(6));
 
-                    spotData.sixHourData.RefreshData(spotData.hourData.GetMergeKLine(6));
+                result = GetKLineData(spotData.coin, 4 * 60, 400);
+                con = JArray.Parse(result);
 
-                    result = GetKLineData(spotData.coin, 4 * 60,400);
-                    con = JArray.Parse(result);
-                    
-                    tempCache.RefreshAData(con);
+                //tempCache.RefreshAData(con);
+                //spotData.dayData.RefreshData(tempCache.GetMergeKLine(6));
 
-                    spotData.dayData.RefreshData(tempCache.GetMergeKLine(6));
+                //4h的其实是day
+                spotData.dayData.RefreshAData(con);
 
+                spotData.kLineDataDic[60] = spotData.hourData;
+                spotData.kLineDataDic[360] = spotData.sixHourData;
+                spotData.kLineDataDic[1440] = spotData.dayData;
 
-                    //计算推荐值
-                    spotData.RefreshCommandValue(debug);
-                }
-                catch (Exception ex)
-                {
-                    Debugger.Error(ex.ToString());
-                }
+                //计算推荐值
+                spotData.RefreshCommandValue(debug);
+            }
+            catch (Exception ex)
+            {
+                Debugger.Error(ex.ToString());
+                TimeEventHandler.Ins.RemoveEvent(getKLineData);
+                TimeEventHandler.Ins.AddEvent(
+                    new TimeEventModel(300, 1, () => { TimeEventHandler.Ins.AddEvent(getKLineData); })
+                );
+                return;
             }
 
+            curIndex++;
+
+            if (curIndex == keys.Count)
+            {
+
+                curIndex = 0;
+                SortData();
+            }
+        }
+
+        async void Handle()
+        {
+            running = true;
+
+            if (getKLineData == null)
+            {
+                getKLineData = new TimeEventModel(2f, -1, () =>
+                {
+                    GetKLineValue(true);
+                });
+            }
+            TimeEventHandler.Ins.RemoveEvent(getKLineData);
+            TimeEventHandler.Ins.AddEvent(getKLineData);
+        }
+
+        void SortData()
+        {
             try
             {
                 //排序 
@@ -128,6 +169,15 @@ namespace CoinAPP_Server.App
 
                         return 1;
                     });
+                }
+
+                m_stResult.Clear();
+                foreach (var item in m_allResult)
+                {
+                    if (item.SpotName.Contains("ST"))
+                    {
+                        m_stResult.Add(item);
+                    }
                 }
 
                 typeKeys = typeDataList.Keys.ToList();
@@ -164,14 +214,6 @@ namespace CoinAPP_Server.App
             {
                 Debugger.Error(ex.ToString());
             }
-        }
-
-        async void Handle()
-        {
-            running = true;
-
-
-            GetKLineValue(false);
 
             updateTime = DateTime.Now;
             running = false;
@@ -192,6 +234,7 @@ namespace CoinAPP_Server.App
 
             StringBuilder sb = new StringBuilder();
 
+            sb.AppendLine("排除科创股<br>");
             sb.AppendLine("总推荐（前16）<br>");
 
             if (m_allResult.Count > 16 && !init)
@@ -204,6 +247,13 @@ namespace CoinAPP_Server.App
                     {
                         sb.AppendLine(m_allResult[i].coin + "  " + m_allResult[i].SpotName + "  " +m_allResult[i].Type + "  " + m_allResult[i].recommandValue + "<br>");
                     }
+                }
+
+                sb.AppendLine("<br><br>(o゜▽゜)o☆  st推荐 前8 <br>");
+                int max = Math.Min(m_stResult.Count, 8);
+                for (int i = 0; i < max; i++)
+                {
+                    sb.AppendLine(m_stResult[i].coin + "  " + m_stResult[i].SpotName + "  " + m_stResult[i].Type + "  " + m_stResult[i].recommandValue + "<br>");
                 }
 
                 sb.AppendLine("<br><br>(o゜▽゜)o☆  各行业推荐 前5 <br>");
@@ -229,7 +279,7 @@ namespace CoinAPP_Server.App
             }
             else
             {
-                sb.AppendLine("还没初始化完呢。。。看jb   ╮(╯_╰)╭<br><br>");
+                sb.AppendFormat("还没初始化完呢。。。看jb   进度({0}/{1})╮(╯_╰)╭<br><br>\n",curIndex, m_List.Count);
             }
 
             sb.AppendLine("<br>更新时间：" + updateTime.ToString());
@@ -282,9 +332,14 @@ namespace CoinAPP_Server.App
                             {
                                 // reader.GetDouble(0);
 
-                                string name = reader.GetString(1);
+                                string name = reader.GetString(5);
                                 string id = reader.GetString(4);
                                 string type = reader.GetString(17);
+
+                                if (id.StartsWith("3"))
+                                {
+                                    continue;
+                                }
 
                                 ASpotData data = new ASpotData(id, name, type);
 

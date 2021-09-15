@@ -98,6 +98,12 @@ namespace CoinAPP_Server.App
                                 maValue = kLineCache.V_KLineData[0].V_ClosePrice;
                             }
                             else {
+
+                                if (MACycleList[maIndex - 1] > kLineCache.V_KLineData.Count)
+                                {
+                                    return false;
+                                }
+
                                 maValue = MA.GetMA(MACycleList[maIndex-1], kLineCache.V_KLineData);
                             }
                             
@@ -173,6 +179,10 @@ namespace CoinAPP_Server.App
                             }
                             else
                             {
+                                if (MACycleList[maIndex - 1] > kLineCache.V_KLineData.Count)
+                                {
+                                    return false;
+                                }
                                 maValue = EMA.GetEMA(MACycleList[maIndex - 1], kLineCache.V_KLineData);
                             }
 
@@ -254,6 +264,11 @@ namespace CoinAPP_Server.App
                         bool match = true;
 
                         int count = (int)paramsList1[0];
+
+                        if (Math.Abs(count) + 1 > kLineCache.V_KLineData.Count)
+                        {
+                            return false;
+                        }
 
                         if (count > 0)
                         {

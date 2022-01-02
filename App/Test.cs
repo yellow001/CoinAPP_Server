@@ -27,6 +27,12 @@ namespace CoinAPP_Server.App
         async void Start()
         {
 
+
+            List<KLine> history_data = new List<KLine>();
+
+            OKExV5APi api = CommonData.Ins.V5pApi;
+
+
             //AccountAPIKey api = new AccountAPIKey(keys);
             //web.WebSocketPush += Result;
 
@@ -37,27 +43,30 @@ namespace CoinAPP_Server.App
 
 
             //SpotApi api = new SpotApi("", "", "");
-            //DateTime t_start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1, 0, 0, 0);
+            DateTime t_start = DateTime.Now.AddMinutes(-100);
 
 
-            //DateTime t_end = DateTime.Now;
-            //int length = 5;
-            //while (t_start.AddMinutes(length * 200) < t_end)
-            //{
-            //    JContainer con = await api.getCandlesAsync("BTC-USDT", t_start, t_start.AddMinutes(length * 200), length * 60);
+            DateTime t_end = DateTime.Now;
 
-            //    List<KLine> d = KLine.GetListFormJContainer(con);
+            TimeSpan timeSpan = t_end - new DateTime(1970, 1, 1);
 
-            //    d.AddRange(data);
+            Console.WriteLine(timeSpan.TotalSeconds);
 
-            //    data.Clear();
+            timeSpan = TimeZoneInfo.ConvertTimeToUtc(t_end) - new DateTime(1970, 1, 1);
 
-            //    data.AddRange(d);
+            Console.WriteLine(timeSpan.TotalSeconds);
 
-            //    //Console.WriteLine(d.Count);
+            //return;
 
-            //    t_start = t_start.AddMinutes(length * 200);
-            //}
+            int length = 1;
+            while (t_start.AddMinutes(length * 100) < t_end)
+            {
+                JContainer con = await api.getCandlesDataAsyncV5("BTC-USDT", t_start, t_start.AddMinutes(length * 100), length);
+
+                List<KLine> d = KLine.GetListFormJContainer(con);
+
+                t_start = t_start.AddMinutes(length * 100);
+            }
 
             //SwapApi api = new SwapApi("", "", "");
             //DateTime t_start = DateTime.Now.AddMinutes(-5 * 181);

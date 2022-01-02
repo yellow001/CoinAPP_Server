@@ -6,6 +6,6 @@ namespace CoinAPP_Server.App
 {
     public interface SpotHandleInterface
     {
-        string GetResult();
+        string GetResult(bool useHtml=true);
     }
 }

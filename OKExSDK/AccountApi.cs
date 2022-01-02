@@ -11,7 +11,7 @@ namespace OKExSDK
 {
     public class AccountApi : SdkApi
     {
-        private string ACCOUNT_SEGMENT = "api/account/v3";
+        private string ACCOUNT_SEGMENT = "api/account/v5";
         public AccountApi(string apiKey, string secret, string passPhrase) : base(apiKey, secret, passPhrase) { }
 
         /// <summary>

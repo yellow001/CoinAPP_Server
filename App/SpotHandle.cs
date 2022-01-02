@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 
 namespace CoinAPP_Server.App
 {
-    public class SpotData {
+    public class SpotData
+    {
 
         public string coin;
 
@@ -32,33 +33,39 @@ namespace CoinAPP_Server.App
 
         public int recommandValue;
 
+        public int shortRecommandValue;
+
         public Dictionary<int, KLineCache> kLineDataDic = new Dictionary<int, KLineCache>();
 
         List<int> V_CycleList = new List<int> { 7, 14, 120 };
 
         public SpotData() { }
 
-        public SpotData(string c,string name) {
+        public SpotData(string c, string name)
+        {
             coin = c;
             SpotName = name;
         }
 
 
-        public void RefreshCommandValue(bool debug=true) {
+        public void RefreshCommandValue(bool debug = true)
+        {
             V_CurPrice = dayData.V_KLineData[0].V_ClosePrice;
             V_OpenPrice = dayData.V_KLineData[0].V_OpenPrice;
 
             V_AllPrice = GetAllPrice();
 
             recommandValue = GetCommandValue();
+            shortRecommandValue = GetShortCommandValue();
 
             if (debug)
             {
-                Debugger.Log(coin + "  "+SpotName + "  推荐值：" + recommandValue);
+                Debugger.Log(coin + "  " + SpotName + "  推荐值：" + recommandValue);
             }
         }
 
-        public float GetAllPrice() {
+        public float GetAllPrice()
+        {
 
             int length = Math.Min(5, dayData.V_KLineData.Count);
 
@@ -72,10 +79,11 @@ namespace CoinAPP_Server.App
         }
 
 
-        public int GetCommandValue(bool debug=true) {
+        public int GetCommandValue(bool debug = true)
+        {
             List<int> tempList = new List<int>();
 
-            float doLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot,MatchItemActionType.DoLong, kLineDataDic, 1, V_CycleList, ref tempList);
+            float doLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.DoLong, kLineDataDic, 1, V_CycleList, ref tempList);
 
             float doShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Spot, MatchItemActionType.DoShort, kLineDataDic, 1, V_CycleList, ref tempList);
 
@@ -86,82 +94,31 @@ namespace CoinAPP_Server.App
 
             float result = doLongValue + closeShortValue - doShortValue - closeLongValue;
 
-            //if (result<=0)
-            //{
-            //    return 0;
-            //}
 
-            //float hourMA25 = MA.GetMA(25, hourData.V_KLineData);
+            return (int)result;
+        }
 
-            //float hourKMA25 = hourMA25 - MA.GetMA(25, hourData.V_KLineData.GetRange(6, 50));
+        public int GetShortCommandValue(bool debug = true)
+        {
+            List<int> tempList = new List<int>();
 
+            float doLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoLong, kLineDataDic, 1, V_CycleList, ref tempList);
 
-            //float result_hour = 0;
-            //if (V_CurPrice >= hourMA25)
-            //{
-            //    result_hour += 1;
-            //}
-            //if (hourKMA25 > 0)
-            //{
-            //    result_hour += 2;
-            //}
+            float doShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Swap, MatchItemActionType.DoShort, kLineDataDic, 1, V_CycleList, ref tempList);
+
+            float closeLongValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Swap, MatchItemActionType.CloseLong, kLineDataDic, 1, V_CycleList, ref tempList);
+
+            float closeShortValue = MatchItemHandler.Ins.GetMatchValue(MatchItemType.Swap, MatchItemActionType.CLoseShort, kLineDataDic, 1, V_CycleList, ref tempList);
 
 
-            //float sixHourMA10 = MA.GetMA(10, sixHourData.V_KLineData);
+            float result = doLongValue + closeShortValue - doShortValue - closeLongValue;
 
-            //float sixHourMA30 = MA.GetMA(30, sixHourData.V_KLineData);
-
-            //float sixHourKMA30 = sixHourMA30 - MA.GetMA(30, sixHourData.V_KLineData.GetRange(6, 50));
-
-
-            //float result_sixhour = 0;
-            //if (V_CurPrice >= sixHourMA10)
-            //{
-            //    result_sixhour += 1;
-            //}
-            //if (V_CurPrice >= sixHourMA30)
-            //{
-            //    result_sixhour += 1;
-            //}
-            //if (sixHourKMA30 > 0)
-            //{
-            //    result_sixhour += 2;
-            //}
-
-            //float per = Math.Abs((V_CurPrice - sixHourMA30) / sixHourMA30) * 100;
-
-            //if (V_CurPrice >= sixHourMA30 && per < 5 && per > 0)
-            //{
-            //    result_sixhour += 8 - per;
-            //}
-
-            //float dayMA7 = MA.GetMA(7, dayData.V_KLineData);
-            //float dayMA25 = MA.GetMA(25, dayData.V_KLineData);
-
-
-            //float result_day = 0;
-            //if (V_CurPrice >= dayMA7)
-            //{
-            //    result_day += 1;
-            //}
-
-            //per = Math.Abs((V_CurPrice - dayMA25) / dayMA25) * 100;
-            //if (V_CurPrice >= dayMA25 && per < 5 && per > 0)
-            //{
-            //    result_day += 10 - per;
-            //}
-            //else if (V_CurPrice >= dayMA25 && per < 10 && per > 0)
-            //{
-            //    result_day += 5 - per;
-            //}
-
-            //result += (result_hour + result_sixhour + result_day * 2) / 4;
 
             return (int)result;
         }
     }
 
-    public class SpotHandle: SpotHandleInterface
+    public class SpotHandle : SpotHandleInterface
     {
         public Dictionary<string, SpotData> m_USDTList = new Dictionary<string, SpotData>();
 
@@ -179,11 +136,13 @@ namespace CoinAPP_Server.App
 
         bool init = true;
 
-        public List<int> MinList = new List<int>() { 60, 2*60, 4*60, 6*60, 12*60, 24*60};
+        public List<int> MinList = new List<int>() { 60, 2 * 60, 4 * 60, 6 * 60, 12 * 60, 24 * 60, 7 * 24 * 60 };
 
         public string htmlPath = AppDomain.CurrentDomain.BaseDirectory + "/" + "index.html";
 
         MatchItemHandler matchItemHandler = MatchItemHandler.Ins;
+
+        int index = 0;
 
         public SpotHandle()
         {
@@ -194,19 +153,21 @@ namespace CoinAPP_Server.App
             InitData();
             Handle();
 
-            TimeEventHandler.Ins.AddEvent(new TimeEventModel(60 * 60, -1, () => {
-                if (!running)
-                {
-                    try
-                    {
-                        Handle();
-                    }
-                    catch (Exception ex)
-                    {
-                        Debugger.Error(ex.ToString());
-                    }
-                }
-            }));
+            TimeEventHandler.Ins.AddEvent(new TimeEventModel(8 * 60 * 60, -1, () =>
+              {
+                  if (!running)
+                  {
+                      try
+                      {
+                          InitData();
+                          Handle();
+                      }
+                      catch (Exception ex)
+                      {
+                          Debugger.Error(ex.ToString());
+                      }
+                  }
+              }));
         }
 
         async void InitData()
@@ -234,25 +195,28 @@ namespace CoinAPP_Server.App
                 {
                     if (!m_USDTList.ContainsKey(coin))
                     {
-                        m_USDTList.Add(coin, new SpotData(coin,key));
+                        m_USDTList.Add(coin, new SpotData(coin, key));
                     }
                 }
 
                 if (!m_ResultDic.ContainsKey(coin))
                 {
-                    m_ResultDic.Add(coin, new SpotData(coin,""));
+                    m_ResultDic.Add(coin, new SpotData(coin, ""));
                 }
             }
-
+#if DEBUG
             await GetKLineValue(true);
+#else
+              await GetKLineValue(false);
+#endif
 
             init = false;
 
         }
 
-        async Task GetKLineValue(bool debug=true)
+        async Task GetKLineValue(bool debug = true)
         {
-
+            index = 0;
             foreach (var item in m_USDTList.Keys)
             {
                 //获取K线数据
@@ -294,8 +258,9 @@ namespace CoinAPP_Server.App
                 {
                     Debugger.Error(ex.ToString());
                 }
+                index++;
             }
-            
+
 
             foreach (var key in m_ResultDic.Keys)
             {
@@ -304,61 +269,36 @@ namespace CoinAPP_Server.App
                     m_ResultDic[key].V_CurPrice = m_USDTList[key].V_CurPrice;
                     m_ResultDic[key].V_AllPrice = m_USDTList[key].V_AllPrice;
                     m_ResultDic[key].recommandValue = m_USDTList[key].recommandValue;
+                    m_ResultDic[key].shortRecommandValue = m_USDTList[key].shortRecommandValue;
                 }
-            }
-
-            Debugger.Log("");
-
-            try
-            {
-                //排序 
-                List<SpotData> result = m_ResultDic.Values.ToList();
-
-                if (result != null && result.Count > 0)
-                {
-                    result.Sort((a, b) =>
-                    {
-                        if (a.recommandValue != b.recommandValue)
-                        {
-                            return b.recommandValue - a.recommandValue > 0 ? 1 : -1;
-                        }
-
-                        if (b.V_AllPrice != a.V_AllPrice)
-                        {
-                            return b.V_AllPrice - a.V_AllPrice > 0 ? 1 : -1;
-                        }
-
-                        if (b.V_CurPrice != a.V_CurPrice)
-                        {
-                            return b.V_CurPrice - a.V_CurPrice > 0 ? 1 : -1;
-                        }
-
-                        return 1;
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                Debugger.Error(ex.ToString());
             }
         }
 
-        async void Handle() {
+        async void Handle()
+        {
             running = true;
 
 
             await GetKLineValue(false);
             longShortRatio = await OnGetLongShortRatio(DateTime.UtcNow);
-            
+
             updateTime = DateTime.Now;
+
+            TelegramBot.Ins.SendMsg(GetResult(false));
+
             running = false;
         }
 
-        public string GetResult() {
-
+        public string GetResult(bool useHtml = true)
+        {
+            string lineStr = "<br>";
+            if (!useHtml)
+            {
+                lineStr = "\n";
+            }
             string resultStr = "";
 
-            if (File.Exists(htmlPath))
+            if (useHtml && File.Exists(htmlPath))
             {
                 using (StreamReader sr = new StreamReader(htmlPath))
                 {
@@ -368,11 +308,11 @@ namespace CoinAPP_Server.App
 
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendLine("推荐币种（前16）<br>");
-
-            if (m_ResultDic.Count > 16 && !init)
+            if (m_ResultDic.Count > 10 && !init)
             {
-                sb.AppendLine("(o゜▽゜)o☆<br><br>");
+                sb.Append("推荐币种（前10）" + lineStr);
+
+                sb.Append("(o゜▽゜)o☆" + lineStr + lineStr);
                 List<SpotData> result = m_ResultDic.Values.ToList();
                 result.Sort((a, b) =>
                 {
@@ -394,21 +334,83 @@ namespace CoinAPP_Server.App
                     return 1;
                 });
 
-                for (int i = 0; i < 16; i++)
+                for (int i = 0; i < 10; i++)
                 {
                     if (i < result.Count)
                     {
-                        sb.AppendLine(result[i].coin + "  " + result[i].recommandValue+ "<br>");
+                        sb.Append(result[i].coin + "  " + result[i].recommandValue + lineStr);
                     }
                 }
+
+                sb.Append(lineStr + lineStr);
+                //sb.Append("短线多（前4）" + lineStr);
+                //result.Sort((a, b) =>
+                //{
+                //    if (a.shortRecommandValue != b.shortRecommandValue)
+                //    {
+                //        return b.shortRecommandValue - a.shortRecommandValue > 0 ? 1 : -1;
+                //    }
+
+                //    if (b.V_AllPrice != a.V_AllPrice)
+                //    {
+                //        return b.V_AllPrice - a.V_AllPrice > 0 ? 1 : -1;
+                //    }
+
+                //    if (b.V_CurPrice != a.V_CurPrice)
+                //    {
+                //        return b.V_CurPrice - a.V_CurPrice > 0 ? 1 : -1;
+                //    }
+
+                //    return 1;
+                //});
+
+                //for (int i = 0; i < 4; i++)
+                //{
+                //    if (i < result.Count)
+                //    {
+                //        sb.Append(result[i].coin + "  " + result[i].shortRecommandValue + lineStr);
+                //    }
+                //}
+
+                //sb.Append(lineStr + lineStr);
+                //sb.Append("短线空（前4）" + lineStr);
+
+                //result.Sort((a, b) =>
+                //{
+                //    if (a.shortRecommandValue != b.shortRecommandValue)
+                //    {
+                //        return a.shortRecommandValue - b.shortRecommandValue > 0 ? 1 : -1;
+                //    }
+
+                //    if (b.V_AllPrice != a.V_AllPrice)
+                //    {
+                //        return b.V_AllPrice - a.V_AllPrice > 0 ? 1 : -1;
+                //    }
+
+                //    if (b.V_CurPrice != a.V_CurPrice)
+                //    {
+                //        return b.V_CurPrice - a.V_CurPrice > 0 ? 1 : -1;
+                //    }
+
+                //    return 1;
+                //});
+
+                //for (int i = 0; i < 4; i++)
+                //{
+                //    if (i < result.Count)
+                //    {
+                //        sb.Append(result[i].coin + "  " + result[i].shortRecommandValue + lineStr);
+                //    }
+                //}
             }
-            else {
-                sb.AppendLine("还没初始化完呢。。。看jb   ╮(╯_╰)╭<br><br>");
+            else
+            {
+                sb.AppendFormat("还没初始化完呢。。。看jb   进度({0}/{1})╮(╯_╰)╭" + lineStr + lineStr, index, m_USDTList.Count);
             }
 
-            sb.AppendLine("<br>大饼多空比：" + longShortRatio+ "<br>");
+            sb.Append(lineStr + "大饼多空比：" + longShortRatio + lineStr);
 
-            sb.AppendLine("<br>更新时间：" + updateTime.ToString());
+            sb.Append(lineStr + "更新时间：" + updateTime.ToString());
 
             resultStr = string.Format(resultStr, sb.ToString());
 

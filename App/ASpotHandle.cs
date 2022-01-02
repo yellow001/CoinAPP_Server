@@ -42,8 +42,6 @@ namespace CoinAPP_Server.App
 
         DateTime updateTime = DateTime.Now;
 
-        bool init = true;
-
         public string htmlPath = AppDomain.CurrentDomain.BaseDirectory + "/" + "index.html";
 
         TimeEventModel getKLineData;
@@ -55,11 +53,12 @@ namespace CoinAPP_Server.App
             InitData();
             Handle();
 
-            TimeEventHandler.Ins.AddEvent(new TimeEventModel(120 * 60, -1, () => {
+            TimeEventHandler.Ins.AddEvent(new TimeEventModel(24*60 * 60, -1, () => {
                 if (!running)
                 {
                     try
                     {
+                        InitData();
                         Handle();
                     }
                     catch (Exception ex)
@@ -82,22 +81,32 @@ namespace CoinAPP_Server.App
             {
                 ASpotData spotData = m_List[keys[curIndex]];
 
+                spotData.kLineDataDic.Clear();
+
                 //Debugger.Log("获取K线数据：" + spotData.SpotName);
 
                 string result = GetKLineData(spotData.coin, 60, 400);
+                if (string.IsNullOrEmpty(result))
+                {
+                    throw new Exception("no Data");
+                }
                 JContainer con = JArray.Parse(result);
                 spotData.hourData.RefreshAData(con);
 
                 spotData.sixHourData.RefreshData(spotData.hourData.GetMergeKLine(6));
 
                 result = GetKLineData(spotData.coin, 4 * 60, 400);
+                if (string.IsNullOrEmpty(result))
+                {
+                    throw new Exception("no Data");
+                }
                 con = JArray.Parse(result);
 
-                //tempCache.RefreshAData(con);
-                //spotData.dayData.RefreshData(tempCache.GetMergeKLine(6));
+                tempCache.RefreshAData(con);
+                spotData.dayData.RefreshData(tempCache.GetMergeKLine(2));
 
                 //4h的其实是day
-                spotData.dayData.RefreshAData(con);
+                //spotData.dayData.RefreshAData(con);
 
                 spotData.kLineDataDic[60] = spotData.hourData;
                 spotData.kLineDataDic[360] = spotData.sixHourData;
@@ -108,21 +117,24 @@ namespace CoinAPP_Server.App
             }
             catch (Exception ex)
             {
-                Debugger.Error(ex.ToString());
-                TimeEventHandler.Ins.RemoveEvent(getKLineData);
-                TimeEventHandler.Ins.AddEvent(
-                    new TimeEventModel(300, 1, () => { TimeEventHandler.Ins.AddEvent(getKLineData); })
-                );
+                if (!ex.ToString().Contains("timed out"))
+                {
+                    curIndex++;
+                    Debugger.Error(ex.ToString());
+                    TimeEventHandler.Ins.RemoveEvent(getKLineData);
+                    TimeEventHandler.Ins.AddEvent(
+                        new TimeEventModel(300, 1, () => { TimeEventHandler.Ins.AddEvent(getKLineData); })
+                    );
+                }
                 return;
             }
-
             curIndex++;
-
-            if (curIndex == keys.Count)
+            if (curIndex >= keys.Count)
             {
-
+                TimeEventHandler.Ins.RemoveEvent(getKLineData);
                 curIndex = 0;
                 SortData();
+                TelegramBot.Ins.SendMsg(GetResult(false));
             }
         }
 
@@ -132,9 +144,13 @@ namespace CoinAPP_Server.App
 
             if (getKLineData == null)
             {
-                getKLineData = new TimeEventModel(2f, -1, () =>
+                getKLineData = new TimeEventModel(1.25f, -1, () =>
                 {
+#if DEBUG
                     GetKLineValue(true);
+#else
+                       GetKLineValue(false);
+#endif
                 });
             }
             TimeEventHandler.Ins.RemoveEvent(getKLineData);
@@ -219,12 +235,18 @@ namespace CoinAPP_Server.App
             running = false;
         }
 
-        public string GetResult()
+        public string GetResult(bool useHtml=true)
         {
+
+            string lineStr = "<br>";
+            if (!useHtml)
+            {
+                lineStr = "\n";
+            }
 
             string resultStr = "";
 
-            if (File.Exists(htmlPath))
+            if (useHtml && File.Exists(htmlPath))
             {
                 using (StreamReader sr = new StreamReader(htmlPath))
                 {
@@ -234,29 +256,29 @@ namespace CoinAPP_Server.App
 
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendLine("排除科创股<br>");
-            sb.AppendLine("总推荐（前16）<br>");
+            sb.Append("排除科创股" + lineStr);
+            sb.Append("总推荐（前16）" + lineStr);
 
-            if (m_allResult.Count > 16 && !init)
+            if (m_allResult.Count > 16)
             {
-                sb.AppendLine("(o゜▽゜)o☆<br>");
+                sb.Append("(o゜▽゜)o☆" + lineStr);
 
                 for (int i = 0; i < 16; i++)
                 {
                     if (i < m_allResult.Count)
                     {
-                        sb.AppendLine(m_allResult[i].coin + "  " + m_allResult[i].SpotName + "  " +m_allResult[i].Type + "  " + m_allResult[i].recommandValue + "<br>");
+                        sb.Append(m_allResult[i].coin + "  " + m_allResult[i].SpotName + "  " + m_allResult[i].Type + "  " + m_allResult[i].recommandValue + lineStr);
                     }
                 }
 
-                sb.AppendLine("<br><br>(o゜▽゜)o☆  st推荐 前8 <br>");
+                sb.Append(lineStr + lineStr + "(o゜▽゜)o☆  st推荐 前8 " + lineStr);
                 int max = Math.Min(m_stResult.Count, 8);
                 for (int i = 0; i < max; i++)
                 {
-                    sb.AppendLine(m_stResult[i].coin + "  " + m_stResult[i].SpotName + "  " + m_stResult[i].Type + "  " + m_stResult[i].recommandValue + "<br>");
+                    sb.Append(m_stResult[i].coin + "  " + m_stResult[i].SpotName + "  " + m_stResult[i].Type + "  " + m_stResult[i].recommandValue + lineStr);
                 }
 
-                sb.AppendLine("<br><br>(o゜▽゜)o☆  各行业推荐 前5 <br>");
+                sb.Append(lineStr+ lineStr+"(o゜▽゜)o☆  各行业推荐 前5 " + lineStr);
 
                 foreach (var key in typeKeys)
                 {
@@ -264,14 +286,14 @@ namespace CoinAPP_Server.App
 
                     if (data != null && data.Count > 5)
                     {
-                        sb.AppendLine("<br>");
-                        sb.AppendLine(key + " <br>");
+                        sb.Append(lineStr);
+                        sb.Append(key + lineStr);
 
                         for (int j = 0; j < 5; j++)
                         {
                             if (j < data.Count)
                             {
-                                sb.AppendLine(data[j].coin + "  " + data[j].SpotName + "  " + data[j].recommandValue + "<br>");
+                                sb.Append(data[j].coin + "  " + data[j].SpotName + "  " + data[j].recommandValue + lineStr);
                             }
                         }
                     }
@@ -279,10 +301,10 @@ namespace CoinAPP_Server.App
             }
             else
             {
-                sb.AppendFormat("还没初始化完呢。。。看jb   进度({0}/{1})╮(╯_╰)╭<br><br>\n",curIndex, m_List.Count);
+                sb.AppendFormat("还没初始化完呢。。。看jb   进度({0}/{1})╮(╯_╰)╭" + lineStr + lineStr, curIndex, m_List.Count);
             }
 
-            sb.AppendLine("<br>更新时间：" + updateTime.ToString());
+            sb.Append(lineStr + "更新时间：" + updateTime.ToString());
 
             resultStr = string.Format(resultStr, sb.ToString());
 
@@ -358,8 +380,6 @@ namespace CoinAPP_Server.App
                     }
                 }
             }
-
-            init = false;
         }
 
         public string GetKLineData(string id, int time,int num) {
@@ -369,24 +389,32 @@ namespace CoinAPP_Server.App
 
             builder.AppendFormat("?symbol=sz{0}&scale={1}&ma=no&datalen={2}", id, time,num);
 
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(builder.ToString());
-            //添加参数
-            HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-            Stream stream = resp.GetResponseStream();
             try
             {
-                //获取内容
-                using (StreamReader reader = new StreamReader(stream))
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(builder.ToString());
+                //req.Timeout = 5000;
+                //添加参数
+                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+                Stream stream = resp.GetResponseStream();
+                try
                 {
-                    result = reader.ReadToEnd();
+                    //获取内容
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        result = reader.ReadToEnd();
+                    }
                 }
+                finally
+                {
+                    stream.Close();
+                }
+                
             }
-            finally
+            catch (Exception ex)
             {
-                stream.Close();
+                Debugger.Error(ex.ToString());
             }
             return result;
-
         }
     }
 }

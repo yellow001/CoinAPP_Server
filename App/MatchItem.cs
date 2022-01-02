@@ -78,6 +78,14 @@ namespace CoinAPP_Server.App
 
                     int value = (int)args1;
 
+                    if (!klineDataDic.ContainsKey(value) && value % 1440 == 0)
+                    {
+                        int merge = value / 1440;
+                        KLineCache cache = new KLineCache();
+                        cache.RefreshData(klineDataDic[1440].GetMergeKLine(merge));
+                        klineDataDic[value] = cache;
+                    }
+
                     if (klineDataDic.ContainsKey(value))
                     {
                         KLineCache kLineCache = klineDataDic[value];
@@ -309,7 +317,7 @@ namespace CoinAPP_Server.App
 
                         float curValue = kLineCache.V_KLineData[0].V_ClosePrice;
 
-                        if (startInedx <= kLineCache.V_KLineData.Count)
+                        if (startInedx < kLineCache.V_KLineData.Count)
                         {
                             float p1 = kLineCache.V_KLineData[startInedx].GetAvg();
                             float p2 = kLineCache.V_KLineData[startInedx - count].GetAvg();

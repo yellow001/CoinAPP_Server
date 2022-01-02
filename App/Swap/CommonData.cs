@@ -14,6 +14,8 @@ public class CommonData
 
     public InformationApi V_InformationApi;
 
+    public OKExV5APi V5pApi;
+
 
     public float LongRatio = 2;
     public float LongMaxRatio = 2;
@@ -37,6 +39,8 @@ public class CommonData
                 ins.V_SpotApi = new SpotApi(ins.V_ApiKey);
 
                 ins.V_InformationApi = new InformationApi(ins.V_ApiKey);
+
+                ins.V5pApi = new OKExV5APi(ins.V_ApiKey);
 
                 ins.LongRatio = AppSetting.Ins.GetFloat("LongRatio");
                 ins.LongMaxRatio = AppSetting.Ins.GetFloat("LongMaxRatio");

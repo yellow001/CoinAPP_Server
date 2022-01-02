@@ -81,7 +81,8 @@ namespace CoinAPP_Server
 
             AbsCoding.Ins = new PbCoding();
 
-            TaticsManager.GetIns();
+            //TaticsManager.GetIns();
+            Test t = new Test();
 
             while (true)
             {

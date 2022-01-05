@@ -244,7 +244,7 @@ namespace CoinAPP_Server.App
                 lineStr = "\n";
             }
 
-            string resultStr = "";
+            string resultStr = "{0}";
 
             if (useHtml && File.Exists(htmlPath))
             {

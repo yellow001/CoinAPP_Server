@@ -8,6 +8,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CoinAPP_Server.App
@@ -150,7 +151,6 @@ namespace CoinAPP_Server.App
 
             ignoreList.AddRange(str.Split(';'));
 
-            InitData();
             Handle();
 
             TimeEventHandler.Ins.AddEvent(new TimeEventModel(8 * 60 * 60, -1, () =>
@@ -159,7 +159,6 @@ namespace CoinAPP_Server.App
                   {
                       try
                       {
-                          InitData();
                           Handle();
                       }
                       catch (Exception ex)
@@ -170,8 +169,10 @@ namespace CoinAPP_Server.App
               }));
         }
 
-        async void InitData()
+        async Task InitData()
         {
+            init = true;
+
             longShortRatio = await OnGetLongShortRatio(DateTime.UtcNow);
 
 
@@ -204,11 +205,6 @@ namespace CoinAPP_Server.App
                     m_ResultDic.Add(coin, new SpotData(coin, ""));
                 }
             }
-#if DEBUG
-            await GetKLineValue(true);
-#else
-              await GetKLineValue(false);
-#endif
 
             init = false;
 
@@ -234,6 +230,12 @@ namespace CoinAPP_Server.App
                     for (int i = 0; i < MinList.Count; i++)
                     {
                         int value = MinList[i];
+
+                        await Task.Run(delegate
+                        {
+                            Thread.Sleep(500);
+                        });
+
                         con = await CommonData.Ins.V_SpotApi.getCandlesAsync(spotData.SpotName, DateTime.Now.AddMinutes(-value * 200), DateTime.Now, 60 * value);
 
                         if (spotData.kLineDataDic.ContainsKey(value))
@@ -278,8 +280,12 @@ namespace CoinAPP_Server.App
         {
             running = true;
 
-
-            await GetKLineValue(false);
+            await InitData();
+#if DEBUG
+            await GetKLineValue(true);
+#else
+              await GetKLineValue(false);
+#endif
             longShortRatio = await OnGetLongShortRatio(DateTime.UtcNow);
 
             updateTime = DateTime.Now;
@@ -296,7 +302,7 @@ namespace CoinAPP_Server.App
             {
                 lineStr = "\n";
             }
-            string resultStr = "";
+            string resultStr = "{0}";
 
             if (useHtml && File.Exists(htmlPath))
             {
@@ -308,9 +314,9 @@ namespace CoinAPP_Server.App
 
             StringBuilder sb = new StringBuilder();
 
-            if (m_ResultDic.Count > 10 && !init)
+            if (m_ResultDic.Count > 20 && !init)
             {
-                sb.Append("推荐币种（前10）" + lineStr);
+                sb.Append("推荐币种（前20）" + lineStr);
 
                 sb.Append("(o゜▽゜)o☆" + lineStr + lineStr);
                 List<SpotData> result = m_ResultDic.Values.ToList();
@@ -334,7 +340,7 @@ namespace CoinAPP_Server.App
                     return 1;
                 });
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 20; i++)
                 {
                     if (i < result.Count)
                     {
@@ -402,6 +408,8 @@ namespace CoinAPP_Server.App
                 //        sb.Append(result[i].coin + "  " + result[i].shortRecommandValue + lineStr);
                 //    }
                 //}
+
+                sb.AppendFormat("当前更新 进度({0}/{1})" + lineStr + lineStr, index, m_USDTList.Count);
             }
             else
             {
